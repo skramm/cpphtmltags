@@ -25,11 +25,8 @@
 
 #include <sstream>
 #include <map>
-
-
-#ifdef DEBUG
-	#include <iostream>
-#endif
+#include <cassert>
+#include <iostream>
 
 
 //-----------------------------------------------------------------------------------
@@ -38,6 +35,7 @@ enum EN_HTAG
 {
 	HT_DIV,
 	HT_TABLE,
+	HT_SPAN,
 	HT_TD,
 	HT_TH,
 	HT_TR,
@@ -54,13 +52,16 @@ enum EN_HTAG
 };
 
 //-----------------------------------------------------------------------------------
+/// Returns true if the tag must be closed
 inline
 bool
 tagMustClose( EN_HTAG tag )
 {
+#if 0
 	static std::map<EN_HTAG,bool> g_maptagtype = {
-	{ HT_DIV, 1 },
 	{ HT_TABLE, 1 },
+	{ HT_SPAN, 1 },
+	{ HT_DIV, 1 },
 	{ HT_TD,  1 },
 	{ HT_TH,  1 },
 	{ HT_TR,  1 },
@@ -76,6 +77,16 @@ tagMustClose( EN_HTAG tag )
 	{ HT_BR,  0 }
 	};
 	return g_maptagtype[tag];
+#else
+	switch( tag )
+	{
+		case HT_A:
+		case HT_BR:
+			return false;
+		default:
+			return true;
+	}
+#endif
 }
 
 //-----------------------------------------------------------------------------------
@@ -98,8 +109,30 @@ enum EN_ATTRIB_TYPE
 
 //enum EN_HTAG_ACTION { HTAG_OPEN, HTAG_CLOSE };
 
+//-----------------------------------------------------------------------------------
+inline
+const char*
+getAttribString( EN_ATTRIB_TYPE att )
+{
+	const char* n=0;
+	switch( att )
+	{
+		case AT_STYLE:    n = "style";    break;
+		case AT_COLSPAN:  n = "colspan";  break;
+		case AT_ROWSPAN:  n = "rowspan";  break;
+		case AT_CLASS:    n = "class";    break;
+		case AT_HREF:     n = "href";     break;
+		case AT_ONCLICK:  n = "onclick";  break;
+		case AT_TITLE:    n = "title";    break;
+		case AT_ID:       n = "id";       break;
+		case AT_DOWNLOAD: n = "download"; break;
+		case AT_START:    n = "start";    break;
 
-//class FileHTML;
+		default: assert(0);
+	}
+	return n;
+}
+
 
 //-----------------------------------------------------------------------------------
 /// HTML tag
@@ -140,7 +173,6 @@ class HTAG
 	template<typename T>
 	friend HTAG&         operator << ( HTAG&         tag,    const T& );
 	friend std::ostream& operator << ( std::ostream& stream, const HTAG& );
-//	friend FileHTML&     operator << ( FileHTML&     stream, const HTAG& );
 
 	public:
 /// \name Constructors & destructor
@@ -166,14 +198,16 @@ class HTAG
 		void SetLineBreak( bool b )    { _forceLineFeed = b; }
 		template<typename T> void PrintWithContent( const T& );
 
+		EN_HTAG getTag() const { return _tag_en; }
 		static void SetGlobalAttrib( EN_HTAG tag, EN_ATTRIB_TYPE att, const std::string& value );
 		static void ClearGlobalAttribs();
 
+		template<typename T> void setContent( const T& content );
+
 	private:
 		void DoLineFeed( bool linefeed );
-		void GetTagString();
-		std::string GetAttribs() const;
-		template<typename T> void SetContent( const T& content );
+		void getTagString();
+		std::string getAttribs() const;
 
 	private:
 		EN_HTAG     _tag_en;
@@ -199,7 +233,7 @@ inline
 HTAG::HTAG( EN_HTAG tag )
 	: _tag_en( tag ), _file(0), _isFileType(false)
 {
-	GetTagString();
+	getTagString();
 }
 
 //-----------------------------------------------------------------------------------
@@ -207,7 +241,7 @@ HTAG::HTAG( EN_HTAG tag )
 template<typename T>
 HTAG::HTAG( EN_HTAG tag, T content ) : HTAG( tag )
 {
-	GetTagString();
+	getTagString();
 	_content = std::to_string( content );
 }
 
@@ -216,7 +250,7 @@ template<>
 inline
 HTAG::HTAG( EN_HTAG tag, std::string content ) : HTAG( tag )
 {
-	GetTagString();
+	getTagString();
 	_content = content;
 }
 
@@ -230,7 +264,7 @@ template<>
 inline
 HTAG::HTAG( EN_HTAG tag, int content ) : HTAG( tag )
 {
-	GetTagString();
+	getTagString();
 	std::string s;
 //	TO_STRING_I( content, s );
 	_content = std::to_string( content );
@@ -244,7 +278,7 @@ template<>
 inline
 HTAG::HTAG( EN_HTAG tag, size_t content ) : HTAG( tag )
 {
-	GetTagString();
+	getTagString();
 	std::string s;
 //	TO_STRING_I( content, s );
 	_content = s;
@@ -258,7 +292,7 @@ template<>
 inline
 HTAG::HTAG( EN_HTAG tag, float content ) : HTAG( tag )
 {
-	GetTagString();
+	getTagString();
 	std::string s;
 //	TO_STRING_F( content, s );
 	_content = s;
@@ -269,7 +303,7 @@ template<>
 inline
 HTAG::HTAG( EN_HTAG tag, double content ) : HTAG( tag )
 {
-	GetTagString();
+	getTagString();
 	std::string s;
 	TO_STRING_F( content, s );
 	_content = s;
@@ -286,8 +320,8 @@ HTAG::HTAG(
 	const T2&      attribvalue )
 	 : HTAG( tag )
 {
-	GetTagString();
-	SetContent( content );
+	getTagString();
+	setContent( content );
 
 	if( att != AT_DUMMY )
 		AddAttrib( att, attribvalue );
@@ -295,14 +329,14 @@ HTAG::HTAG(
 //-----------------------------------------------------------------------------------
 /// default implementation
 template<typename T>
-void HTAG::SetContent( const T& content )
+void HTAG::setContent( const T& content )
 {
 	_content = content;
 }
 
-template<> void HTAG::SetContent<int>(    const int&    content );
-template<> void HTAG::SetContent<size_t>( const size_t& content );
-template<> void HTAG::SetContent<float>(  const float&  content );
+template<> void HTAG::setContent<int>(    const int&    content );
+template<> void HTAG::setContent<size_t>( const size_t& content );
+template<> void HTAG::setContent<float>(  const float&  content );
 
 //-----------------------------------------------------------------------------------
 /// generic constructor 4 (for file output)
@@ -312,7 +346,7 @@ HTAG::HTAG(
 	EN_HTAG       tag )         ///< the html tag id
 	: _tag_en( tag ), _file(&f), _isFileType(true)
 {
-	GetTagString();
+	getTagString();
 }
 
 //-----------------------------------------------------------------------------------
@@ -325,7 +359,7 @@ HTAG::HTAG(
 	const T&       attribvalue ) ///< (opt.) the attribute value
 	: _tag_en( tag ), _file(&f), _isFileType(true)
 {
-	GetTagString();
+	getTagString();
 	AddAttrib( att, attribvalue );
 }
 
@@ -350,17 +384,222 @@ HTAG::~HTAG()
 	if( _tagIsOpen && _isFileType )
 		CloseTag();
 }
+
+//-----------------------------------------------------------------------------------
+inline
+void
+HTAG::OpenTag()
+{
+//#ifdef DEBUG
+//	CERR << "opening tag " << _tag << "\n";
+//#endif
+
+	assert( _file );
+	assert( !_tagIsOpen );
+
+	*_file << '<' << _tag << getAttribs() << '>';
+	_tagIsOpen = true;
+	_printAttribs = false;
+}
+
+//-----------------------------------------------------------------------------------
+/// Close the tag (this function needs to be called ONLY for "file" object types
+inline
+void
+HTAG::CloseTag( bool linefeed )
+{
+//#ifdef DEBUG
+//	CERR << "closing tag " << _tag << "\n";
+//#endif
+
+	assert( _isFileType );
+	assert( _file );
+	assert( _tagIsOpen );
+
+	*_file << "</" << _tag << '>';
+
+	_tagIsOpen = false;
+	DoLineFeed( linefeed );
+}
+
 //-----------------------------------------------------------------------------------
 /// insert some content into the tag, that will get printed later
 template<typename T>
-HTAG& operator << ( HTAG& tag, const T& str )
+HTAG&
+operator << ( HTAG& tag, const T& str )
 {
 	std::ostringstream oss;
 	oss << tag._content << str;
 	tag._content = oss.str();
 	return tag;
 }
+//-----------------------------------------------------------------------------------
+inline
+void
+HTAG::getTagString()
+{
+	switch( _tag_en )
+	{
+		case HT_DIV: _tag = "div"; break;
+		case HT_TABLE: _tag = "table"; break;
+		case HT_SPAN:  _tag = "span";  break;
+		case HT_TD: _tag = "td"; break;
+		case HT_TR: _tag = "tr"; break;
+		case HT_TH: _tag = "th"; break;
+		case HT_LI: _tag = "li"; break;
+		case HT_UL: _tag = "ul"; break;
+		case HT_OL: _tag = "ol"; break;
+		case HT_A:  _tag = "a";  break;
+		case HT_P:  _tag = "p";  break;
+		case HT_H4: _tag = "h4"; break;
+		case HT_H3: _tag = "h3"; break;
+		case HT_H2: _tag = "h2"; break;
+		case HT_H1: _tag = "h1"; break;
+		case HT_BR: _tag = "br"; break;
+		default: assert(0);
+	}
+}
+//-----------------------------------------------------------------------------------
+/// static member function
+inline
+void
+HTAG::SetGlobalAttrib( EN_HTAG tag, EN_ATTRIB_TYPE att, const std::string& value )
+{
+	_global_attrib[tag] = std::make_pair( att, value );
+}
+//-----------------------------------------------------------------------------------
+/// static member function
+inline
+void
+HTAG::ClearGlobalAttribs()
+{
+	_global_attrib.clear();
+}
 
+//-----------------------------------------------------------------------------------
+/// Add an HTML attribute to the tag
+inline
+void
+HTAG::AddAttrib( EN_ATTRIB_TYPE attr, const std::string& value )
+{
+	assert( !_tagIsOpen ); // because if it is open, then we can't add an attribute !
+
+	if( value.empty() ) // empty string => nothing to add
+	{
+		std::cerr << "warning: asking to add tag attribute '" << getAttribString(attr) << "' but string is empty\n";
+		return;
+	}
+
+	if( _attr_map.find(attr) != _attr_map.end() )   // check if element is already present or not
+	{
+		if( attr != AT_CLASS && attr != AT_STYLE )
+			throw std::runtime_error( "Can't add attribute that is not AT_CLASS or AT_STYLE" );//, value );
+		else
+		{
+			std::ostringstream oss;
+			oss << _attr_map[attr] << ' ' << value;
+			_attr_map[attr] = oss.str();
+		}
+	}
+	else
+		_attr_map[attr] = value;
+//	std::cout << "_attr_map[attr]=" << _attr_map[attr] << '\n';
+}
+
+//-----------------------------------------------------------------------------------
+inline
+void
+HTAG::AddAttrib( EN_ATTRIB_TYPE atr, int value )
+{
+	assert( !_tagIsOpen ); // because if it is open, then we can't add an attribute !
+
+/*	std::string s;
+	TO_STRING_I( value, s );
+	_attr_map[atr] = s; */
+	_attr_map[atr] = std::to_string(value);
+}
+
+//-----------------------------------------------------------------------------------
+inline
+void
+HTAG::RemoveAttrib( EN_ATTRIB_TYPE attr )
+{
+	assert( !_tagIsOpen ); // because if it is open, then we can't remove it!
+
+	if( _attr_map.find(attr) == _attr_map.end() )   // check if element is already present or not
+		throw "attribute not present !";
+	else
+		_attr_map.at(attr) = std::string();
+
+}
+//-----------------------------------------------------------------------------------
+/// Returns a string holding the attributes
+inline
+std::string
+HTAG::getAttribs() const
+{
+	std::string out;
+	if( _printAttribs && _attr_map.size() )
+	{
+		for( auto it = _attr_map.begin(); it != _attr_map.end(); ++it )
+		{
+			std::string tmp = getAttribString( it->first );
+			if( it->first != AT_COLSPAN || it->second != "1" )
+			{
+				out += ' ';
+				out += tmp;
+				out += "=\"" + it->second + '"';
+			}
+		}
+
+// check for a global attribute for the current tag
+		if( _global_attrib.count(_tag_en) )
+		{
+			const auto& p = _global_attrib.at(_tag_en);
+			out += " " + std::string(getAttribString( p.first )) + "=\"" + p.second + '"';
+		}
+	}
+	return out;
+}
+//-----------------------------------------------------------------------------------
+/// Add a linefeed, either if requested (argument), either if default behaviour
+inline
+void
+HTAG::DoLineFeed( bool linefeed )
+{
+	if( _forceLineFeed || linefeed )
+		*_file << '\n';
+	else
+	{
+		switch( _tag_en )    // the tags here have automatically a linefeed appended
+		{
+			case HT_DIV:
+			case HT_TABLE:
+			case HT_TR:
+			case HT_UL:
+			case HT_OL:
+			case HT_LI:
+			case HT_H2:
+			case HT_H3:
+			case HT_H4:
+				*_file << '\n';
+			default: break;
+		}
+	}
+}
+//-----------------------------------------------------------------------------------
+/// Streams into \c s the opening tag (with attributes), the content, and the closing tag
+inline
+std::ostream&
+operator << ( std::ostream& s, const HTAG& h )
+{
+	s << '<' << h._tag
+		<< h.getAttribs()
+		<< '>';
+	if( tagMustClose( h.getTag() ) )
+		s << h._content << "</" << h._tag << '>';
+	return s;
+}
 //-----------------------------------------------------------------------------------
 
 #endif // HG_HTAG_H
