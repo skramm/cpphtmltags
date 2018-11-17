@@ -2,3 +2,5 @@
 
 # builds the sample programs
 
+doc:
+	doxygen Doxyfile
