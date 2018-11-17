@@ -36,7 +36,7 @@ will produce:
 ### Sample snippet 2:
 
 
-For more details, see [manual](blob/master/manual.md).
+For more details, see [manual](manual.md).
 
 ## Features
 
