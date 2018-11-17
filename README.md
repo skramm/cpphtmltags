@@ -2,17 +2,39 @@
 Generation of HTML tags from C++ code
 
 - Author: Sebastien Kramm (contact: firstname.lastname@univ-rouen.fr)
-- Status: pre-alpha
+- Status: alpha
 - Language: C++11
 
 ## Usage
+
+### Sample snippet 1:
+
+```C++
+#include "cpphtmltags.hpp"
+using namespace httags;
+
+int main()
+{
+	HTAG t1( HT_P );
+	std::cout << t1;
+
+	t1.addAttrib( AT_CLASS, "aaa" );
+	t1.addAttrib( AT_STYLE, "mystyle" );
+	t1.setContent( "this is a paragraph" );
+	std::cout << t1;
+}
+```
+will produce:
+`<p></p><p class="aaa" style="mystyle">this is a paragraph</p>`
+
+### Sample snippet 2:
 
 
 ## Features
 
 
 ## Important points
-- Does not intend (at present) to cover ALL html tags)
+- Does not intend (at present) to cover ALL html tags
 
 ## build and install
 - build: no build, header-only

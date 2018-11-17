@@ -1,5 +1,6 @@
+// test2.cpp
+
 #include "cpphtmltags.hpp"
-//#include <iostream>
 
 using namespace std;
 using namespace httags;
@@ -13,6 +14,10 @@ int main()
 	cout << t2;
 
 	t2.addAttrib( AT_CLASS, "aaa" );
+	t2.setContent( "this is a paragraph" );
+	cout << t2;
+
+	t2.setContent( 42 );
 	cout << t2;
 
 	t2.addAttrib( AT_ID, "tag_id" );
@@ -21,7 +26,7 @@ int main()
 	t2.addAttrib( AT_CLASS, "bbb" );
 	t2.setContent( "Hello World" );
 	cout << t2 << '\n';
-	HTAG::setGlobalAttrib( HT_P, AT_STYLE, "mystyle" );
+	HTAG::setGlobalAttrib( HT_P, AT_STYLE, "globalstyle" );
 
 	HTAG t3( HT_P );
 	cout << t2 << '\n';

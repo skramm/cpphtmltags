@@ -249,9 +249,12 @@ class HTAG
 
 		EN_HTAG getTag() const { return _tag_en; }
 		static void setGlobalAttrib( EN_HTAG tag, EN_ATTRIB_TYPE att, const std::string& value );
-		static void ClearGlobalAttribs();
+		static void clearGlobalAttribs()
+		{
+			globalAttrib().clear();
+		}
 
-		template<typename T> void setContent( const T& content );
+		template<typename T> void setContent( T content );
 
 		static void printSupported( std::ostream& );
 
@@ -388,14 +391,27 @@ HTAG::HTAG(
 //-----------------------------------------------------------------------------------
 /// default implementation
 template<typename T>
-void HTAG::setContent( const T& content )
+void
+HTAG::setContent( T content )
+{
+	_content = std::to_string(content);
+}
+
+/// specialization for std::string
+template<>
+void
+HTAG::setContent<const std::string&>( const std::string& content )
 {
 	_content = content;
 }
 
-template<> void HTAG::setContent<int>(    const int&    content );
-template<> void HTAG::setContent<size_t>( const size_t& content );
-template<> void HTAG::setContent<float>(  const float&  content );
+/// specialization for const char*
+template<>
+void
+HTAG::setContent<const char*>( const char* content )
+{
+	_content = content;
+}
 
 //-----------------------------------------------------------------------------------
 /// generic constructor 4 (for file output)
@@ -492,36 +508,15 @@ operator << ( HTAG& tag, const T& str )
 	tag._content = oss.str();
 	return tag;
 }
-
-//-----------------------------------------------------------------------------------
-/// get a reference on the static global attribute map
-/**
-Well known trick to get a static variable in a header...
-*/
-inline
-GlobAttribMap_t&
-globalAttrib()
-{
-	static GlobAttribMap_t s_global_attrib;
-	return s_global_attrib;
-}
 //-----------------------------------------------------------------------------------
 /// static member function
 inline
 void
 HTAG::setGlobalAttrib( EN_HTAG tag, EN_ATTRIB_TYPE att, const std::string& value )
 {
-	GlobAttribMap_t& ga = globalAttrib();
-	ga[tag] = std::make_pair( att, value );
-}
-//-----------------------------------------------------------------------------------
-/// static member function
-inline
-void
-HTAG::ClearGlobalAttribs()
-{
-	GlobAttribMap_t& ga = globalAttrib();
-	ga.clear();
+/*	GlobAttribMap_t& ga = globalAttrib();
+	ga[tag] = std::make_pair( att, value );*/
+	globalAttrib()[tag] = std::make_pair( att, value );
 }
 //-----------------------------------------------------------------------------------
 /// Add an HTML attribute to the tag
