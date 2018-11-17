@@ -5,6 +5,10 @@ Generation of HTML tags from C++ code
 - Status: alpha
 - Language: C++11
 
+## Goals
+
+- Make generation of valid html5 content from C++ code easy and reliable, with maximum versatility.
+
 ## Usage
 
 ### Sample snippet 1:
@@ -30,6 +34,8 @@ will produce:
 ### Sample snippet 2:
 
 
+For more details, see [manual](Manual.md).
+
 ## Features
 
 
@@ -40,6 +46,9 @@ will produce:
 - build: no build, header-only
 - install: just fetch the single file cpphtmltags.hpp, put it somewhere (/usr/include) and include it in your code.
 
+## Motivation
+Needed this, couldn't find...
+
 ## Related software
 - C#: https://github.com/HtmlTags/htmltags
 - C++:
@@ -47,5 +56,3 @@ will produce:
  Main difference: this one seems to have one class per tag. Here the tags are handled through an enum.
  - https://github.com/tinfoilboy/CTML
 
-## Motivation
-Needed this, couldn't find...

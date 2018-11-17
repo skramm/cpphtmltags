@@ -1,6 +1,8 @@
+// This file is part of cpphtmltags
+
 // test1.cpp
 
-#include "cpphtmltags.hpp"
+#include "../cpphtmltags.hpp"
 
 using namespace std;
 using namespace httags;
@@ -10,9 +12,10 @@ int main()
 	HTAG t1( HT_BR );
 	cout << t1;
 
-	HTAG t2( HT_P );
-	cout << t2;
+	cout << HTAG( HT_P );
+	cout << HTAG( HT_P, "first paragraph" );
 
+	HTAG t2( HT_P );
 	t2.addAttrib( AT_CLASS, "aaa" );
 	t2.setContent( "this is a paragraph" );
 	cout << t2;

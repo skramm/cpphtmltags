@@ -1,49 +1,56 @@
+// This file is part of cpphtmltags
 // test2.cpp
 
-#include "cpphtmltags.hpp"
+#include "../cpphtmltags.hpp"
 
 using namespace std;
 using namespace httags;
 
+void test2( En_LineFeedMode lfmode )
+{
+	HTAG::setLineFeedMode( lfmode );
+
+// opening and closing tag
+	HTAG t1( cout, HT_H1 );
+	t1.openTag();
+	cout << "my title 1 !";
+	t1.closeTag();
+
+// self closing tag
+	{
+		HTAG t2( cout, HT_H2 );
+		t2.addAttrib( AT_STYLE , "font-size:150%;" );
+		t2.openTag();
+		cout << "my title 2 !";
+	}
+
+// putting attribute inside tag creation
+	{
+		HTAG t2( cout, HT_H2, AT_ID, "abc" );
+		t2.addAttrib( AT_STYLE , "font-size:150%;" );
+		t2.openTag();
+		cout << "my title 3 !";
+	}
+
+	{
+		HTAG t2( cout, HT_P, AT_CLASS, "parag" );
+		t2.setContent( "this is some text" );
+		t2 << " and I can do this, too";
+		cout << t2;
+		t2.setContent( "other text" );
+		cout << t2;
+	}
+}
+
 int main()
 {
-	HTAG t1( HT_BR );
-	cout << t1;
+	cout << "* LineFeed mode: default\n";
+	test2( LF_Default );
 
-	HTAG t2( HT_P );
-	cout << t2;
+	cout << "\n* LineFeed mode: none\n";
+	test2( LF_None );
 
-	t2.addAttrib( AT_CLASS, "aaa" );
-	t2.setContent( "this is a paragraph" );
-	cout << t2;
-
-	t2.setContent( 42 );
-	cout << t2;
-
-	t2.addAttrib( AT_ID, "tag_id" );
-	cout << t2;
-
-	t2.addAttrib( AT_CLASS, "bbb" );
-	t2.setContent( "Hello World" );
-	cout << t2 << '\n';
-	HTAG::setGlobalAttrib( HT_P, AT_STYLE, "globalstyle" );
-
-	HTAG t3( HT_P );
-	cout << t2 << '\n';
-	cout << t3 << '\n';
-
-	{
-		HTAG f1( cout, HT_A );
-		f1.openTag();
-		cout << "hi there";
-		f1.closeTag( true );
-	}
-
-	{
-		HTAG f1( cout, HT_A, AT_CLASS, "abc" );
-		f1.openTag();
-		cout << "hi there";
-	}
-
-
+	cout << "\n* LineFeed mode: always\n";
+	test2( LF_Always );
 }
+
