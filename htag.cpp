@@ -20,10 +20,10 @@ THIS FILE WILL BE REMOVED IN NEAR FUTURE !
 */
 #include "cpphtmltags.hpp"
 
-
+namespace httags {
 std::map<EN_HTAG, std::pair<EN_ATTRIB_TYPE,std::string>> HTAG::_global_attrib;
 
 
 
-
+} // namespace httags end
 
