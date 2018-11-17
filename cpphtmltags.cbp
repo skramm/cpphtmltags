@@ -6,7 +6,31 @@
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
-			<Target title="Release">
+			<Target title="main1">
+				<Option output="./cpphtmltags" prefix_auto="1" extension_auto="1" />
+				<Option object_output="./" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+			<Target title="supported">
+				<Option output="./cpphtmltags" prefix_auto="1" extension_auto="1" />
+				<Option object_output="./" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+			<Target title="test2">
 				<Option output="./cpphtmltags" prefix_auto="1" extension_auto="1" />
 				<Option object_output="./" />
 				<Option type="1" />
@@ -23,16 +47,25 @@
 			<Add option="-Wall" />
 			<Add option="-std=c++11" />
 		</Compiler>
-		<Unit filename="Doxyfile" />
+		<Unit filename="Doxyfile">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
 		<Unit filename="Makefile">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="README.md">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="cpphtmltags.hpp" />
-		<Unit filename="htag.cpp" />
-		<Unit filename="test1.cpp" />
+		<Unit filename="cpphtmltags.hpp">
+			<Option target="main1" />
+			<Option target="supported" />
+		</Unit>
+		<Unit filename="test1.cpp">
+			<Option target="main1" />
+		</Unit>
+		<Unit filename="tests/supported.cpp">
+			<Option target="supported" />
+		</Unit>
 		<Extensions>
 			<envvars />
 			<code_completion />

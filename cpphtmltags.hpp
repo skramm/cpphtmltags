@@ -180,7 +180,7 @@ getAttribString( EN_ATTRIB_TYPE att )
 }
 
 
-typedef std::map<EN_HTAG, std::pair<EN_ATTRIB_TYPE,std::string>> GlobAttribMap;
+typedef std::map<EN_HTAG, std::pair<EN_ATTRIB_TYPE,std::string>> GlobAttribMap_t;
 
 
 //-----------------------------------------------------------------------------------
@@ -257,26 +257,22 @@ class HTAG
 
 	private:
 		void DoLineFeed( bool linefeed );
-//		const char* getTagString();
 		std::string getAttribs() const;
-		static GlobAttribMap& globalAttrib();
+		static GlobAttribMap_t& globalAttrib()
+		{
+			static GlobAttribMap_t s_global_attrib;
+			return s_global_attrib;
+		}
 
 	private:
 		EN_HTAG     _tag_en;
 		std::ostream* _file;
 		bool        _isFileType;
-//		std::string _tag;
 		std::string _content;
 		std::map<EN_ATTRIB_TYPE,std::string> _attr_map;
 		bool _printAttribs  = true;
 		bool _forceLineFeed = false;
 		bool _tagIsOpen     = false;
-
-		static std::map<EN_HTAG, std::pair<EN_ATTRIB_TYPE,std::string>> _global_attrib;
-
-#ifdef TESTMODE
-	KUT_CLASS_DECLARE
-#endif
 };
 
 //-----------------------------------------------------------------------------------
@@ -496,16 +492,17 @@ operator << ( HTAG& tag, const T& str )
 	tag._content = oss.str();
 	return tag;
 }
+
 //-----------------------------------------------------------------------------------
 /// get a reference on the static global attribute map
 /**
 Well known trick to get a static variable in a header...
 */
 inline
-GlobAttribMap&
+GlobAttribMap_t&
 globalAttrib()
 {
-	static GlobAttribMap s_global_attrib;
+	static GlobAttribMap_t s_global_attrib;
 	return s_global_attrib;
 }
 //-----------------------------------------------------------------------------------
@@ -514,23 +511,18 @@ inline
 void
 HTAG::setGlobalAttrib( EN_HTAG tag, EN_ATTRIB_TYPE att, const std::string& value )
 {
-	GlobAttribMap& ga = globalAttrib();
-//	ga[tag] = std::make_pair( att, value );
-//	_global_attrib[tag] = std::make_pair( att, value );
+	GlobAttribMap_t& ga = globalAttrib();
+	ga[tag] = std::make_pair( att, value );
 }
-
-typedef std::map<EN_HTAG, std::pair<EN_ATTRIB_TYPE,std::string>> GlobAttribMap;
-
-
 //-----------------------------------------------------------------------------------
 /// static member function
 inline
 void
 HTAG::ClearGlobalAttribs()
 {
-	_global_attrib.clear();
+	GlobAttribMap_t& ga = globalAttrib();
+	ga.clear();
 }
-
 //-----------------------------------------------------------------------------------
 /// Add an HTML attribute to the tag
 inline
@@ -608,9 +600,10 @@ HTAG::getAttribs() const
 		}
 
 // check for a global attribute for the current tag
-		if( _global_attrib.count(_tag_en) )
+		GlobAttribMap_t& gattr = globalAttrib();
+		if( gattr.count(_tag_en) )
 		{
-			const auto& p = _global_attrib.at(_tag_en);
+			const auto& p = gattr.at(_tag_en);
 			out += " " + std::string(getAttribString( p.first )) + "=\"" + p.second + '"';
 		}
 	}
