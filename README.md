@@ -4,6 +4,8 @@ Generation of HTML tags from C++ code
 - Author: Sebastien Kramm (contact: firstname.lastname@univ-rouen.fr)
 - Status: alpha
 - Language: C++11
+- homepage: https://github.com/skramm/cpphtmltags/
+- licence: LGPL v3
 
 ## Goals
 
@@ -34,7 +36,7 @@ will produce:
 ### Sample snippet 2:
 
 
-For more details, see [manual](Manual.md).
+For more details, see [manual](blob/master/manual.md).
 
 ## Features
 

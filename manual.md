@@ -1,11 +1,15 @@
 # Manual for cpphtmltags library
 
+Homepage: https://github.com/skramm/cpphtmltags/
+
+
 There is a single class to use: HTAG
-It is defines in the namespace httags
+It is defined in the namespace httags
 
 A tag can be created in two different ways:
 - just a regular object, that you can stream
-- an object holding a file descriptor
+- an object holding a file descriptor, that must exist and be opened.
+
 
 ## Adding content to a tag
 
