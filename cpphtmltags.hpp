@@ -34,15 +34,19 @@ homepage: https://github.com/skramm/cpphtmltags
 #include <iostream>
 
 
-#define HTTAGS_WARNING std::cerr << "httags: Warning: "
-#define HTTAGS_ERROR   std::cerr << "httags: fatal error: "
+#define HTTAGS_WARNING std::cerr << "htags: Warning: "
+#define HTTAGS_ERROR   std::cerr << "htags: fatal error: "
 
-namespace httags {
+namespace htags {
 
 //-----------------------------------------------------------------------------------
 /// HTML tag identifier
 enum EN_HTAG
 {
+	HT_HEAD,
+	HT_BODY,
+	HT_SCRIPT,
+	HT_LINK,
 	HT_TITLE,
 	HT_INPUT,
 	HT_FORM,
@@ -77,6 +81,10 @@ getTagString( EN_HTAG tag )
 	const char* n=0;
 	switch( tag )
 	{
+		case HT_HEAD:    n = "head";    break;
+		case HT_BODY:    n = "body";    break;
+		case HT_SCRIPT:  n = "script";  break;
+		case HT_LINK:    n = "link";    break;
 		case HT_TITLE:   n = "title";   break;
 		case HT_INPUT:   n = "input";   break;
 		case HT_FORM:    n = "form";    break;
@@ -108,6 +116,11 @@ getTagString( EN_HTAG tag )
 
 //-----------------------------------------------------------------------------------
 /// HTML tag attribute identifier
+/**
+Only a subset here.
+
+Full list: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes
+*/
 enum EN_ATTRIB
 {
 	AT_STYLE,
@@ -116,8 +129,11 @@ enum EN_ATTRIB
 
 	AT_ACTION,
 	AT_METHOD,
-	AT_NAME,
+	AT_MEDIA,
+//	AT_NAME,   // deprecated in html5
+	AT_CONTENT,
 	AT_VALUE,
+	AT_REL,
 	AT_TYPE,
 
 	AT_CLASS,
@@ -143,9 +159,12 @@ getAttribString( EN_ATTRIB att )
 		case AT_ROWSPAN:  n = "rowspan";  break;
 
 		case AT_ACTION:   n = "action";   break;
+		case AT_MEDIA:    n = "media";    break;
 		case AT_METHOD:   n = "method";   break;
-		case AT_NAME:     n = "name";     break;
+//		case AT_NAME:     n = "name";     break;  // deprecated in html5
+		case AT_CONTENT:  n = "content";  break;
 		case AT_VALUE:    n = "value";    break;
+		case AT_REL:      n = "rel";      break;
 		case AT_TYPE:     n = "type";     break;
 
 		case AT_CLASS:    n = "class";    break;
@@ -189,9 +208,7 @@ enum En_LineFeedMode
 	LF_None, LF_Always, LF_Default
 };
 
-
 typedef std::map<EN_HTAG, std::pair<EN_ATTRIB,std::string>> GlobAttribMap_t;
-
 
 //-----------------------------------------------------------------------------------
 /// HTML tag
@@ -239,13 +256,16 @@ class HTAG
 		HTAG( std::ostream& f, EN_HTAG );
 
 		template<typename T>
-		HTAG( std::ostream& f, EN_HTAG, EN_ATTRIB att, const T& attribvalue );
+		HTAG( std::ostream& f, EN_HTAG, EN_ATTRIB, const T& attribvalue );
+
 		HTAG( EN_HTAG );
 
 		template<typename T1>
 		HTAG( EN_HTAG, T1 content );
 		template<typename T1, typename T2>
-		HTAG( EN_HTAG, const T1& content, EN_ATTRIB att, const T2& attribvalue );
+		HTAG( EN_HTAG, const T1& content, EN_ATTRIB, const T2& attribvalue );
+		template<typename T>
+		HTAG( EN_HTAG, EN_ATTRIB, const T& attribvalue );
 		~HTAG();
 ///}
 		void openTag();
@@ -257,12 +277,14 @@ class HTAG
 		template<typename T> void PrintWithContent( const T& );
 
 		EN_HTAG getTag() const { return _tag_en; }
+/// \name Global attributes handling
+///{
 		static void setGlobalAttrib( EN_HTAG tag, EN_ATTRIB att, const std::string& value );
 		static void clearGlobalAttribs()
 		{
 			globalAttrib().clear();
 		}
-
+///}
 		template<typename T> void setContent( T content );
 		static void setLineFeedMode( En_LineFeedMode mode )
 		{
@@ -295,19 +317,19 @@ class HTAG
 };
 
 //-----------------------------------------------------------------------------------
-///
+/// helper function, prints the tags and attributes currently supported
 inline
 void
 HTAG::printSupported( std::ostream& f)
 {
 	f << "* Supported tags: " << HT_DUMMY;
 	for( size_t i=0; i<HT_DUMMY; i++ )
-		f <<  "\n -" << getTagString( static_cast<EN_HTAG>(i) );
+		f <<  "\n - " << getTagString( static_cast<EN_HTAG>(i) );
 	f << '\n';
 
 	f << "* Supported attributes: " << AT_DUMMY;
 	for( size_t i=0; i<AT_DUMMY; i++ )
-		f <<  "\n -" << getAttribString( static_cast<EN_ATTRIB>(i) );
+		f <<  "\n - " << getAttribString( static_cast<EN_ATTRIB>(i) );
 	f << '\n';
 }
 
@@ -342,23 +364,56 @@ HTAG::HTAG( EN_HTAG tag, const char* content ) : HTAG( tag )
 {
 	_content = content;
 }
-
-
 //-----------------------------------------------------------------------------------
-/// generic constructor 3
+/// generic constructor 3a
 template<typename T1, typename T2>
 HTAG::HTAG(
 	EN_HTAG        tag,
 	const T1&      content,
 	EN_ATTRIB      att,
-	const T2&      attribvalue )
-	 : HTAG( tag )
+	const T2&      attribvalue
+	) : HTAG( tag )
 {
 	setContent( content );
 
 	if( att != AT_DUMMY )
 		addAttrib( att, attribvalue );
 }
+//-----------------------------------------------------------------------------------
+/// generic constructor 3b
+template<typename T>
+HTAG::HTAG(
+	EN_HTAG    tag,
+	EN_ATTRIB  att,
+	const T&   attribvalue
+	) : HTAG( tag )
+{
+	if( att != AT_DUMMY )
+		addAttrib( att, attribvalue );
+}
+//-----------------------------------------------------------------------------------
+/// generic constructor 4 (for file output)
+inline
+HTAG::HTAG(
+	std::ostream& f,            ///< the file into where it will be written
+	EN_HTAG       tag )         ///< the html tag id
+	: _tag_en( tag ), _file(&f), _isFileType(true)
+{
+}
+
+//-----------------------------------------------------------------------------------
+/// generic constructor 5 (for file output)
+template<typename T>
+HTAG::HTAG(
+	std::ostream&  f,            ///< the file into where it will be written
+	EN_HTAG        tag,          ///< the html tag id
+	EN_ATTRIB att,          ///< (opt.) the tag's attribute id
+	const T&       attribvalue ) ///< (opt.) the attribute value
+	: _tag_en( tag ), _file(&f), _isFileType(true)
+{
+	addAttrib( att, attribvalue );
+}
+
 //-----------------------------------------------------------------------------------
 /// default implementation
 template<typename T>
@@ -384,28 +439,6 @@ HTAG::setContent<const char*>( const char* content )
 	_content = content;
 }
 
-//-----------------------------------------------------------------------------------
-/// generic constructor 4 (for file output)
-inline
-HTAG::HTAG(
-	std::ostream& f,            ///< the file into where it will be written
-	EN_HTAG       tag )         ///< the html tag id
-	: _tag_en( tag ), _file(&f), _isFileType(true)
-{
-}
-
-//-----------------------------------------------------------------------------------
-/// generic constructor 5 (for file output)
-template<typename T>
-HTAG::HTAG(
-	std::ostream&  f,            ///< the file into where it will be written
-	EN_HTAG        tag,          ///< the html tag id
-	EN_ATTRIB att,          ///< (opt.) the tag's attribute id
-	const T&       attribvalue ) ///< (opt.) the attribute value
-	: _tag_en( tag ), _file(&f), _isFileType(true)
-{
-	addAttrib( att, attribvalue );
-}
 
 //-----------------------------------------------------------------------------------
 template<typename T>
@@ -527,7 +560,6 @@ HTAG::addAttrib( EN_ATTRIB attr, std::string value )
 		_attr_map[attr] = value;
 //	std::cout << "_attr_map[attr]=" << _attr_map[attr] << '\n';
 }
-
 //-----------------------------------------------------------------------------------
 inline
 void
@@ -537,7 +569,6 @@ HTAG::addAttrib( EN_ATTRIB atr, int value )
 
 	_attr_map[atr] = std::to_string(value);
 }
-
 //-----------------------------------------------------------------------------------
 inline
 void
@@ -559,6 +590,14 @@ inline
 std::string
 HTAG::getAttribs() const
 {
+	GlobAttribMap_t& gattr = globalAttrib();
+	if( gattr.count(_tag_en) )
+	{
+		const auto& pair1 = gattr.at(_tag_en);
+//		out += " " + std::string(getAttribString( p.first )) + "=\"" + p.second + '"';
+	}
+
+
 	std::string out;
 	if( _printAttribs && _attr_map.size() )
 	{
@@ -644,7 +683,7 @@ operator << ( std::ostream& s, const HTAG& h )
 }
 //-----------------------------------------------------------------------------------
 
-} // namespace httags end
+} // namespace htags end
 
 #endif // HG_HTAG_H
 

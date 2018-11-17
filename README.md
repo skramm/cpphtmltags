@@ -9,7 +9,19 @@ Generation of HTML tags from C++ code
 
 ## Goals
 
-- Make generation of valid html5 content from C++ code easy and reliable, with maximum versatility.
+The goal is to make generation of valid html5 content from C++ code easy and reliable, with maximum versatility.
+The idea is to add some abstraction to html generation, and to avoid unnecessary repetition of strings in your code.
+
+For example, if you generate tags by some direct string output,
+some errors may go unnoticed. Say you forget the 'p' in "script":
+ `file << "<scrit>"`.
+Well then the error won't get noticed until you carefully check the generated code.
+
+Instead, by using this library, you will use something like:
+`file << HTAG( HT_SCRIPT )`.
+And in case you forget a letter somewhere, it will generate a compile-time error.
+
+
 
 ## Usage
 

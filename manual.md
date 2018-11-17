@@ -4,7 +4,7 @@ Homepage: https://github.com/skramm/cpphtmltags/
 
 
 There is a single class to use: HTAG
-It is defined in the namespace httags
+It is defined in the namespace htags
 
 A tag can be created in two different ways:
 - just a regular object, that you can stream

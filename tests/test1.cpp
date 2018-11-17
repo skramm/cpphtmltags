@@ -5,7 +5,7 @@
 #include "../cpphtmltags.hpp"
 
 using namespace std;
-using namespace httags;
+using namespace htags;
 
 int main()
 {

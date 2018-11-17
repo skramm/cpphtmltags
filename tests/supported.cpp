@@ -1,14 +1,13 @@
 // This file is part of cpphtmltags
-//
-// supported.cpp
+
+/**
+\file supported.cpp
+\brief prints out the supported tags and attributes
+*/
 
 #include "../cpphtmltags.hpp"
 
-
-using namespace std;
-using namespace httags;
-
 int main()
 {
-	HTAG::printSupported( cout );
+	htags::HTAG::printSupported( std::cout );
 }

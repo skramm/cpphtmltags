@@ -4,7 +4,7 @@
 #include "../cpphtmltags.hpp"
 
 using namespace std;
-using namespace httags;
+using namespace htags;
 
 void test2( En_LineFeedMode lfmode )
 {
@@ -52,5 +52,14 @@ int main()
 
 	cout << "\n* LineFeed mode: always\n";
 	test2( LF_Always );
+
+	HTAG::setGlobalAttrib( HT_LI, AT_CLASS, "cl1" );
+	HTAG li( HT_LI, AT_CLASS, "cl2" );
+	li.addAttrib( AT_COLSPAN, 1 );
+	cout << li;
+
 }
+
+
+
 
