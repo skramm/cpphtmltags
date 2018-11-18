@@ -35,6 +35,7 @@ int main()
 	cout << t2 << '\n';
 	cout << t3 << '\n';
 
+	cout << "FILE-TYPE TAGS:\n";
 	{
 		HTAG f1( cout, HT_A );
 		f1.openTag();
@@ -52,6 +53,11 @@ int main()
 		HTAG f1( cout, HT_P, AT_CLASS, "cde" );
 		f1.setContent( "para");
 		f1.printTag();
+
+		HTAG f2( cout, HT_LI );
+		f2.printTag();
+		f1.closeTag();
+
 	}
 
 

@@ -24,20 +24,32 @@ homepage: https://github.com/skramm/cpphtmltags
 \todo add targets to Makefile to build demos and test
 
 \todo add (real) tests, using Catch
+
+\todo Clarify usage/need of _printAttribs
 */
 
 #ifndef HG_CPPHTMLTAGS_HPP
 #define HG_CPPHTMLTAGS_HPP
+
+
+//#define EXPERIMENTAL
+//#define HTAGS_DISABLE_WARNINGS
+
+#ifdef EXPERIMENTAL
+	#include <vector>
+#endif
 
 #include <sstream>
 #include <map>
 #include <cassert>
 #include <iostream>
 
+
+
 #ifdef HTAGS_DISABLE_WARNINGS
-	#define HTTAGS_WARNING
+	#define HTTAGS_WARNING if(0) std::cerr
 #else
-	#define HTTAGS_WARNING std::cerr << "htags: Warning: "
+	#define HTTAGS_WARNING if(1) std::cerr << "htags: Warning: "
 #endif
 
 #define HTTAGS_ERROR( msg )   \
@@ -49,7 +61,6 @@ homepage: https://github.com/skramm/cpphtmltags
 			<< "\n"; \
 		throw std::runtime_error( "htags: fatal error" ); \
 	}
-
 
 namespace htags {
 
@@ -329,6 +340,14 @@ class HTAG
 		void p_addAttrib( EN_ATTRIB, std::string );
 		void p_checkValidFileType( std::string action );
 		std::string p_getAttribs() const;
+
+#ifdef EXPERIMENTAL
+		static std::vector<EN_HTAG>& openedTags()
+		{
+			static std::vector<EN_HTAG> s_opened_tags;
+			return s_opened_tags;
+		}
+#endif
 		static GlobAttribMap_t& globalAttrib()
 		{
 			static GlobAttribMap_t s_global_attrib;
@@ -560,11 +579,16 @@ HTAG::openTag()
 {
 	p_checkValidFileType( "open" );
 	if( _tagIsOpen )
+	{
 		HTTAGS_WARNING << "tag " << getTagString(_tag_en) << ": asked to open but was already open.\n";
+	}
 	else
 		*_file << '<' << getTagString(_tag_en) << p_getAttribs() << '>';
 	_tagIsOpen = true;
 	_printAttribs = false;
+#ifdef EXPERIMENTAL
+	openedTags().push_back( _tag_en );
+#endif
 }
 //-----------------------------------------------------------------------------------
 /// Close the tag (this function needs to be called ONLY for "file" object types
@@ -573,8 +597,16 @@ void
 HTAG::closeTag( bool linefeed )
 {
 	p_checkValidFileType( "close" );
+#ifdef EXPERIMENTAL
+	assert( openedTags().size() > 0 );
+	if( openedTags().back() != _tag_en )
+		HTTAGS_ERROR( std::string("asking to close tag ") + getTagString(_tag_en) + " but tag " +  getTagString(openedTags().back()) + " still open" );
+	openedTags().pop_back();
+#endif
 	if( !_tagIsOpen )
+	{
 		HTTAGS_WARNING << "tag " << getTagString(_tag_en) << ": asked to close but was already closed.\n";
+	}
 	else
 		*_file << "</" << getTagString(_tag_en) << '>';
 
@@ -686,10 +718,12 @@ HTAG::removeAttrib( EN_ATTRIB attr )
 	assert( !_tagIsOpen ); // because if it is open, then we can't remove it!
 
 	if( _attr_map.find(attr) == _attr_map.end() )   // check if element is already present or not
+	{
 		HTTAGS_WARNING << "asked to remove attribute "
 			<< getAttribString( attr )
 			<< " to tag " << getTagString( _tag_en )
 			<< " but attribute no present.\n";
+	}
 	else
 		_attr_map.at(attr) = std::string();
 }
