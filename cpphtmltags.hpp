@@ -33,9 +33,22 @@ homepage: https://github.com/skramm/cpphtmltags
 #include <cassert>
 #include <iostream>
 
+#ifdef HTAGS_DISABLE_WARNINGS
+	#define HTTAGS_WARNING
+#else
+	#define HTTAGS_WARNING std::cerr << "htags: Warning: "
+#endif
 
-#define HTTAGS_WARNING std::cerr << "htags: Warning: "
-#define HTTAGS_ERROR   std::cerr << "htags: fatal error: "
+#define HTTAGS_ERROR( msg )   \
+	{ \
+		std::cerr << "htags: fatal error: " \
+			<< "\n - file: " << __FILE__ \
+			<< "\n - line: " << __LINE__ \
+			<< "\n - message: " << msg \
+			<< "\n"; \
+		throw std::runtime_error( "htags: fatal error" ); \
+	}
+
 
 namespace htags {
 
@@ -208,7 +221,8 @@ enum En_LineFeedMode
 	LF_None, LF_Always, LF_Default
 };
 
-typedef std::map<EN_HTAG, std::pair<EN_ATTRIB,std::string>> GlobAttribMap_t;
+typedef std::pair<EN_ATTRIB,std::string>      PairAttribString_t;
+typedef std::map<EN_HTAG, PairAttribString_t> GlobAttribMap_t;
 
 //-----------------------------------------------------------------------------------
 /// HTML tag
@@ -253,25 +267,27 @@ class HTAG
 	public:
 /// \name Constructors & destructor
 ///{
-		HTAG( std::ostream& f, EN_HTAG );
+//		HTAG( std::ostream& f, EN_HTAG );
 
+		HTAG( std::ostream& f, EN_HTAG );
 		template<typename T>
-		HTAG( std::ostream& f, EN_HTAG, EN_ATTRIB, const T& attribvalue );
+		HTAG( std::ostream& f, EN_HTAG, EN_ATTRIB=AT_DUMMY, T attribvalue=T() );
 
 		HTAG( EN_HTAG );
 
 		template<typename T1>
 		HTAG( EN_HTAG, T1 content );
 		template<typename T1, typename T2>
-		HTAG( EN_HTAG, const T1& content, EN_ATTRIB, const T2& attribvalue );
+		HTAG( EN_HTAG, T1 content, EN_ATTRIB, T2 attribvalue );
 		template<typename T>
-		HTAG( EN_HTAG, EN_ATTRIB, const T& attribvalue );
+		HTAG( EN_HTAG, EN_ATTRIB, T attribvalue );
 		~HTAG();
 ///}
 		void openTag();
 		void closeTag( bool linefeed=false );
-		void addAttrib( EN_ATTRIB, std::string );
-		void addAttrib( EN_ATTRIB, int );
+		template<typename T>
+		void addAttrib( EN_ATTRIB, T );
+//		void addAttrib( EN_ATTRIB, int );
 		void removeAttrib( EN_ATTRIB );
 		void PrintAttributes( bool b ) { _printAttribs = b; }
 		template<typename T> void PrintWithContent( const T& );
@@ -280,6 +296,14 @@ class HTAG
 /// \name Global attributes handling
 ///{
 		static void setGlobalAttrib( EN_HTAG tag, EN_ATTRIB att, const std::string& value );
+		/// Remove the global attribute for \c tag
+		/**
+			ref: see https://en.cppreference.com/w/cpp/container/map/erase
+		*/
+		static void clearGlobalAttrib( EN_HTAG tag )
+		{
+			globalAttrib().erase( tag );
+		}
 		static void clearGlobalAttribs()
 		{
 			globalAttrib().clear();
@@ -294,6 +318,7 @@ class HTAG
 
 	private:
 		void doLineFeed( bool linefeed=false ) const;
+		void p_addAttrib( EN_ATTRIB, std::string );
 		bool checkValid( std::string action );
 		std::string getAttribs() const;
 		static GlobAttribMap_t& globalAttrib()
@@ -368,50 +393,66 @@ HTAG::HTAG( EN_HTAG tag, const char* content ) : HTAG( tag )
 /// generic constructor 3a
 template<typename T1, typename T2>
 HTAG::HTAG(
-	EN_HTAG        tag,
-	const T1&      content,
-	EN_ATTRIB      att,
-	const T2&      attribvalue
+	EN_HTAG    tag,
+	T1         content,
+	EN_ATTRIB  attr,
+	T2         attribvalue
 	) : HTAG( tag )
 {
 	setContent( content );
 
-	if( att != AT_DUMMY )
-		addAttrib( att, attribvalue );
+	if( attr != AT_DUMMY )
+		_attr_map[attr] = attribvalue;
+//		addAttrib( att, attribvalue );
 }
 //-----------------------------------------------------------------------------------
 /// generic constructor 3b
 template<typename T>
 HTAG::HTAG(
 	EN_HTAG    tag,
-	EN_ATTRIB  att,
-	const T&   attribvalue
+	EN_ATTRIB  attr,
+	T          attribvalue
 	) : HTAG( tag )
 {
-	if( att != AT_DUMMY )
-		addAttrib( att, attribvalue );
+	if( attr != AT_DUMMY )
+		_attr_map[attr] = attribvalue;
+//		addAttrib( att, attribvalue );
 }
 //-----------------------------------------------------------------------------------
+#if 1
 /// generic constructor 4 (for file output)
+/**
+\todo: why is this constructor necessary ? The other constructor with default args should be sufficient
+*/
 inline
 HTAG::HTAG(
-	std::ostream& f,            ///< the file into where it will be written
-	EN_HTAG       tag )         ///< the html tag id
-	: _tag_en( tag ), _file(&f), _isFileType(true)
+	std::ostream& f,           ///< the file into where it will be written
+	EN_HTAG       tag          ///< the html tag id
+	) : _tag_en( tag ), _file(&f), _isFileType(true)
 {
 }
-
+#endif
 //-----------------------------------------------------------------------------------
 /// generic constructor 5 (for file output)
 template<typename T>
 HTAG::HTAG(
 	std::ostream&  f,            ///< the file into where it will be written
 	EN_HTAG        tag,          ///< the html tag id
-	EN_ATTRIB att,          ///< (opt.) the tag's attribute id
-	const T&       attribvalue ) ///< (opt.) the attribute value
-	: _tag_en( tag ), _file(&f), _isFileType(true)
+	EN_ATTRIB      att,          ///< (opt.) the tag's attribute id
+	T              attribvalue   ///< (opt.) the attribute value
+	) : _tag_en( tag ), _file(&f), _isFileType(true)
 {
-	addAttrib( att, attribvalue );
+	if( att != AT_DUMMY )
+		addAttrib( att, attribvalue );
+}
+
+//-----------------------------------------------------------------------------------
+static
+void
+checkValidTag( EN_HTAG tag )
+{
+	if( !tagMustClose( tag ) )
+		HTTAGS_ERROR( std::string("attempting to store content into a void-element tag: ") + getTagString( tag ) );
 }
 
 //-----------------------------------------------------------------------------------
@@ -420,26 +461,25 @@ template<typename T>
 void
 HTAG::setContent( T content )
 {
+	checkValidTag( getTag() );
 	_content = std::to_string(content);
 }
-
 /// specialization for std::string
 template<>
 void
 HTAG::setContent<const std::string&>( const std::string& content )
 {
+	checkValidTag( getTag() );
 	_content = content;
 }
-
 /// specialization for const char*
 template<>
 void
 HTAG::setContent<const char*>( const char* content )
 {
+	checkValidTag( getTag() );
 	_content = content;
 }
-
-
 //-----------------------------------------------------------------------------------
 template<typename T>
 void HTAG::PrintWithContent( const T& c )
@@ -464,15 +504,11 @@ bool
 HTAG::checkValid( std::string action )
 {
 	if( !_isFileType )
-	{
-		HTTAGS_ERROR << "tag " << getTagString(_tag_en) << " is not a \"file type\" tag.\n";
-		return false;
-	}
+		HTTAGS_ERROR( std::string("tag ") + getTagString(_tag_en) + " is not a \"file type\" tag." );
+
 	if( !_file )
-	{
-		HTTAGS_ERROR << "tag " << getTagString(_tag_en) << ": asked to " << action << " but file not available.\n";
-		return false;
-	}
+		HTTAGS_ERROR( std::string("tag ") + getTagString(_tag_en) + ": asked to " + action + " but file not available" );
+
 #if 0
 	if( !_file->is_open() )
 	{
@@ -531,25 +567,76 @@ HTAG::setGlobalAttrib( EN_HTAG tag, EN_ATTRIB att, const std::string& value )
 {
 	globalAttrib()[tag] = std::make_pair( att, value );
 }
+
+//-----------------------------------------------------------------------------------
+/// Add an HTML attribute to the tag (templated generic version)
+/**
+If the attribute is already present, then the value will be concatenated to the previous value
+*/
+template<typename T>
+void
+HTAG::addAttrib( EN_ATTRIB attr, T value )
+{
+	p_addAttrib( attr, std::to_string(value) );
+}
+//-----------------------------------------------------------------------------------
+/// Add an HTML attribute to the tag (specialized templated version for \c std::string)
+/**
+If the attribute is already present, then the value will be concatenated to the previous value
+*/
+template<>
+void
+HTAG::addAttrib<std::string>( EN_ATTRIB attr, std::string value )
+{
+	p_addAttrib( attr, value );
+}
+//-----------------------------------------------------------------------------------
+/// Add an HTML attribute to the tag (specialized templated version for <tt>const char*</tt>)
+/**
+If the attribute is already present, then the value will be concatenated to the previous value
+*/
+template<>
+void
+HTAG::addAttrib<const char*>( EN_ATTRIB attr, const char* value )
+{
+	p_addAttrib( attr, value );
+}
+
 //-----------------------------------------------------------------------------------
 /// Add an HTML attribute to the tag
+/**
+If the attribute is already present, then the value will be concatenated to the previous value
+*/
 inline
 void
-HTAG::addAttrib( EN_ATTRIB attr, std::string value )
+HTAG::p_addAttrib( EN_ATTRIB attr, std::string value )
 {
-	assert( !_tagIsOpen ); // because if it is open, then we can't add an attribute !
+	if( _tagIsOpen ) // because if it is already opened, then we can't add an attribute !
+		HTTAGS_ERROR( std::string("unable to add attribute '") + getAttribString(attr) + "' with value '" << value << "', tag is already opened." );
 
 	if( value.empty() ) // empty string => nothing to add
 	{
-		std::cerr << "warning: asking to add tag attribute '" << getAttribString(attr) << "' but string is empty\n";
+		HTTAGS_WARNING << "warning: asking to add tag attribute '" << getAttribString(attr) << "' but string is empty\n";
 		return;
 	}
 
+// check for unneeded pairs attribute/value
+		if( attr == AT_COLSPAN && value == "1" )
+		{
+			HTTAGS_WARNING << "asking to add unnecessary attribute/value: " << getAttribString(attr) << "/" << value << '\n';
+			return;
+		}
+		if( attr == AT_ROWSPAN && value == "1" )
+		{
+			HTTAGS_WARNING << "asking to add unnecessary attribute/value: " << getAttribString(attr) << "/" << value << '\n';
+			return;
+		}
+
 	if( _attr_map.find(attr) != _attr_map.end() )   // check if element is already present or not
 	{
-		if( attr != AT_CLASS && attr != AT_STYLE )
-			throw std::runtime_error( "Can't add attribute that is not AT_CLASS or AT_STYLE" );//, value );
-		else
+//		if( attr != AT_CLASS && attr != AT_STYLE )
+//			throw std::runtime_error( "Can't add attribute that is not AT_CLASS or AT_STYLE" );//, value );
+//		else
 		{
 			std::ostringstream oss;
 			oss << _attr_map[attr] << ' ' << value;
@@ -558,16 +645,6 @@ HTAG::addAttrib( EN_ATTRIB attr, std::string value )
 	}
 	else
 		_attr_map[attr] = value;
-//	std::cout << "_attr_map[attr]=" << _attr_map[attr] << '\n';
-}
-//-----------------------------------------------------------------------------------
-inline
-void
-HTAG::addAttrib( EN_ATTRIB atr, int value )
-{
-	assert( !_tagIsOpen ); // because if it is open, then we can't add an attribute !
-
-	_attr_map[atr] = std::to_string(value);
 }
 //-----------------------------------------------------------------------------------
 inline
@@ -590,29 +667,31 @@ inline
 std::string
 HTAG::getAttribs() const
 {
+// check is there is a global attribute for that tag
 	GlobAttribMap_t& gattr = globalAttrib();
+	const PairAttribString_t* gpatst = 0;
 	if( gattr.count(_tag_en) )
 	{
-		const auto& pair1 = gattr.at(_tag_en);
+		gpatst = &gattr.at(_tag_en);
 //		out += " " + std::string(getAttribString( p.first )) + "=\"" + p.second + '"';
 	}
-
 
 	std::string out;
 	if( _printAttribs && _attr_map.size() )
 	{
 		for( auto it = _attr_map.begin(); it != _attr_map.end(); ++it )
 		{
-			std::string tmp = getAttribString( it->first );
-			if( it->first != AT_COLSPAN || it->second != "1" )
-			{
-				out += ' ';
-				out += tmp;
-				out += "=\"" + it->second + '"';
-			}
+			out += ' ';
+			out += getAttribString( it->first );
+			out += "=\"" + it->second;
+			if( gpatst )                            // IF we found a global attribute for that tag
+				if( it->first == gpatst->first )     // then add its value
+					out += ' '+ gpatst->second;
+			out += '"';
 		}
-
+	}
 // check for a global attribute for the current tag
+/*
 		GlobAttribMap_t& gattr = globalAttrib();
 		if( gattr.count(_tag_en) )
 		{
@@ -620,6 +699,7 @@ HTAG::getAttribs() const
 			out += " " + std::string(getAttribString( p.first )) + "=\"" + p.second + '"';
 		}
 	}
+*/
 	return out;
 }
 //-----------------------------------------------------------------------------------

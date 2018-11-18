@@ -23,21 +23,31 @@ Once the tag is created, you can st the content in two ways:
 
 The first method can only be used only for strings and other POD types (int, floats, ...).
 
+## Global attributes
 
+It is possible to add to a given tag a "global attribute", that is each time you will output that tag, this attribute-value pair will be automatically added.
+For example, at one point you want to add to all the tags `li` the attribute `class="my_class"`.
+This can be done with
+`HTAG::addGlobalAttrib( HT_LI, AT_CLASS, "my_class" );`
+
+To remove, you can:
+-remove all global attributes with `HTAG::clearGlobalAttribs()`
+-remove the global attribute on a given tag with `HTAG::clearGlobalAttrib( <tag id> )`
 
 
 ## Line feeds
 
 In order to be human readable, it may be a good idea to have here and then some line feeds in the output html code.
-On the other side, for large files its may be wanted to have "compact" html code, by removing all the unnecessary linefeeds.
+On the other side, for large files it may be wanted to have "compact" html code, by removing all the unnecessary linefeeds.
 
-These two behaviors can be achieved, three modes are actually available:
+These two behaviors can be achieved, three modes are available:
 - a line feed after every closing of a tag;
 - no line feed at all;
 - a "default" mode, where certain tags get a line feed after closure, others do not.
 
 This is achieved with the static method `setLineFeedMode( En_LineFeedMode mode )`.
-The possible values are LF_None, LF_Always, LF_Default.
+The possible values are `LF_None`, `LF_Always`, `LF_Default`.
+
 For example:
 ```C++
 HTAG::setLineFeedMode( LF_Always );
@@ -45,5 +55,14 @@ HTAG::setLineFeedMode( LF_Always );
 
 
 ## Error handling
+
+In case of non fatal problem, this library will simply issue a warning with a clear message on `std::cerr`.
+This can be disable by passing the option `HTAGS_DISABLE_WARNINGS` before including the file.
+
+In case of fatal error, this library will issue a message on `std::cerr` with line number and the error message, and throw
+an error of type `std::runtime_error`.
+
+
+Copyright Sebastien Kramm - 2018
 
 TO BE COMPLETED !

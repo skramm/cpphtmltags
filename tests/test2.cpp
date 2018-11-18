@@ -27,7 +27,7 @@ void test2( En_LineFeedMode lfmode )
 // putting attribute inside tag creation
 	{
 		HTAG t2( cout, HT_H2, AT_ID, "abc" );
-		t2.addAttrib( AT_STYLE , "font-size:150%;" );
+		t2.addAttrib( AT_STYLE , "font-size:200%;" );
 		t2.openTag();
 		cout << "my title 3 !";
 	}
@@ -55,7 +55,7 @@ int main()
 
 	HTAG::setGlobalAttrib( HT_LI, AT_CLASS, "cl1" );
 	HTAG li( HT_LI, AT_CLASS, "cl2" );
-	li.addAttrib( AT_COLSPAN, 1 );
+	li.addAttrib( AT_COLSPAN, 2 );
 	cout << li;
 
 }
