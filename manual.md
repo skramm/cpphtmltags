@@ -7,21 +7,64 @@ There is a single class to use: HTAG
 It is defined in the namespace htags
 
 A tag can be created in two different ways:
-- just a regular object, that you can stream
-- an object holding a file descriptor, that must exist and be opened.
 
+### Method 1
+Just a regular object:
+```C++
+HTAG mytag( HT_P );
+```
+You can also add some content:
+```C++
+HTAG mytag( HT_P, "a paragraph" );
+```
+You can add a pair attribute/value:
+```C++
+HTAG mytag( HT_P, AT_CLASS, "abc" );
+```
+Or all three:
+```C++
+HTAG mytag( HT_P, "a paragraph", AT_CLASS, "abc" );
+```
+### Method 2
+You can specify the file where the html code must be generated
+(of type `std::ostream` or `std::ofstream`):
+```C++
+HTAG mytag( file, HT_P );
+```
+
+As above you can add a content, and/or a pair attribute/value, at creation time:
+```C++
+HTAG p1( file, HT_P, AT_CLASS, "abc" );
+HTAG p2( file, HT_P, "a paragraph" );
+HTAG p3( file, HT_P, "a paragraph", AT_CLASS, "abc" );
+```
+
+Please note that when created a tag that way, nothing is printed in the stream.
+This will only happen when you call either
+- `openTag()`
+- `printTag()`
+- `printWithContent( "something" )`
 
 ## Adding content to a tag
 
-The "content" is what is inside the tag, i.e. "<p>Content</p>"
+The "content" is what is inside the tag, i.e. `<p>Content</p>`
 
-Once the tag is created, you can st the content in two ways:
-- either by assigning it (this will erase previous content):<br>
-`tag.setContent( "this is my content" );`
-- or by streaming stuff into it:<br>
-`tag << "the number is " << 42;`
+Content can be added in several ways.
+- It can be added at the tag creation time (see above)
+- It can be directly added to the output stream, once the tag is opened:
+```C++
+HTAG p( std::cout, HT_P );
+p.openTag();
+std::cout << "a paragraph";
+p.closeTag();
+```
 
-The first method can only be used only for strings and other POD types (int, floats, ...).
+- Or you can use the provided functions:
+```C++
+HTAG p( HT_P );
+p.setContent( "a paragraph" );
+p.addContent( " of text" );
+```
 
 ## Global attributes
 

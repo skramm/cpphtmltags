@@ -48,5 +48,11 @@ int main()
 		cout << "hi there";
 	}
 
+	{
+		HTAG f1( cout, HT_P, AT_CLASS, "cde" );
+		f1.setContent( "para");
+		f1.printTag();
+	}
+
 
 }

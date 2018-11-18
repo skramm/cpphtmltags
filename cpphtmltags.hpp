@@ -2,7 +2,7 @@
     Copyright (C) 2018 Sebastien Kramm
 
     This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
+    it under the terms of the GNU Lesser General Public License v3 as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
@@ -11,8 +11,8 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU Lesser General Public License v3
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 /**
@@ -20,13 +20,14 @@
 \brief a C++11 header-only library for generating html5 valid code from your app
 
 homepage: https://github.com/skramm/cpphtmltags
+
+\todo add targets to Makefile to build demos and test
+
+\todo add (real) tests, using Catch
 */
 
 #ifndef HG_CPPHTMLTAGS_HPP
 #define HG_CPPHTMLTAGS_HPP
-
-
-//#include <type_traits> // for static_assert
 
 #include <sstream>
 #include <map>
@@ -266,7 +267,7 @@ class HTAG
 
 	public:
 /// \name Constructors & destructor
-///{
+///@{
 //		HTAG( std::ostream& f, EN_HTAG );
 
 		HTAG( std::ostream& f, EN_HTAG );
@@ -282,19 +283,19 @@ class HTAG
 		template<typename T>
 		HTAG( EN_HTAG, EN_ATTRIB, T attribvalue );
 		~HTAG();
-///}
+///@}
 		void openTag();
 		void closeTag( bool linefeed=false );
-		template<typename T>
-		void addAttrib( EN_ATTRIB, T );
-//		void addAttrib( EN_ATTRIB, int );
+		template<typename T> void addAttrib( EN_ATTRIB, T );
 		void removeAttrib( EN_ATTRIB );
-		void PrintAttributes( bool b ) { _printAttribs = b; }
-		template<typename T> void PrintWithContent( const T& );
+//		void PrintAttributes( bool b ) { _printAttribs = b; }
+
+		void printTag();
+		template<typename T> void printWithContent( T );
 
 		EN_HTAG getTag() const { return _tag_en; }
 /// \name Global attributes handling
-///{
+///@{
 		static void setGlobalAttrib( EN_HTAG tag, EN_ATTRIB att, const std::string& value );
 		/// Remove the global attribute for \c tag
 		/**
@@ -308,8 +309,15 @@ class HTAG
 		{
 			globalAttrib().clear();
 		}
-///}
+///@}
+
+/// \name Tag content related functions
+///@{
+		template<typename T> void addContent( T content );
 		template<typename T> void setContent( T content );
+		void clearContent() { _content.clear(); }
+///@}
+
 		static void setLineFeedMode( En_LineFeedMode mode )
 		{
 			lf_mode() = mode;
@@ -319,8 +327,8 @@ class HTAG
 	private:
 		void doLineFeed( bool linefeed=false ) const;
 		void p_addAttrib( EN_ATTRIB, std::string );
-		bool checkValid( std::string action );
-		std::string getAttribs() const;
+		void p_checkValidFileType( std::string action );
+		std::string p_getAttribs() const;
 		static GlobAttribMap_t& globalAttrib()
 		{
 			static GlobAttribMap_t s_global_attrib;
@@ -449,43 +457,74 @@ HTAG::HTAG(
 //-----------------------------------------------------------------------------------
 static
 void
-checkValidTag( EN_HTAG tag )
+checkNonVoidTag( EN_HTAG tag )
 {
 	if( !tagMustClose( tag ) )
 		HTTAGS_ERROR( std::string("attempting to store content into a void-element tag: ") + getTagString( tag ) );
 }
-
 //-----------------------------------------------------------------------------------
-/// default implementation
-template<typename T>
-void
-HTAG::setContent( T content )
-{
-	checkValidTag( getTag() );
-	_content = std::to_string(content);
-}
 /// specialization for std::string
 template<>
 void
-HTAG::setContent<const std::string&>( const std::string& content )
+HTAG::addContent<std::string>( std::string content )
 {
-	checkValidTag( getTag() );
-	_content = content;
+	checkNonVoidTag( getTag() );
+	_content += content;
 }
+#if 1
+/// specialization for const char*
+template<>
+void
+HTAG::addContent<const char*>( const char* content )
+{
+	addContent<std::string>( std::string(content) );
+}
+#endif
+/// default implementation
+template<typename T>
+void
+HTAG::addContent( T content )
+{
+	addContent<std::string>( std::to_string(content) );
+}
+//-----------------------------------------------------------------------------------
 /// specialization for const char*
 template<>
 void
 HTAG::setContent<const char*>( const char* content )
 {
-	checkValidTag( getTag() );
-	_content = content;
+	clearContent();
+	addContent<std::string>( std::string(content) );
+}
+/// specialization for std::string
+template<>
+void
+HTAG::setContent<std::string>( std::string content )
+{
+	clearContent();
+	addContent<std::string>( content );
+}
+/// default implementation
+template<typename T>
+void
+HTAG::setContent( T content )
+{
+	clearContent();
+	addContent<std::string>( std::to_string(content) );
+}
+//-----------------------------------------------------------------------------------
+void HTAG::printTag()
+{
+	printWithContent( "" );
 }
 //-----------------------------------------------------------------------------------
 template<typename T>
-void HTAG::PrintWithContent( const T& c )
+void HTAG::printWithContent( T c )
 {
 	openTag();
-	_file << c;
+	if( !_content.empty() )
+		*_file << _content;
+	*_file << c;
 	_printAttribs = false;
 	closeTag();
 }
@@ -500,8 +539,8 @@ HTAG::~HTAG()
 }
 
 //-----------------------------------------------------------------------------------
-bool
-HTAG::checkValid( std::string action )
+void
+HTAG::p_checkValidFileType( std::string action )
 {
 	if( !_isFileType )
 		HTTAGS_ERROR( std::string("tag ") + getTagString(_tag_en) + " is not a \"file type\" tag." );
@@ -511,34 +550,29 @@ HTAG::checkValid( std::string action )
 
 #if 0
 	if( !_file->is_open() )
-	{
 		HTTAGS_ERROR << "tag " << getTagString(_tag_en) << ": asked to " << action << " but file is closed.\n";
-		return false;
-	}
 #endif
-	return true;
 }
 //-----------------------------------------------------------------------------------
 inline
 void
 HTAG::openTag()
 {
-	assert( checkValid( "open" ) );
+	p_checkValidFileType( "open" );
 	if( _tagIsOpen )
 		HTTAGS_WARNING << "tag " << getTagString(_tag_en) << ": asked to open but was already open.\n";
 	else
-		*_file << '<' << getTagString(_tag_en) << getAttribs() << '>';
+		*_file << '<' << getTagString(_tag_en) << p_getAttribs() << '>';
 	_tagIsOpen = true;
 	_printAttribs = false;
 }
-
 //-----------------------------------------------------------------------------------
 /// Close the tag (this function needs to be called ONLY for "file" object types
 inline
 void
 HTAG::closeTag( bool linefeed )
 {
-	assert( checkValid( "close" ) );
+	p_checkValidFileType( "close" );
 	if( !_tagIsOpen )
 		HTTAGS_WARNING << "tag " << getTagString(_tag_en) << ": asked to close but was already closed.\n";
 	else
@@ -547,7 +581,6 @@ HTAG::closeTag( bool linefeed )
 	_tagIsOpen = false;
 	doLineFeed( linefeed );
 }
-
 //-----------------------------------------------------------------------------------
 /// Insert some content into the tag, that will get printed later
 template<typename T>
@@ -601,7 +634,6 @@ HTAG::addAttrib<const char*>( EN_ATTRIB attr, const char* value )
 {
 	p_addAttrib( attr, value );
 }
-
 //-----------------------------------------------------------------------------------
 /// Add an HTML attribute to the tag
 /**
@@ -665,7 +697,7 @@ HTAG::removeAttrib( EN_ATTRIB attr )
 /// Returns a string holding the attributes
 inline
 std::string
-HTAG::getAttribs() const
+HTAG::p_getAttribs() const
 {
 // check is there is a global attribute for that tag
 	GlobAttribMap_t& gattr = globalAttrib();
@@ -745,7 +777,6 @@ HTAG::doLineFeed( bool linefeed ) const
 	if( doIt )
 		*_file << '\n';
 }
-
 //-----------------------------------------------------------------------------------
 /// Streams into \c s the opening tag (with attributes), the content, and the closing tag
 inline
@@ -753,7 +784,7 @@ std::ostream&
 operator << ( std::ostream& s, const HTAG& h )
 {
 	s << '<' << getTagString( h._tag_en )
-		<< h.getAttribs()
+		<< h.p_getAttribs()
 		<< '>';
 	if( tagMustClose( h.getTag() ) )
 		s << h._content << "</" << getTagString( h._tag_en ) << '>';
@@ -765,5 +796,5 @@ operator << ( std::ostream& s, const HTAG& h )
 
 } // namespace htags end
 
-#endif // HG_HTAG_H
+#endif // HG_CPPHTMLTAGS_HPP
 
