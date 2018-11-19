@@ -39,23 +39,26 @@ int main()
 	{
 		HTAG f1( cout, HT_A );
 		f1.openTag();
-		cout << "hi there";
+		cout << "hi there 1";
 		f1.closeTag( true );
 	}
 
 	{
 		HTAG f1( cout, HT_A, AT_CLASS, "abc" );
 		f1.openTag();
-		cout << "hi there";
+		cout << "hi there 2";
 	}
 
 	{
 		HTAG f1( cout, HT_P, AT_CLASS, "cde" );
-		f1.setContent( "para");
-		f1.printTag();
+		f1.openTag();
+		cout << "para";
 
 		HTAG f2( cout, HT_LI );
-		f2.printTag();
+		f2.openTag();
+		cout << "li-content";
+
+		f2.closeTag();
 		f1.closeTag();
 
 	}

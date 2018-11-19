@@ -26,7 +26,7 @@ void test2( En_LineFeedMode lfmode )
 
 // putting attribute inside tag creation
 	{
-		HTAG t2( cout, HT_H2, AT_ID, "abc" );
+		HTAG t2( cout, HT_H3, AT_ID, "abc" );
 		t2.addAttrib( AT_STYLE , "font-size:200%;" );
 		t2.openTag();
 		cout << "my title 3 !";

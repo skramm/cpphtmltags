@@ -32,7 +32,7 @@ homepage: https://github.com/skramm/cpphtmltags
 #define HG_CPPHTMLTAGS_HPP
 
 
-//#define EXPERIMENTAL
+#define EXPERIMENTAL
 //#define HTAGS_DISABLE_WARNINGS
 
 #ifdef EXPERIMENTAL
@@ -562,25 +562,28 @@ void
 HTAG::p_checkValidFileType( std::string action )
 {
 	if( !_isFileType )
-		HTTAGS_ERROR( std::string("tag ") + getTagString(_tag_en) + " is not a \"file type\" tag." );
+		HTTAGS_ERROR( std::string("object tag '") + getTagString(_tag_en) + "' is not a \"file type\" tag." );
 
 	if( !_file )
-		HTTAGS_ERROR( std::string("tag ") + getTagString(_tag_en) + ": asked to " + action + " but file not available" );
+		HTTAGS_ERROR( std::string("object tag '") + getTagString(_tag_en) + "': asked to " + action + " but file not available" );
 
 #if 0
 	if( !_file->is_open() )
-		HTTAGS_ERROR << "tag " << getTagString(_tag_en) << ": asked to " << action << " but file is closed.\n";
+		HTTAGS_ERROR << "tag '" << getTagString(_tag_en) << "': asked to '" << action << "' but file is closed.\n";
 #endif
 }
 //-----------------------------------------------------------------------------------
+/// Open the tag (this function needs to be called ONLY for "file" object types
 inline
 void
 HTAG::openTag()
 {
+//	std::cout << "\n-open tag " << getTagString(_tag_en) << "\n";
+
 	p_checkValidFileType( "open" );
 	if( _tagIsOpen )
 	{
-		HTTAGS_WARNING << "tag " << getTagString(_tag_en) << ": asked to open but was already open.\n";
+		HTTAGS_WARNING << "tag '" << getTagString(_tag_en) << "': asked to open but was already open.\n";
 	}
 	else
 		*_file << '<' << getTagString(_tag_en) << p_getAttribs() << '>';
@@ -588,6 +591,7 @@ HTAG::openTag()
 	_printAttribs = false;
 #ifdef EXPERIMENTAL
 	openedTags().push_back( _tag_en );
+//	std::cout << "\n-open tag " << getTagString(_tag_en) << " : openedTags() size)=" << openedTags().size() << "\n";
 #endif
 }
 //-----------------------------------------------------------------------------------
@@ -597,18 +601,23 @@ void
 HTAG::closeTag( bool linefeed )
 {
 	p_checkValidFileType( "close" );
+
+//	std::cout << "\n-closing tag " << getTagString(_tag_en) << "\n";
+
+	if( !_tagIsOpen )
+		HTTAGS_ERROR( std::string( "tag '" ) + getTagString(_tag_en) + "': asked to close but was already closed." );
+	*_file << "</" << getTagString(_tag_en) << '>';
+
+
 #ifdef EXPERIMENTAL
 	assert( openedTags().size() > 0 );
 	if( openedTags().back() != _tag_en )
-		HTTAGS_ERROR( std::string("asking to close tag ") + getTagString(_tag_en) + " but tag " +  getTagString(openedTags().back()) + " still open" );
+		HTTAGS_ERROR( std::string("asking to close tag '") + getTagString(_tag_en) + "' but tag '" +  getTagString(openedTags().back()) + "' still open" );
+
+//	std::cout << "\nclose tag-A: openedTags() size)=" << openedTags().size() << "\n";
 	openedTags().pop_back();
+//	std::cout << "\nclose tag: openedTags() size)=" << openedTags().size() << "\n";
 #endif
-	if( !_tagIsOpen )
-	{
-		HTTAGS_WARNING << "tag " << getTagString(_tag_en) << ": asked to close but was already closed.\n";
-	}
-	else
-		*_file << "</" << getTagString(_tag_en) << '>';
 
 	_tagIsOpen = false;
 	doLineFeed( linefeed );
@@ -619,6 +628,7 @@ template<typename T>
 HTAG&
 operator << ( HTAG& tag, const T& str )
 {
+//	assert( !tag._isFileType );
 	std::ostringstream oss;
 	oss << tag._content << str;
 	tag._content = oss.str();
