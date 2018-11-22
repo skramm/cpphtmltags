@@ -105,6 +105,14 @@ This can be disable by passing the option `HTAGS_DISABLE_WARNINGS` before includ
 In case of fatal error, this library will issue a message on `std::cerr` with line number and the error message, and throw
 an error of type `std::runtime_error`.
 
+### html5 tag/attribute enforcing
+
+The html5 standard specifies two kinds of attributes:
+- "global" attributes: these can be assigned to any tag
+- regular attributes: each of these can be assigned to a limited number of tags
+
+This library can ensure that this is enforced by checking at each time you add an attribute to a tag.
+This checking can be disabled by defining the symbol `HTTAGS_NO_CHECK` before the "include" line.
 
 Copyright Sebastien Kramm - 2018
 

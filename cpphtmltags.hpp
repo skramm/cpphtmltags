@@ -26,6 +26,8 @@ homepage: https://github.com/skramm/cpphtmltags
 \todo add (real) tests, using Catch
 
 \todo Clarify usage/need of _printAttribs
+
+\warning Only a subset of html5 is implemented at present, see htags::HTAGS::printSupported() and \ref tests/supported.cpp
 */
 
 #ifndef HG_CPPHTMLTAGS_HPP
@@ -43,7 +45,7 @@ homepage: https://github.com/skramm/cpphtmltags
 #include <map>
 #include <cassert>
 #include <iostream>
-
+#include <algorithm>
 
 
 #ifdef HTAGS_DISABLE_WARNINGS
@@ -71,6 +73,7 @@ enum EN_HTAG
 	HT_HEAD,
 	HT_BODY,
 	HT_SCRIPT,
+	HT_META,
 	HT_LINK,
 	HT_TITLE,
 	HT_INPUT,
@@ -78,6 +81,8 @@ enum EN_HTAG
 	HT_STYLE,
 	HT_TABLE,
 	HT_CAPTION,
+	HT_AREA,
+	HT_BASE,
 	HT_SPAN,
 	HT_DIV,
 	HT_IMG,
@@ -109,6 +114,7 @@ getTagString( EN_HTAG tag )
 		case HT_HEAD:    n = "head";    break;
 		case HT_BODY:    n = "body";    break;
 		case HT_SCRIPT:  n = "script";  break;
+		case HT_META:    n = "meta";    break;
 		case HT_LINK:    n = "link";    break;
 		case HT_TITLE:   n = "title";   break;
 		case HT_INPUT:   n = "input";   break;
@@ -116,6 +122,8 @@ getTagString( EN_HTAG tag )
 		case HT_STYLE:   n = "style";   break;
 		case HT_TABLE:   n = "table";   break;
 		case HT_CAPTION: n = "caption"; break;
+		case HT_AREA:    n = "area";    break;
+		case HT_BASE:    n = "base";    break;
 		case HT_SPAN:    n = "span";    break;
 		case HT_DIV: n =  "div"; break;
 		case HT_IMG: n =  "img"; break;
@@ -149,16 +157,18 @@ Full list: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes
 enum EN_ATTRIB
 {
 	AT_STYLE,
+	AT_CHARSET,
 	AT_COLSPAN,
 	AT_ROWSPAN,
 
 	AT_ACTION,
 	AT_METHOD,
 	AT_MEDIA,
-//	AT_NAME,   // deprecated in html5
+	AT_NAME,   // in html5, allowed only on "meta" tag
 	AT_CONTENT,
 	AT_VALUE,
 	AT_REL,
+	AT_ALT,
 	AT_TYPE,
 
 	AT_CLASS,
@@ -168,6 +178,7 @@ enum EN_ATTRIB
 	AT_ID,
 	AT_DOWNLOAD,
 	AT_START,
+	AT_LANG,
 
 	AT_DUMMY      ///< only used as a default value
 };
@@ -180,16 +191,18 @@ getAttribString( EN_ATTRIB att )
 	switch( att )
 	{
 		case AT_STYLE:    n = "style";    break;
+		case AT_CHARSET:  n = "charset";  break;
 		case AT_COLSPAN:  n = "colspan";  break;
 		case AT_ROWSPAN:  n = "rowspan";  break;
 
 		case AT_ACTION:   n = "action";   break;
 		case AT_MEDIA:    n = "media";    break;
 		case AT_METHOD:   n = "method";   break;
-//		case AT_NAME:     n = "name";     break;  // deprecated in html5
+		case AT_NAME:     n = "name";     break;
 		case AT_CONTENT:  n = "content";  break;
 		case AT_VALUE:    n = "value";    break;
 		case AT_REL:      n = "rel";      break;
+		case AT_ALT:      n = "alt";      break;
 		case AT_TYPE:     n = "type";     break;
 
 		case AT_CLASS:    n = "class";    break;
@@ -199,10 +212,74 @@ getAttribString( EN_ATTRIB att )
 		case AT_ID:       n = "id";       break;
 		case AT_DOWNLOAD: n = "download"; break;
 		case AT_START:    n = "start";    break;
+		case AT_LANG:     n = "lang";     break;
 
 		default: assert(0);
 	}
 	return n;
+}
+//-----------------------------------------------------------------------------------
+/// A global attribute can be used in \b any html tag
+/**
+for a list, see: https://www.w3schools.com/tags/ref_standardattributes.asp
+*/
+inline
+bool
+isGlobalAttr( EN_ATTRIB attr )
+{
+	switch( attr )
+	{
+		case AT_CLASS:
+		case AT_STYLE:
+		case AT_LANG:
+		case AT_TITLE:
+			return true;
+		default:
+			return false;
+	}
+	return false;
+}
+
+//-----------------------------------------------------------------------------------
+/// Conveniency typedef
+typedef std::map<EN_ATTRIB,std::vector<EN_HTAG>> MapAttribs_t;
+
+/// Holds a map of allowed tags for a given attribute. See attribIsAllowed()
+struct MapAttribs
+{
+	MapAttribs_t _map;
+	const MapAttribs_t& get()
+	{
+		return _map;
+	}
+	MapAttribs()
+	{
+		_map[AT_ALT]  = { HT_AREA, HT_IMG, HT_INPUT };
+		_map[AT_HREF] = { HT_A, HT_AREA, HT_BASE, HT_LINK };
+		_map[AT_ACTION] = { HT_FORM };
+		_map[AT_CHARSET] = { HT_META, HT_SCRIPT };
+	}
+};
+
+/// Returns true if attribute \c attr is allowed for \c tag
+/**
+Refs:
+- https://www.w3schools.com/tags/ref_attributes.asp
+- https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes
+*/
+inline
+bool
+attribIsAllowed( EN_ATTRIB attr, EN_HTAG tag )
+{
+	static MapAttribs mapAllowedAttribs;
+	if( mapAllowedAttribs.get().count(attr) ) // if it is there
+	{
+		const auto& vec = mapAllowedAttribs.get().at(attr);
+		auto res = std::find( std::begin( vec ), std::end( vec ), tag );
+		if( res == std::end( mapAllowedAttribs.get().at(attr) ) )
+			return false;
+	}
+	return true;
 }
 //-----------------------------------------------------------------------------------
 /// Returns true if the tag must be closed (i.e. is not a void-elements)
@@ -372,7 +449,7 @@ class HTAG
 /// helper function, prints the tags and attributes currently supported
 inline
 void
-HTAG::printSupported( std::ostream& f)
+HTAG::printSupported( std::ostream& f )
 {
 	f << "* Supported tags: " << HT_DUMMY;
 	for( size_t i=0; i<HT_DUMMY; i++ )
@@ -693,6 +770,10 @@ HTAG::p_addAttrib( EN_ATTRIB attr, std::string value )
 		HTTAGS_WARNING << "warning: asking to add tag attribute '" << getAttribString(attr) << "' but string is empty\n";
 		return;
 	}
+#ifndef HTTAGS_NO_CHECK
+	if( !attribIsAllowed( attr, _tag_en ) )
+		HTTAGS_ERROR( std::string("attempt to assign attribute ") + getAttribString(attr) + " to tag " + getTagString( _tag_en )+  ": invalid with html5" );
+#endif
 
 // check for unneeded pairs attribute/value
 		if( attr == AT_COLSPAN && value == "1" )
@@ -721,11 +802,16 @@ HTAG::p_addAttrib( EN_ATTRIB attr, std::string value )
 		_attr_map[attr] = value;
 }
 //-----------------------------------------------------------------------------------
+/// Remove attribute
+/**
+\todo instead of storing an empty string, remove the element (see map ref)
+*/
 inline
 void
 HTAG::removeAttrib( EN_ATTRIB attr )
 {
-	assert( !_tagIsOpen ); // because if it is open, then we can't remove it!
+//	if( _tagIsOpen ); // because if it is open, then we can't remove it!
+//		HTTAGS_ERROR( "asking to remove attribute on open tag" );
 
 	if( _attr_map.find(attr) == _attr_map.end() )   // check if element is already present or not
 	{
