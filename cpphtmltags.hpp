@@ -440,7 +440,7 @@ class HTAG
 		std::ostream*   _file;
 		bool            _isFileType;
 		std::string     _content;
-		bool            _printAttribs  = true;
+//		bool            _printAttribs  = true;
 		bool            _tagIsOpen     = false;
 		std::map<EN_ATTRIB,std::string> _attr_map;
 };
@@ -621,7 +621,7 @@ void HTAG::printWithContent( T c )
 	if( !_content.empty() )
 		*_file << _content;
 	*_file << c;
-	_printAttribs = false;
+//	_printAttribs = false;
 	closeTag();
 }
 
@@ -639,7 +639,7 @@ void
 HTAG::p_checkValidFileType( std::string action )
 {
 	if( !_isFileType )
-		HTTAGS_ERROR( std::string("object tag '") + getTagString(_tag_en) + "' is not a \"file type\" tag." );
+		HTTAGS_ERROR( std::string("object tag '") + getTagString(_tag_en) + "' is not a \"file type\" object." );
 
 	if( !_file )
 		HTTAGS_ERROR( std::string("object tag '") + getTagString(_tag_en) + "': asked to " + action + " but file not available" );
@@ -655,8 +655,6 @@ inline
 void
 HTAG::openTag()
 {
-//	std::cout << "\n-open tag " << getTagString(_tag_en) << "\n";
-
 	p_checkValidFileType( "open" );
 	if( _tagIsOpen )
 	{
@@ -665,7 +663,7 @@ HTAG::openTag()
 	else
 		*_file << '<' << getTagString(_tag_en) << p_getAttribs() << '>';
 	_tagIsOpen = true;
-	_printAttribs = false;
+//	_printAttribs = false;
 #ifdef EXPERIMENTAL
 	openedTags().push_back( _tag_en );
 //	std::cout << "\n-open tag " << getTagString(_tag_en) << " : openedTags() size)=" << openedTags().size() << "\n";
@@ -689,7 +687,7 @@ HTAG::closeTag( bool linefeed )
 #ifdef EXPERIMENTAL
 	assert( openedTags().size() > 0 );
 	if( openedTags().back() != _tag_en )
-		HTTAGS_ERROR( std::string("asking to close tag '") + getTagString(_tag_en) + "' but tag '" +  getTagString(openedTags().back()) + "' still open" );
+		HTTAGS_ERROR( std::string( "asking to close tag '") + getTagString(_tag_en) + "' but tag '" +  getTagString(openedTags().back()) + "' still open" );
 
 //	std::cout << "\nclose tag-A: openedTags() size)=" << openedTags().size() << "\n";
 	openedTags().pop_back();
@@ -772,7 +770,7 @@ HTAG::p_addAttrib( EN_ATTRIB attr, std::string value )
 	}
 #ifndef HTTAGS_NO_CHECK
 	if( !attribIsAllowed( attr, _tag_en ) )
-		HTTAGS_ERROR( std::string("attempt to assign attribute ") + getAttribString(attr) + " to tag " + getTagString( _tag_en )+  ": invalid with html5" );
+		HTTAGS_ERROR( std::string( "attempt to assign attribute ") + getAttribString(attr) + " to tag " + getTagString( _tag_en )+  ": invalid with html5" );
 #endif
 
 // check for unneeded pairs attribute/value
@@ -839,13 +837,15 @@ HTAG::p_getAttribs() const
 	}
 
 	std::string out;
-	if( _printAttribs && _attr_map.size() )
+//	if( _printAttribs && _attr_map.size() )
+	if( _attr_map.size() )
 	{
 		for( auto it = _attr_map.begin(); it != _attr_map.end(); ++it )
 		{
 			out += ' ';
 			out += getAttribString( it->first );
 			out += "=\"" + it->second;
+/// \todo in the tests below, feels like the two conditions are about the same thing. Check that.
 			if( gpatst )                            // IF we found a global attribute for that tag
 				if( it->first == gpatst->first )     // then add its value
 					out += ' '+ gpatst->second;
