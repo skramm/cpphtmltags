@@ -10,8 +10,10 @@ Generation of HTML tags from C++ code
 ## Goals
 
 The goal is to make generation of valid html5 content from C++ code easy and reliable, with maximum versatility.
-The idea is to add some abstraction to html generation, to avoid unnecessary repetition of strings in your code,
-and to avoid some basic errors that can happen if you directly generate the html code with hardcoded strings.
+The idea is:
+- to add some abstraction to html generation,
+- to avoid unnecessary repetition of strings in your code,
+- to avoid some basic errors that can happen if you directly generate the html code with hardcoded strings.
 
 For example, if you generate tags by some direct string output,
 some errors may go unnoticed. Say you forget the 'p' in "script":

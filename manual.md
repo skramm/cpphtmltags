@@ -114,6 +114,15 @@ The html5 standard specifies two kinds of attributes:
 This library can ensure that this is enforced by checking at each time you add an attribute to a tag.
 This checking can be disabled by defining the symbol `HTTAGS_NO_CHECK` before the "include" line.
 
+
+## Testing
+
+This project has an automated test file, based on the [catch](https://github.com/catchorg/Catch2/) framework.
+If is is installed on your machine, you can run the tests with `make test`.
+Coverage is currently not complete, but will expand.
+
+
+
 Copyright Sebastien Kramm - 2018
 
 TO BE COMPLETED !

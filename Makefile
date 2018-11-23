@@ -13,7 +13,8 @@ test: $(EXE_TEST_FILES)
 bin/%:	tests/%.cpp
 	@$(CXX) $(CFLAGS) $<
 	@echo "Start test, file $<"
-	@./a.out -s
+	@./a.out
+#	@./a.out -s
 	@echo "Done test"
 
 show:

@@ -385,6 +385,8 @@ class HTAG
 /// \name Global attributes handling
 ///@{
 		static void setGlobalAttrib( EN_HTAG tag, EN_ATTRIB att, const std::string& value );
+		static std::string getGlobalAttrib( EN_HTAG tag );
+
 		/// Remove the global attribute for \c tag
 		/**
 			ref: see https://en.cppreference.com/w/cpp/container/map/erase
@@ -393,6 +395,7 @@ class HTAG
 		{
 			globalAttrib().erase( tag );
 		}
+		/// Remove all global attributes
 		static void clearGlobalAttribs()
 		{
 			globalAttrib().clear();
@@ -677,8 +680,6 @@ HTAG::closeTag( bool linefeed )
 {
 	p_checkValidFileType( "close" );
 
-//	std::cout << "\n-closing tag " << getTagString(_tag_en) << "\n";
-
 	if( !_tagIsOpen )
 		HTTAGS_ERROR( std::string( "tag '" ) + getTagString(_tag_en) + "': asked to close but was already closed." );
 	*_file << "</" << getTagString(_tag_en) << '>';
@@ -689,9 +690,7 @@ HTAG::closeTag( bool linefeed )
 	if( openedTags().back() != _tag_en )
 		HTTAGS_ERROR( std::string( "asking to close tag '") + getTagString(_tag_en) + "' but tag '" +  getTagString(openedTags().back()) + "' still open" );
 
-//	std::cout << "\nclose tag-A: openedTags() size)=" << openedTags().size() << "\n";
 	openedTags().pop_back();
-//	std::cout << "\nclose tag: openedTags() size)=" << openedTags().size() << "\n";
 #endif
 
 	_tagIsOpen = false;
@@ -718,6 +717,16 @@ HTAG::setGlobalAttrib( EN_HTAG tag, EN_ATTRIB att, const std::string& value )
 	globalAttrib()[tag] = std::make_pair( att, value );
 }
 
+//-----------------------------------------------------------------------------------
+/// Returns the global pair "attribute=string" for \c tag, if any
+inline
+std::string
+HTAG::getGlobalAttrib( EN_HTAG tag )
+{
+	if( globalAttrib().count(tag) )
+		return std::string( getAttribString( globalAttrib()[tag].first )) + '=' + globalAttrib()[tag].second;
+	return std::string();
+}
 //-----------------------------------------------------------------------------------
 /// Add an HTML attribute to the tag (templated generic version)
 /**
@@ -827,14 +836,10 @@ inline
 std::string
 HTAG::p_getAttribs() const
 {
-// check is there is a global attribute for that tag
-	GlobAttribMap_t& gattr = globalAttrib();
+	GlobAttribMap_t& gattr = globalAttrib();  // check is there is a global attribute for that tag
 	const PairAttribString_t* gpatst = 0;
 	if( gattr.count(_tag_en) )
-	{
 		gpatst = &gattr.at(_tag_en);
-//		out += " " + std::string(getAttribString( p.first )) + "=\"" + p.second + '"';
-	}
 
 	std::string out;
 //	if( _printAttribs && _attr_map.size() )
@@ -845,13 +850,20 @@ HTAG::p_getAttribs() const
 			out += ' ';
 			out += getAttribString( it->first );
 			out += "=\"" + it->second;
-/// \todo in the tests below, feels like the two conditions are about the same thing. Check that.
-			if( gpatst )                            // IF we found a global attribute for that tag
-				if( it->first == gpatst->first )     // then add its value
+			if( gpatst )
+			{                                          // IF we found a global attribute for that tag
+				if( it->first == gpatst->first )       // then add its value
 					out += ' '+ gpatst->second;
+				}
 			out += '"';
 		}
 	}
+	else // if no local attributes, then check for global
+	{
+		if( gpatst )
+			out += std::string(" ") + getAttribString( gpatst->first ) + "=\"" + gpatst->second + '\"';
+	}
+
 // check for a global attribute for the current tag
 /*
 		GlobAttribMap_t& gattr = globalAttrib();
