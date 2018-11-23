@@ -356,11 +356,16 @@ class HTAG
 	public:
 /// \name Constructors & destructor
 ///@{
-//		HTAG( std::ostream& f, EN_HTAG );
-
 		HTAG( std::ostream& f, EN_HTAG );
+
+		template<typename T>
+		HTAG( std::ostream& f, EN_HTAG, T t=T() );
+
 		template<typename T>
 		HTAG( std::ostream& f, EN_HTAG, EN_ATTRIB=AT_DUMMY, T attribvalue=T() );
+
+		template<typename T1,typename T2>
+		HTAG( std::ostream& f, EN_HTAG, T1 content, EN_ATTRIB=AT_DUMMY, T2 attribvalue=T2() );
 
 		HTAG( EN_HTAG );
 
@@ -527,7 +532,7 @@ HTAG::HTAG(
 }
 //-----------------------------------------------------------------------------------
 #if 1
-/// generic constructor 4 (for file output)
+/// generic constructor B1 (for file output)
 /**
 \todo: why is this constructor necessary ? The other constructor with default args should be sufficient
 */
@@ -536,11 +541,22 @@ HTAG::HTAG(
 	std::ostream& f,           ///< the file into where it will be written
 	EN_HTAG       tag          ///< the html tag id
 	) : _tag_en( tag ), _file(&f), _isFileType(true)
-{
-}
+{}
 #endif
 //-----------------------------------------------------------------------------------
-/// generic constructor 5 (for file output)
+/// generic constructor B2 (for file output)
+template<typename T>
+HTAG::HTAG(
+	std::ostream& f,           ///< the file into where it will be written
+	EN_HTAG       tag,          ///< the html tag id
+	T             content
+	) : _tag_en( tag ), _file(&f), _isFileType(true)
+{
+	setContent( content );
+}
+
+//-----------------------------------------------------------------------------------
+/// generic constructor B3 (for file output)
 template<typename T>
 HTAG::HTAG(
 	std::ostream&  f,            ///< the file into where it will be written
@@ -551,6 +567,21 @@ HTAG::HTAG(
 {
 	if( att != AT_DUMMY )
 		addAttrib( att, attribvalue );
+}
+//-----------------------------------------------------------------------------------
+/// generic constructor B4 (for file output)
+template<typename T1, typename T2>
+HTAG::HTAG(
+	std::ostream&  f,            ///< the file into where it will be written
+	EN_HTAG        tag,          ///< the html tag id
+	T1             content,      ///< tag content
+	EN_ATTRIB      att,          ///< (opt.) the tag's attribute id
+	T2             attribvalue   ///< (opt.) the attribute value
+	) : _tag_en( tag ), _file(&f), _isFileType(true)
+{
+	if( att != AT_DUMMY )
+		addAttrib( att, attribvalue );
+	setContent( content );
 }
 
 //-----------------------------------------------------------------------------------

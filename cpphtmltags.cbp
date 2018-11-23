@@ -83,6 +83,11 @@
 		<Unit filename="tests/test2.cpp">
 			<Option target="main2" />
 		</Unit>
+		<Unit filename="tests/test_A.cpp">
+			<Option target="main2" />
+			<Option target="supported" />
+			<Option target="test2" />
+		</Unit>
 		<Extensions>
 			<envvars />
 			<code_completion />

@@ -41,8 +41,8 @@ HTAG p3( file, HT_P, "a paragraph", AT_CLASS, "abc" );
 
 Please note that when created a tag that way, nothing is printed in the stream.
 This will only happen when you call either
-- `openTag()`
-- `printTag()`
+- `openTag()` : only prints the opening tag
+- `printTag()`: prints the closing tag
 - `printWithContent( "something" )`
 
 ## Adding content to a tag

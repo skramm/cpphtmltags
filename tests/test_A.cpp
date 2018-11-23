@@ -123,7 +123,74 @@ TEST_CASE( "test2", "[mytest]" )
 	HTAG t0( HT_P );
 	CHECK_THROWS( t0.openTag() ); // cannot open a non-file type tag
 
-	HTAG t1( std::cout, HT_P );
-	CHECK_THROWS( t1.closeTag() ); // cannot close a tag that has not been opened
+	HTAG t1( HT_P );
+	CHECK_THROWS( t1.closeTag() ); // cannot open a non-file type tag
+}
+
+TEST_CASE( "File type tags", "[mytest]" )
+{
+	SECTION( "File type tags 1" )
+	{
+		std::ostringstream oss, oss1, oss2, oss3, oss4;
+
+		HTAG t0( oss, HT_P );                        // adding content to a tag
+		t0 << "content";
+		oss << t0;
+		CHECK( oss.str() == "<p>content</p>" );
+
+		HTAG t1( oss1, HT_P );
+		t1 << "this ";
+		t1 << "is text";
+		oss1 << t1;
+		CHECK( oss1.str() == "<p>this is text</p>" );
+	}
+	SECTION( "File type tags 2" )
+	{
+		std::ostringstream oss, oss1, oss2, oss3, oss4;
+
+		HTAG t0( oss, HT_P );                        // adding content to a tag
+		t0 << "content";
+		oss << t0;
+		CHECK( oss.str() == "<p>content</p>" );
+
+		HTAG t1( oss1, HT_P );
+		oss1 << t1;
+		CHECK( oss1.str() == "<p></p>" );
+
+		HTAG t2( oss2, HT_P, "content" );
+		oss2 << t2;
+		CHECK( oss2.str() == "<p>content</p>" );
+
+		HTAG t3( oss3, HT_P, "content", AT_CLASS, "abc" );
+		oss3 << t3;
+		CHECK( oss3.str() == "<p class=\"abc\">content</p>" );
+
+		HTAG t4( oss4, HT_P, AT_CLASS, "abc" );
+		oss4 << t4;
+		CHECK( oss4.str() == "<p class=\"abc\"></p>" );
+	}
+}
+
+TEST_CASE( "tag closure", "[mytest]" )
+{
+	SECTION( "self closing tag" )
+	{
+		std::ostringstream oss0, oss1, oss2, oss3, oss4;
+		{
+			HTAG t0( oss0, HT_P );                        // adding content to a tag
+			t0 << "content";
+			t0.openTag();
+			t0 << ", some more content";
+			t0.printTag();
+		}
+		CHECK( oss0.str() == "<p>content, some more content</p>" );
+
+		{
+			HTAG t0( oss1, HT_P );                        // adding content to a tag
+			t0 << "some content";
+			t0.printTag();
+		}
+		CHECK( oss1.str() == "<p>some content</p>" );
+	}
 }
 
