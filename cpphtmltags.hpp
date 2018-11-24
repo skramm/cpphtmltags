@@ -85,6 +85,7 @@ namespace htags {
 /// HTML tag identifier
 enum EN_HTAG
 {
+	HT_HTML,
 	HT_HEAD,
 	HT_BODY,
 	HT_SCRIPT,
@@ -96,6 +97,13 @@ enum EN_HTAG
 	HT_STYLE,
 	HT_TABLE,
 	HT_CAPTION,
+
+	HT_MAIN,
+	HT_NAV,
+	HT_SECTION,
+	HT_FOOTER,
+	HT_HEADER,
+
 	HT_AREA,
 	HT_BASE,
 	HT_SPAN,
@@ -113,6 +121,8 @@ enum EN_HTAG
 	HT_H2,
 	HT_H3,
 	HT_H4,
+	HT_H5,
+	HT_H6,
 	HT_HR,
 	HT_BR,
 
@@ -126,6 +136,7 @@ getTagString( EN_HTAG tag )
 	const char* n=0;
 	switch( tag )
 	{
+		case HT_HTML:    n = "html";    break;
 		case HT_HEAD:    n = "head";    break;
 		case HT_BODY:    n = "body";    break;
 		case HT_SCRIPT:  n = "script";  break;
@@ -137,6 +148,11 @@ getTagString( EN_HTAG tag )
 		case HT_STYLE:   n = "style";   break;
 		case HT_TABLE:   n = "table";   break;
 		case HT_CAPTION: n = "caption"; break;
+		case HT_MAIN:    n = "main";    break;
+		case HT_NAV:     n = "nav";     break;
+		case HT_SECTION: n = "section"; break;
+		case HT_FOOTER:  n = "footer";  break;
+		case HT_HEADER:  n = "header";  break;
 		case HT_AREA:    n = "area";    break;
 		case HT_BASE:    n = "base";    break;
 		case HT_SPAN:    n = "span";    break;
@@ -150,6 +166,8 @@ getTagString( EN_HTAG tag )
 		case HT_OL:  n =  "ol";  break;
 		case HT_A:   n =  "a";   break;
 		case HT_P:   n =  "p";   break;
+		case HT_H6:  n =  "h6";  break;
+		case HT_H5:  n =  "h5";  break;
 		case HT_H4:  n =  "h4";  break;
 		case HT_H3:  n =  "h3";  break;
 		case HT_H2:  n =  "h2";  break;
@@ -192,6 +210,7 @@ enum EN_ATTRIB
 	AT_TITLE,
 	AT_ID,
 	AT_DOWNLOAD,
+	AT_HIDDEN,
 	AT_START,
 	AT_LANG,
 
@@ -218,6 +237,7 @@ getAttribString( EN_ATTRIB att )
 		case AT_VALUE:    n = "value";    break;
 		case AT_REL:      n = "rel";      break;
 		case AT_ALT:      n = "alt";      break;
+		case AT_ID:       n = "id";       break;
 		case AT_TYPE:     n = "type";     break;
 
 		case AT_CLASS:    n = "class";    break;
@@ -226,6 +246,7 @@ getAttribString( EN_ATTRIB att )
 		case AT_TITLE:    n = "title";    break;
 		case AT_ID:       n = "id";       break;
 		case AT_DOWNLOAD: n = "download"; break;
+		case AT_HIDDEN  : n = "hidden";   break;
 		case AT_START:    n = "start";    break;
 		case AT_LANG:     n = "lang";     break;
 
@@ -248,6 +269,8 @@ isGlobalAttr( EN_ATTRIB attr )
 		case AT_STYLE:
 		case AT_LANG:
 		case AT_TITLE:
+		case AT_HIDDEN:
+		case AT_ID:
 			return true;
 		default:
 			return false;
@@ -269,10 +292,11 @@ struct MapAttribs
 	}
 	MapAttribs()
 	{
-		_map[AT_ALT]  = { HT_AREA, HT_IMG, HT_INPUT };
-		_map[AT_HREF] = { HT_A, HT_AREA, HT_BASE, HT_LINK };
-		_map[AT_ACTION] = { HT_FORM };
+		_map[AT_ALT]     = { HT_AREA, HT_IMG, HT_INPUT };
+		_map[AT_HREF]    = { HT_A, HT_AREA, HT_BASE, HT_LINK };
+		_map[AT_ACTION]  = { HT_FORM };
 		_map[AT_CHARSET] = { HT_META, HT_SCRIPT };
+		_map[AT_NAME]    = { HT_META, };
 	}
 };
 
