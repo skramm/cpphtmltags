@@ -68,12 +68,14 @@
 		<Unit filename="README.md">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
+		<Unit filename="attribs.src" />
 		<Unit filename="cpphtmltags.hpp">
 			<Option target="main1" />
 			<Option target="supported" />
 			<Option target="main2" />
 		</Unit>
 		<Unit filename="manual.md" />
+		<Unit filename="tags.src" />
 		<Unit filename="tests/supported.cpp">
 			<Option target="supported" />
 		</Unit>

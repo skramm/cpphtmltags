@@ -35,7 +35,6 @@ homepage: https://github.com/skramm/cpphtmltags
 
 
 #define EXPERIMENTAL
-//#define HTAGS_SILENT_WARNINGS
 
 #ifdef EXPERIMENTAL
 	#include <vector>
@@ -85,6 +84,7 @@ namespace htags {
 /// HTML tag identifier
 enum EN_HTAG
 {
+
 	HT_HTML,
 	HT_HEAD,
 	HT_BODY,
