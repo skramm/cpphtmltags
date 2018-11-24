@@ -35,7 +35,7 @@ homepage: https://github.com/skramm/cpphtmltags
 
 
 #define EXPERIMENTAL
-//#define HTAGS_DISABLE_WARNINGS
+//#define HTAGS_SILENT_WARNINGS
 
 #ifdef EXPERIMENTAL
 	#include <vector>
@@ -47,22 +47,37 @@ homepage: https://github.com/skramm/cpphtmltags
 #include <iostream>
 #include <algorithm>
 
+#define HTAG_PRINT_INFO( msg ) \
+		std::cerr << "htags: fatal error: " \
+			<< "\n - file: " << __FILE__ \
+			<< "\n - line: " << __LINE__ \
+			<< "\n - message: " << msg \
+			<< "\n";
 
-#ifdef HTAGS_DISABLE_WARNINGS
+
+#ifdef HTAGS_SILENT_MODE
+	#define HTAGS_SILENT_WARNINGS
+	#define HTAGS_SILENT_ERRORS
+#endif
+
+#ifdef HTAGS_SILENT_WARNINGS
 	#define HTTAGS_WARNING if(0) std::cerr
 #else
 	#define HTTAGS_WARNING if(1) std::cerr << "htags: Warning: "
 #endif
 
-#define HTTAGS_ERROR( msg )   \
-	{ \
-		std::cerr << "htags: fatal error: " \
-			<< "\n - file: " << __FILE__ \
-			<< "\n - line: " << __LINE__ \
-			<< "\n - message: " << msg \
-			<< "\n"; \
-		throw std::runtime_error( "htags: fatal error" ); \
-	}
+#ifdef HTAGS_SILENT_ERRORS
+	#define HTTAGS_ERROR( msg ) \
+		{ \
+			throw std::runtime_error( "htags: fatal error" ); \
+		}
+#else
+	#define HTTAGS_ERROR( msg ) \
+		{ \
+			HTAG_PRINT_INFO( msg ); \
+			throw std::runtime_error( "htags: fatal error" ); \
+		}
+#endif
 
 namespace htags {
 
@@ -583,22 +598,14 @@ HTAG::HTAG(
 		addAttrib( att, attribvalue );
 	setContent( content );
 }
-
-//-----------------------------------------------------------------------------------
-static
-void
-checkNonVoidTag( EN_HTAG tag )
-{
-	if( !tagMustClose( tag ) )
-		HTTAGS_ERROR( std::string("attempting to store content into a void-element tag: ") + getTagString( tag ) );
-}
 //-----------------------------------------------------------------------------------
 /// specialization for std::string
 template<>
 void
 HTAG::addContent<std::string>( std::string content )
 {
-	checkNonVoidTag( getTag() );
+	if( !tagMustClose( _tag_en ) )
+		HTTAGS_ERROR( std::string("attempting to store content '") + content + "' into a void-element tag '" + getTagString( _tag_en ) + '\'' );
 	_content += content;
 }
 #if 1

@@ -1,21 +1,23 @@
 # makefile for cpphtmltags
 
 
-SRC_TEST_FILES = $(wildcard tests/test_*.cpp)
-EXE_TEST_FILES := $(patsubst tests/%.cpp, bin/%, $(SRC_TEST_FILES))
-
+# not used at present but could be for multiple test files
+#SRC_TEST_FILES = $(wildcard tests/test_*.cpp)
+#EXE_TEST_FILES := $(patsubst tests/%.cpp, bin/%, $(SRC_TEST_FILES))
+TEST_FILE=tests/test_A.cpp
 
 CFLAGS := -std=c++11
 
-test: $(EXE_TEST_FILES)
-	@echo "done target $<"
-
-bin/%:	tests/%.cpp
-	@$(CXX) $(CFLAGS) $<
-	@echo "Start test, file $<"
+#test: $(EXE_TEST_FILES)
+test: a.out
+	@echo "-Start test"
 	@./a.out
 #	@./a.out -s
-	@echo "Done test"
+
+
+a.out: cpphtmltags.hpp $(TEST_FILE) Makefile
+	@echo "-start compiling $(TEST_FILE)"
+	@$(CXX) $(CFLAGS) $(TEST_FILE)
 
 show:
 	@echo "EXE_TEST_FILES=$(EXE_TEST_FILES)"

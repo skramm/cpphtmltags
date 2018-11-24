@@ -6,7 +6,11 @@ Homepage: https://github.com/skramm/cpphtmltags/
 There is a single class to use: HTAG
 It is defined in the namespace htags
 
-A tag can be created in two different ways:
+Two types of tags can be created, but they are both handled trough the same class, for conveniency.
+They only differ in the way they are created, and how they generate some output.
+The first type is independant of any output device, it is up to the user to stream them in some output stream.
+With the second type, you assign an output stream at creation time.
+
 
 ### Method 1
 Just a regular object:
@@ -26,8 +30,8 @@ Or all three:
 HTAG mytag( HT_P, "a paragraph", AT_CLASS, "abc" );
 ```
 ### Method 2
-You can specify the file where the html code must be generated
-(of type `std::ostream` or `std::ofstream`):
+You can specify the file where the html code must be generated.
+It can be of type `std::ostream`, or `std::ofstream`, or even std::ostringstream:
 ```C++
 HTAG mytag( file, HT_P );
 ```
@@ -100,10 +104,13 @@ HTAG::setLineFeedMode( LF_Always );
 ## Error handling
 
 In case of non fatal problem, this library will simply issue a warning with a clear message on `std::cerr`.
-This can be disable by passing the option `HTAGS_DISABLE_WARNINGS` before including the file.
+This can be disabled by passing the option `HTAGS_SILENT_WARNINGS` before including the file.
 
 In case of fatal error, this library will issue a message on `std::cerr` with line number and the error message, and throw
 an error of type `std::runtime_error`.
+
+Similarly, error messages can be removed by defining the symbol `HTAGS_SILENT_ERRORS`.
+You can mute both errors and warnings by defining `HTAGS_SILENT_MODE`. This will guarantee that no output will be streamed in `std::cerr`.
 
 ### html5 tag/attribute enforcing
 

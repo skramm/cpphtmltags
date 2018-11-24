@@ -3,7 +3,9 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
+#define HTAGS_SILENT_MODE
 #include "../cpphtmltags.hpp"
+
 
 using namespace htags;
 
@@ -118,13 +120,16 @@ TEST_CASE( "test1", "[mytest]" )
 	}
 }
 
-TEST_CASE( "test2", "[mytest]" )
+TEST_CASE( "Error checking", "[mytest]" )
 {
 	HTAG t0( HT_P );
 	CHECK_THROWS( t0.openTag() ); // cannot open a non-file type tag
 
 	HTAG t1( HT_P );
 	CHECK_THROWS( t1.closeTag() ); // cannot open a non-file type tag
+
+	HTAG t2( HT_BR );
+	CHECK_THROWS( t2.addContent( "tag cannot have content" ) );
 }
 
 TEST_CASE( "File type tags", "[mytest]" )
