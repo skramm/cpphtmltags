@@ -81,7 +81,7 @@ typedef std::map<En_Httag, PairAttribString_t> GlobAttribMap_t;
 This class can be used in two ways:
 - either as a regular object, for example:
 \code
-	HTAG tag( f, HT_LI );
+	Httag tag( f, HT_LI );
 	tag.openTag();
 	f << ... some content
 	tag.Closetag();
@@ -90,7 +90,7 @@ This form is identified by having the output file (of type FileHTML) as first ar
 
 - either as an object build in-place that gets streamed, for example, this:
 \code
-	f << HTAG( HT_LI, "content" );
+	f << Httag( HT_LI, "content" );
 \endcode
 will produce:
 \code
@@ -101,7 +101,7 @@ This form is identified by having as first argument of constructor a value of ty
 
 These two constructors both allow as third and fourth argument an HTML attribute type and value. For example, this:
 \code
-	f << HTAG( HT_LI, "content", AT_CLASS, "abc" );
+	f << Httag( HT_LI, "content", AT_CLASS, "abc" );
 \endcode
 will produce:
 \code
@@ -109,36 +109,36 @@ will produce:
 \endcode
 
 */
-class HTAG
+class Httag
 {
 	friend class MapAttribs;
 	template<typename T>
-	friend HTAG&         operator << ( HTAG&         tag,    const T& );
-	friend std::ostream& operator << ( std::ostream& stream, const HTAG& );
+	friend Httag&         operator << ( Httag&         tag,    const T& );
+	friend std::ostream& operator << ( std::ostream& stream, const Httag& );
 
 	public:
 /// \name Constructors & destructor
 ///@{
-		HTAG( std::ostream& f, En_Httag );
+		Httag( std::ostream& f, En_Httag );
 
 		template<typename T>
-		HTAG( std::ostream& f, En_Httag, T t=T() );
+		Httag( std::ostream& f, En_Httag, T t=T() );
 
 		template<typename T>
-		HTAG( std::ostream& f, En_Httag, En_Attrib=AT_DUMMY, T attribvalue=T() );
+		Httag( std::ostream& f, En_Httag, En_Attrib=AT_DUMMY, T attribvalue=T() );
 
 		template<typename T1,typename T2>
-		HTAG( std::ostream& f, En_Httag, T1 content, En_Attrib=AT_DUMMY, T2 attribvalue=T2() );
+		Httag( std::ostream& f, En_Httag, T1 content, En_Attrib=AT_DUMMY, T2 attribvalue=T2() );
 
-		HTAG( En_Httag );
+		Httag( En_Httag );
 
 		template<typename T1>
-		HTAG( En_Httag, T1 content );
+		Httag( En_Httag, T1 content );
 		template<typename T1, typename T2>
-		HTAG( En_Httag, T1 content, En_Attrib, T2 attribvalue );
+		Httag( En_Httag, T1 content, En_Attrib, T2 attribvalue );
 		template<typename T>
-		HTAG( En_Httag, En_Attrib, T attribvalue );
-		~HTAG();
+		Httag( En_Httag, En_Attrib, T attribvalue );
+		~Httag();
 ///@}
 		void openTag();
 		void closeTag( bool linefeed=false );
@@ -220,7 +220,7 @@ class HTAG
 /// helper function, prints the tags and attributes currently supported
 inline
 void
-HTAG::printSupported( std::ostream& f )
+Httag::printSupported( std::ostream& f )
 {
 	f << "* Supported tags: " << HT_DUMMY;
 	for( size_t i=0; i<HT_DUMMY; i++ )
@@ -236,7 +236,7 @@ HTAG::printSupported( std::ostream& f )
 //-----------------------------------------------------------------------------------
 /// constructor 1
 inline
-HTAG::HTAG( En_Httag tag )
+Httag::Httag( En_Httag tag )
 	: _tag_en( tag ), _file(0), _isFileType(false)
 {
 }
@@ -244,7 +244,7 @@ HTAG::HTAG( En_Httag tag )
 //-----------------------------------------------------------------------------------
 /// generic constructor 2 (used for string data type)
 template<typename T>
-HTAG::HTAG( En_Httag tag, T content ) : HTAG( tag )
+Httag::Httag( En_Httag tag, T content ) : Httag( tag )
 {
 	_content = std::to_string( content );
 }
@@ -252,7 +252,7 @@ HTAG::HTAG( En_Httag tag, T content ) : HTAG( tag )
 /// constructor 2: specialisation for string
 template<>
 inline
-HTAG::HTAG( En_Httag tag, std::string content ) : HTAG( tag )
+Httag::Httag( En_Httag tag, std::string content ) : Httag( tag )
 {
 	_content = content;
 }
@@ -260,19 +260,19 @@ HTAG::HTAG( En_Httag tag, std::string content ) : HTAG( tag )
 /// constructor 2: specialisation for string
 template<>
 inline
-HTAG::HTAG( En_Httag tag, const char* content ) : HTAG( tag )
+Httag::Httag( En_Httag tag, const char* content ) : Httag( tag )
 {
 	_content = content;
 }
 //-----------------------------------------------------------------------------------
 /// generic constructor 3a
 template<typename T1, typename T2>
-HTAG::HTAG(
+Httag::Httag(
 	En_Httag    tag,
 	T1         content,
 	En_Attrib  attr,
 	T2         attribvalue
-	) : HTAG( tag )
+	) : Httag( tag )
 {
 	setContent( content );
 
@@ -283,11 +283,11 @@ HTAG::HTAG(
 //-----------------------------------------------------------------------------------
 /// generic constructor 3b
 template<typename T>
-HTAG::HTAG(
+Httag::Httag(
 	En_Httag    tag,
 	En_Attrib  attr,
 	T          attribvalue
-	) : HTAG( tag )
+	) : Httag( tag )
 {
 	if( attr != AT_DUMMY )
 		_attr_map[attr] = attribvalue;
@@ -300,7 +300,7 @@ HTAG::HTAG(
 \todo: why is this constructor necessary ? The other constructor with default args should be sufficient
 */
 inline
-HTAG::HTAG(
+Httag::Httag(
 	std::ostream& f,           ///< the file into where it will be written
 	En_Httag       tag          ///< the html tag id
 	) : _tag_en( tag ), _file(&f), _isFileType(true)
@@ -309,7 +309,7 @@ HTAG::HTAG(
 //-----------------------------------------------------------------------------------
 /// generic constructor B2 (for file output)
 template<typename T>
-HTAG::HTAG(
+Httag::Httag(
 	std::ostream& f,           ///< the file into where it will be written
 	En_Httag       tag,          ///< the html tag id
 	T             content
@@ -321,7 +321,7 @@ HTAG::HTAG(
 //-----------------------------------------------------------------------------------
 /// generic constructor B3 (for file output)
 template<typename T>
-HTAG::HTAG(
+Httag::Httag(
 	std::ostream&  f,            ///< the file into where it will be written
 	En_Httag        tag,          ///< the html tag id
 	En_Attrib      att,          ///< (opt.) the tag's attribute id
@@ -334,7 +334,7 @@ HTAG::HTAG(
 //-----------------------------------------------------------------------------------
 /// generic constructor B4 (for file output)
 template<typename T1, typename T2>
-HTAG::HTAG(
+Httag::Httag(
 	std::ostream&  f,            ///< the file into where it will be written
 	En_Httag        tag,          ///< the html tag id
 	T1             content,      ///< tag content
@@ -350,7 +350,7 @@ HTAG::HTAG(
 /// specialization for std::string
 template<>
 void
-HTAG::addContent<std::string>( std::string content )
+Httag::addContent<std::string>( std::string content )
 {
 	if( isVoidElement( _tag_en ) )
 		HTTAGS_ERROR( std::string("attempting to store content '") + content + "' into a void-element tag '" + getString( _tag_en ) + '\'' );
@@ -360,7 +360,7 @@ HTAG::addContent<std::string>( std::string content )
 /// specialization for const char*
 template<>
 void
-HTAG::addContent<const char*>( const char* content )
+Httag::addContent<const char*>( const char* content )
 {
 	addContent<std::string>( std::string(content) );
 }
@@ -368,7 +368,7 @@ HTAG::addContent<const char*>( const char* content )
 /// default implementation
 template<typename T>
 void
-HTAG::addContent( T content )
+Httag::addContent( T content )
 {
 	addContent<std::string>( std::to_string(content) );
 }
@@ -376,7 +376,7 @@ HTAG::addContent( T content )
 /// specialization for const char*
 template<>
 void
-HTAG::setContent<const char*>( const char* content )
+Httag::setContent<const char*>( const char* content )
 {
 	clearContent();
 	addContent<std::string>( std::string(content) );
@@ -384,7 +384,7 @@ HTAG::setContent<const char*>( const char* content )
 /// specialization for std::string
 template<>
 void
-HTAG::setContent<std::string>( std::string content )
+Httag::setContent<std::string>( std::string content )
 {
 	clearContent();
 	addContent<std::string>( content );
@@ -392,19 +392,19 @@ HTAG::setContent<std::string>( std::string content )
 /// default implementation
 template<typename T>
 void
-HTAG::setContent( T content )
+Httag::setContent( T content )
 {
 	clearContent();
 	addContent<std::string>( std::to_string(content) );
 }
 //-----------------------------------------------------------------------------------
-void HTAG::printTag()
+void Httag::printTag()
 {
 	printWithContent( "" );
 }
 //-----------------------------------------------------------------------------------
 template<typename T>
-void HTAG::printWithContent( T c )
+void Httag::printWithContent( T c )
 {
 	openTag();
 	if( !_content.empty() )
@@ -417,7 +417,7 @@ void HTAG::printWithContent( T c )
 //-----------------------------------------------------------------------------------
 /// Destructor, automatically closes tag if needed
 inline
-HTAG::~HTAG()
+Httag::~Httag()
 {
 	if( _tagIsOpen && _isFileType )
 		closeTag();
@@ -425,7 +425,7 @@ HTAG::~HTAG()
 
 //-----------------------------------------------------------------------------------
 void
-HTAG::p_checkValidFileType( std::string action )
+Httag::p_checkValidFileType( std::string action )
 {
 	if( !_isFileType )
 		HTTAGS_ERROR( std::string("object tag '") + getString(_tag_en) + "' is not a \"file type\" object." );
@@ -442,7 +442,7 @@ HTAG::p_checkValidFileType( std::string action )
 /// Open the tag (this function needs to be called ONLY for "file" object types
 inline
 void
-HTAG::openTag()
+Httag::openTag()
 {
 	p_checkValidFileType( "open" );
 	if( _tagIsOpen )
@@ -462,7 +462,7 @@ HTAG::openTag()
 /// Close the tag (this function needs to be called ONLY for "file" object types
 inline
 void
-HTAG::closeTag( bool linefeed )
+Httag::closeTag( bool linefeed )
 {
 	p_checkValidFileType( "close" );
 
@@ -485,8 +485,8 @@ HTAG::closeTag( bool linefeed )
 //-----------------------------------------------------------------------------------
 /// Insert some content into the tag, that will get printed later
 template<typename T>
-HTAG&
-operator << ( HTAG& tag, const T& str )
+Httag&
+operator << ( Httag& tag, const T& str )
 {
 //	assert( !tag._isFileType );
 	std::ostringstream oss;
@@ -498,7 +498,7 @@ operator << ( HTAG& tag, const T& str )
 /// static member function
 inline
 void
-HTAG::setGlobalAttrib( En_Httag tag, En_Attrib att, const std::string& value )
+Httag::setGlobalAttrib( En_Httag tag, En_Attrib att, const std::string& value )
 {
 	globalAttrib()[tag] = std::make_pair( att, value );
 }
@@ -507,7 +507,7 @@ HTAG::setGlobalAttrib( En_Httag tag, En_Attrib att, const std::string& value )
 /// Returns the global pair "attribute=string" for \c tag, if any
 inline
 std::string
-HTAG::getGlobalAttrib( En_Httag tag )
+Httag::getGlobalAttrib( En_Httag tag )
 {
 	if( globalAttrib().count(tag) )
 		return std::string( getString( globalAttrib()[tag].first )) + '=' + globalAttrib()[tag].second;
@@ -520,7 +520,7 @@ If the attribute is already present, then the value will be concatenated to the 
 */
 template<typename T>
 void
-HTAG::addAttrib( En_Attrib attr, T value )
+Httag::addAttrib( En_Attrib attr, T value )
 {
 	p_addAttrib( attr, std::to_string(value) );
 }
@@ -531,7 +531,7 @@ If the attribute is already present, then the value will be concatenated to the 
 */
 template<>
 void
-HTAG::addAttrib<std::string>( En_Attrib attr, std::string value )
+Httag::addAttrib<std::string>( En_Attrib attr, std::string value )
 {
 	p_addAttrib( attr, value );
 }
@@ -542,7 +542,7 @@ If the attribute is already present, then the value will be concatenated to the 
 */
 template<>
 void
-HTAG::addAttrib<const char*>( En_Attrib attr, const char* value )
+Httag::addAttrib<const char*>( En_Attrib attr, const char* value )
 {
 	p_addAttrib( attr, value );
 }
@@ -553,7 +553,7 @@ If the attribute is already present, then the value will be concatenated to the 
 */
 inline
 void
-HTAG::p_addAttrib( En_Attrib attr, std::string value )
+Httag::p_addAttrib( En_Attrib attr, std::string value )
 {
 	if( _tagIsOpen ) // because if it is already opened, then we can't add an attribute !
 		HTTAGS_ERROR( std::string("unable to add attribute '") + getString(attr) + "' with value '" << value << "', tag is already opened." );
@@ -601,7 +601,7 @@ HTAG::p_addAttrib( En_Attrib attr, std::string value )
 */
 inline
 void
-HTAG::removeAttrib( En_Attrib attr )
+Httag::removeAttrib( En_Attrib attr )
 {
 //	if( _tagIsOpen ); // because if it is open, then we can't remove it!
 //		HTTAGS_ERROR( "asking to remove attribute on open tag" );
@@ -620,7 +620,7 @@ HTAG::removeAttrib( En_Attrib attr )
 /// Returns a string holding the attributes
 inline
 std::string
-HTAG::p_getAttribs() const
+Httag::p_getAttribs() const
 {
 	GlobAttribMap_t& gattr = globalAttrib();  // check is there is a global attribute for that tag
 	const PairAttribString_t* gpatst = 0;
@@ -691,7 +691,7 @@ hasDefaultLineFeed( En_Httag tag )
 /// Add a linefeed, either if requested (argument), either if default behaviour
 inline
 void
-HTAG::doLineFeed( bool linefeed ) const
+Httag::doLineFeed( bool linefeed ) const
 {
 	bool doIt = false;
 	switch( lf_mode() )
@@ -709,7 +709,7 @@ HTAG::doLineFeed( bool linefeed ) const
 /// Streams into \c s the opening tag (with attributes), the content, and the closing tag
 inline
 std::ostream&
-operator << ( std::ostream& s, const HTAG& h )
+operator << ( std::ostream& s, const Httag& h )
 {
 	s << '<' << getString( h._tag_en )
 		<< h.p_getAttribs()
@@ -722,7 +722,7 @@ operator << ( std::ostream& s, const HTAG& h )
 }
 //-----------------------------------------------------------------------------------
 
-} // namespace htags end
+} // namespace httag end
 
 #endif // HG_CPPHTMLTAGS_HPP
 

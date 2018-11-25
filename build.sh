@@ -30,7 +30,7 @@ echo -e "};\n">> $file_e
 
 # STEP 0: generate list of attributes from authorized tags/attributes file
 
-file_input=ref/valid_attribs_2.ref
+file_input=ref/valid_attribs.ref
 file_output=tmp/attribs_1.ref
 
 rm $file_output
@@ -59,7 +59,7 @@ generate
 
 # STEP 2: generate map of allowed tags for each attribute
 
-file_input=ref/valid_attribs_2.ref
+file_input=ref/valid_attribs.ref
 file_out=tmp/attrib_tags.src
 
 echo "/// Conveniency typedef"> $file_out

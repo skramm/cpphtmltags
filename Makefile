@@ -14,16 +14,16 @@ test: a.out
 	@./a.out
 #	@./a.out -s
 
-
+# for tests
 a.out: cpphtmltags.hpp $(TEST_FILE) Makefile
 	@echo "-start compiling $(TEST_FILE)"
 	@$(CXX) $(CFLAGS) $(TEST_FILE)
 
-show:
-	@echo "EXE_TEST_FILES=$(EXE_TEST_FILES)"
 
 # builds the sample programs
 
+
+# builds doxygen documentation
 doc:
 	doxygen Doxyfile
 	xdg-open html/index.html

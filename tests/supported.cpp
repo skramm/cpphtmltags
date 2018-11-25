@@ -9,5 +9,5 @@
 
 int main()
 {
-	htags::HTAG::printSupported( std::cout );
+	httags::Httag::printSupported( std::cout );
 }

@@ -22,13 +22,10 @@
 
 homepage: https://github.com/skramm/cpphtmltags
 
-\todo add targets to Makefile to build demos and test
-
-\todo add (real) tests, using Catch
+\todo add targets to Makefile to build demos (test target is done)
 
 \todo Clarify usage/need of _printAttribs
 
-\warning Only a subset of html5 is implemented at present, see htags::HTAGS::printSupported() and \ref tests/supported.cpp
 
 Refs:
 - attributes:
@@ -60,7 +57,7 @@ Refs:
 #include <algorithm>
 
 #define HTAG_PRINT_INFO( msg ) \
-		std::cerr << "htags: fatal error: " \
+		std::cerr << "httag: fatal error: " \
 			<< "\n - file: " << __FILE__ \
 			<< "\n - line: " << __LINE__ \
 			<< "\n - message: " << msg \
@@ -75,23 +72,23 @@ Refs:
 #ifdef HTAGS_SILENT_WARNINGS
 	#define HTTAGS_WARNING if(0) std::cerr
 #else
-	#define HTTAGS_WARNING if(1) std::cerr << "htags: Warning: "
+	#define HTTAGS_WARNING if(1) std::cerr << "httag: Warning: "
 #endif
 
 #ifdef HTAGS_SILENT_ERRORS
 	#define HTTAGS_ERROR( msg ) \
 		{ \
-			throw std::runtime_error( "htags: fatal error" ); \
+			throw std::runtime_error( "httag: fatal error" ); \
 		}
 #else
 	#define HTTAGS_ERROR( msg ) \
 		{ \
 			HTAG_PRINT_INFO( msg ); \
-			throw std::runtime_error( "htags: fatal error" ); \
+			throw std::runtime_error( "httag: fatal error" ); \
 		}
 #endif
 
-namespace htags {
+namespace httag {
 
 
 

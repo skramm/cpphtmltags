@@ -68,14 +68,20 @@
 		<Unit filename="README.md">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="attribs.src" />
+		<Unit filename="build.sh" />
 		<Unit filename="cpphtmltags.hpp">
 			<Option target="main1" />
 			<Option target="supported" />
 			<Option target="main2" />
 		</Unit>
+		<Unit filename="cpphtmltags_1.hh" />
+		<Unit filename="cpphtmltags_2.hh" />
+		<Unit filename="dev_info.md" />
 		<Unit filename="manual.md" />
-		<Unit filename="tags.src" />
+		<Unit filename="ref/global_attribs.ref" />
+		<Unit filename="ref/tags.ref" />
+		<Unit filename="ref/valid_attribs.ref" />
+		<Unit filename="ref/void_elements.ref" />
 		<Unit filename="tests/supported.cpp">
 			<Option target="supported" />
 		</Unit>
@@ -86,8 +92,6 @@
 			<Option target="main2" />
 		</Unit>
 		<Unit filename="tests/test_A.cpp">
-			<Option target="main2" />
-			<Option target="supported" />
 			<Option target="test2" />
 		</Unit>
 		<Extensions>

@@ -55,8 +55,9 @@ For more details, see [manual](manual.md).
 ## Features
 
 
-## Important points
-- Does not intend (at present) to cover ALL html tags
+## Html coverage
+- covers 123 html tags ("elements", as they say at w3c) and 134 attributes
+- limitations: html comments not handled at present
 
 ## build and install
 - build: no build, header-only

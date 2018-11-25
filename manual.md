@@ -3,8 +3,8 @@
 Homepage: https://github.com/skramm/cpphtmltags/
 
 
-There is a single class to use: HTAG
-It is defined in the namespace htags
+There is a single class to use: Httag
+It is defined in the namespace httag
 
 Two types of tags can be created, but they are both handled trough the same class, for conveniency.
 They only differ in the way they are created, and how they generate some output.
@@ -15,32 +15,32 @@ With the second type, you assign an output stream at creation time.
 ### Method 1
 Just a regular object:
 ```C++
-HTAG mytag( HT_P );
+Httag mytag( HT_P );
 ```
 You can also add some content:
 ```C++
-HTAG mytag( HT_P, "a paragraph" );
+Httag mytag( HT_P, "a paragraph" );
 ```
 You can add a pair attribute/value:
 ```C++
-HTAG mytag( HT_P, AT_CLASS, "abc" );
+Httag mytag( HT_P, AT_CLASS, "abc" );
 ```
 Or all three:
 ```C++
-HTAG mytag( HT_P, "a paragraph", AT_CLASS, "abc" );
+Httag mytag( HT_P, "a paragraph", AT_CLASS, "abc" );
 ```
 ### Method 2
 You can specify the file where the html code must be generated.
 It can be of type `std::ostream`, or `std::ofstream`, or even std::ostringstream:
 ```C++
-HTAG mytag( file, HT_P );
+Httag mytag( file, HT_P );
 ```
 
 As above you can add a content, and/or a pair attribute/value, at creation time:
 ```C++
-HTAG p1( file, HT_P, AT_CLASS, "abc" );
-HTAG p2( file, HT_P, "a paragraph" );
-HTAG p3( file, HT_P, "a paragraph", AT_CLASS, "abc" );
+Httag p1( file, HT_P, AT_CLASS, "abc" );
+Httag p2( file, HT_P, "a paragraph" );
+Httag p3( file, HT_P, "a paragraph", AT_CLASS, "abc" );
 ```
 
 Please note that when created a tag that way, nothing is printed in the stream.
@@ -57,7 +57,7 @@ Content can be added in several ways.
 - It can be added at the tag creation time (see above)
 - It can be directly added to the output stream, once the tag is opened:
 ```C++
-HTAG p( std::cout, HT_P );
+Httag p( std::cout, HT_P );
 p.openTag();
 std::cout << "a paragraph";
 p.closeTag();
@@ -65,7 +65,7 @@ p.closeTag();
 
 - Or you can use the provided functions:
 ```C++
-HTAG p( HT_P );
+Httag p( HT_P );
 p.setContent( "a paragraph" );
 p.addContent( " of text" );
 ```
@@ -75,11 +75,11 @@ p.addContent( " of text" );
 It is possible to add to a given tag a "global attribute", that is each time you will output that tag, this attribute-value pair will be automatically added.
 For example, at one point you want to add to all the tags `li` the attribute `class="my_class"`.
 This can be done with
-`HTAG::addGlobalAttrib( HT_LI, AT_CLASS, "my_class" );`
+`Httag::addGlobalAttrib( HT_LI, AT_CLASS, "my_class" );`
 
 To remove, you can:
--remove all global attributes with `HTAG::clearGlobalAttribs()`
--remove the global attribute on a given tag with `HTAG::clearGlobalAttrib( <tag id> )`
+-remove all global attributes with `Httag::clearGlobalAttribs()`
+-remove the global attribute on a given tag with `Httag::clearGlobalAttrib( <tag id> )`
 
 
 ## Line feeds
@@ -97,7 +97,7 @@ The possible values are `LF_None`, `LF_Always`, `LF_Default`.
 
 For example:
 ```C++
-HTAG::setLineFeedMode( LF_Always );
+Httag::setLineFeedMode( LF_Always );
 ```
 
 
@@ -129,6 +129,9 @@ If is is installed on your machine, you can run the tests with `make test`.
 Coverage is currently not complete, but will expand.
 
 
+## developper information
+
+Check out [Developper information](dev_info.md).
 
 Copyright Sebastien Kramm - 2018
 
