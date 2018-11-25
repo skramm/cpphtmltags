@@ -88,15 +88,15 @@ TEST_CASE( "test1", "[mytest]" )
 		HTAG t1( HT_P, "content", AT_CLASS, "myclass" );
 		t1.addAttrib( AT_STYLE, "width:100%;" );
 		oss << t1;
-		CHECK( oss.str() == "<p style=\"width:100%;\" class=\"myclass\">content</p>" );
+		CHECK( oss.str() == "<p class=\"myclass\" style=\"width:100%;\">content</p>" );
 
 		t1.addAttrib( AT_CLASS, "abc" );
 		oss2 << t1;
-		CHECK( oss2.str() == "<p style=\"width:100%;\" class=\"myclass abc\">content</p>" );
+		CHECK( oss2.str() == "<p class=\"myclass abc\" style=\"width:100%;\">content</p>" );
 
 		HTAG::setGlobalAttrib( HT_P, AT_CLASS, "cdef" );
 		oss3 << t1;
-		CHECK( oss3.str() == "<p style=\"width:100%;\" class=\"myclass abc cdef\">content</p>" );
+		CHECK( oss3.str() == "<p class=\"myclass abc cdef\" style=\"width:100%;\">content</p>" );
 
 		CHECK( HTAG::getGlobalAttrib( HT_P ) == "class=cdef" );
 	}

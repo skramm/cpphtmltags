@@ -1,5 +1,5 @@
 accept:input
-accept-charset:form
+accept_charset:form
 action:form
 alt:area,img,input
 async:script
@@ -30,7 +30,7 @@ height:canvas,embed,iframe,img,input,object,video
 high:meter
 href:a,area,base,link
 hreflang:a,area,link
-http-equiv:meta
+http_equiv:meta
 ismap:img
 kind:track
 label:track,option,optgroup

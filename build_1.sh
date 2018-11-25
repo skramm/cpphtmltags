@@ -28,6 +28,20 @@ echo -e "\n\t${pre}_DUMMY">> $file_e
 echo -e "};\n">> $file_e
 }
 
+# STEP 0: generate list of attributes from authorized tags/attributes file
+
+file_input=ref/valid_attribs_2.ref
+file_output=tmp/attribs_1.ref
+
+rm $file_output
+while IFS=$':' read a b
+do
+	echo "$a" >> $file_output
+done < $file_input
+cat tmp/attribs_1.ref ref/global_attribs.ref> tmp/attribs_2.ref
+sort <tmp/attribs_2.ref >tmp/attribs.ref
+
+
 # STEP 1: generate enum and getString() functions, for tags and attributes
 file_input=ref/tags.ref
 file_e=tmp/tags_enum.src
@@ -36,7 +50,7 @@ pre=HT
 name=En_Httag
 generate
 
-file_input=ref/attribs.ref
+file_input=tmp/attribs.ref
 file_e=tmp/attribs_enum.src
 file_s=tmp/attribs_switch.src
 pre=AT
@@ -45,7 +59,7 @@ generate
 
 # STEP 2: generate map of allowed tags for each attribute
 
-file_input=ref/valid_attribs.ref
+file_input=ref/valid_attribs_2.ref
 file_out=tmp/attrib_tags.src
 
 echo "/// Conveniency typedef"> $file_out
