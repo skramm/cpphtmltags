@@ -15,7 +15,7 @@ The idea is:
 - to add some abstraction to html generation,
 - to avoid unnecessary repetition of strings in your code,
 - to avoid some basic errors that can happen if you directly generate the html code with hardcoded strings?
-- to avoir to produce invalid html5 code.
+- to avoid generating invalid html5 code.
 
 For example, if you generate tags by some direct string output,
 some errors may go unnoticed. Say you forget the 'p' in "script":<br>
@@ -28,8 +28,8 @@ And in case you forget a letter somewhere, it will generate a compile-time error
 
 However, it is always possible to print out anything into the output stream, at any time (and even manually written Html tags!)
 
-This library enforces wrong order of tags opening/closing, for example, something like this:
-`<h2>title<p></h2>paragraph</p>`
+This library enforces wrong order of tags opening/closing, for example, something like this:<br>
+`<h2>title<p></h2>paragraph</p>`<br>
 may not happen.
 
 This library also enforces the html5 standard.
@@ -82,7 +82,7 @@ For more details, see [manual](manual.md).
 
 ## Build and install
 - build: no build, header-only
-- install: just fetch the single file (`cpphtmltags.hpp`)[blob/master/cpphtmltags.hpp], put it somewhere (`/usr/include` should be fine) and include it in your code.
+- install: just fetch the single file (`cpphtmltags.hpp`)[cpphtmltags.hpp], put it somewhere (`/usr/include` should be fine) and include it in your code.
 
 ## Motivation
 Needed this, couldn't find...
@@ -108,3 +108,5 @@ All the html5 standard material has been fetched from these sources:
 - Global attributes:
   - http://w3c.github.io/html-reference/global-attributes.html
   - https://www.w3schools.com/tags/ref_standardattributes.asp
+
+Copyright Sebastien Kramm - 2018

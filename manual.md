@@ -3,8 +3,8 @@
 Homepage: https://github.com/skramm/cpphtmltags/
 
 
-There is a single class to use: Httag
-It is defined in the namespace httag
+There is a single class to use: `Httag`.
+It is defined in the namespace `httag`. Some helper function are also available, also in this namespace.
 
 Two types of tags can be created, but they are both handled trough the same class, for conveniency.
 They only differ in the way they are created, and how they generate some output.
@@ -25,13 +25,13 @@ You can add a pair attribute/value:
 ```C++
 Httag mytag( HT_P, AT_CLASS, "abc" );
 ```
-Or all three:
+Or both, at creation time:
 ```C++
 Httag mytag( HT_P, "a paragraph", AT_CLASS, "abc" );
 ```
 ### Method 2
-You can specify the file where the html code must be generated.
-It can be of type `std::ostream`, or `std::ofstream`, or even std::ostringstream:
+You can specify the stream where the html code must be generated.
+It can be of type `std::ostream`, or `std::ofstream`, or even `std::ostringstream`:
 ```C++
 Httag mytag( file, HT_P );
 ```
@@ -63,7 +63,7 @@ std::cout << "a paragraph";
 p.closeTag();
 ```
 
-- Or you can use the provided functions:
+- Or you can use the provided functions (can be used with the two types of tags):
 ```C++
 Httag p( HT_P );
 p.setContent( "a paragraph" );
@@ -78,8 +78,10 @@ This can be done with
 `Httag::addGlobalAttrib( HT_LI, AT_CLASS, "my_class" );`
 
 To remove, you can:
--remove all global attributes with `Httag::clearGlobalAttribs()`
--remove the global attribute on a given tag with `Httag::clearGlobalAttrib( <tag id> )`
+- remove all global attributes:<br>
+`Httag::clearGlobalAttribs()`
+- remove the global attribute on a given tag:<br>
+`Httag::clearGlobalAttrib( <tag id> )`
 
 
 ## Line feeds
@@ -92,7 +94,8 @@ These two behaviors can be achieved, three modes are available:
 - no line feed at all;
 - a "default" mode, where certain tags get a line feed after closure, others do not.
 
-This is achieved with the static method `setLineFeedMode( En_LineFeedMode mode )`.
+This is achieved with a static method:<br>
+`setLineFeedMode( En_LineFeedMode mode )`<br>
 The possible values are `LF_None`, `LF_Always`, `LF_Default`.
 
 For example:
@@ -134,5 +137,3 @@ Coverage is currently not complete, but will expand.
 Check out [Developper information](dev_info.md).
 
 Copyright Sebastien Kramm - 2018
-
-TO BE COMPLETED !
