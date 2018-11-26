@@ -16,7 +16,7 @@ The goal is to make generation of valid html5 content from C++ code **simple** a
 The idea is:
 - to add some abstraction to html generation,
 - to avoid unnecessary repetition of strings in your code,
-- to avoid some basic errors that can happen if you directly generate the html code with hardcoded strings?
+- to avoid some basic errors that can happen if you directly generate the html code with hardcoded strings,
 - to avoid generating invalid html5 code.
 
 For example, if you generate tags by some direct string output,

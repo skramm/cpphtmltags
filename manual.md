@@ -11,6 +11,7 @@ They only differ in the way they are created, and how they generate some output.
 The first type is independant of any output device, it is up to the user to stream them in some output stream.
 With the second type, you assign an output stream at creation time.
 
+## Instanciation
 
 ### Method 1
 Just a regular object:
@@ -31,7 +32,7 @@ Httag mytag( HT_P, "a paragraph", AT_CLASS, "abc" );
 ```
 ### Method 2
 You can specify the stream where the html code must be generated.
-It can be of type `std::ostream`, or `std::ofstream`, or even `std::ostringstream`:
+It can be of type `std::ostream`, or `std::ofstream`, or even `std::ostringstream`. `std::cout` works fine too:
 ```C++
 Httag mytag( file, HT_P );
 ```
@@ -43,8 +44,8 @@ Httag p2( file, HT_P, "a paragraph" );
 Httag p3( file, HT_P, "a paragraph", AT_CLASS, "abc" );
 ```
 
-Please note that when created a tag that way, nothing is printed in the stream.
-This will only happen when you call either
+Please note that when a tag is created that way, nothing is printed in the stream.
+This will only happen when you call either:
 - `openTag()` : only prints the opening tag
 - `printTag()`: prints the closing tag
 - `printWithContent( "something" )`
@@ -132,7 +133,7 @@ If is is installed on your machine, you can run the tests with `make test`.
 Coverage is currently not complete, but will expand.
 
 
-## developper information
+## Developper information
 
 Check out [Developper information](dev_info.md).
 

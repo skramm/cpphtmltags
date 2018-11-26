@@ -455,7 +455,6 @@ Httag::openTag()
 //	_printAttribs = false;
 #ifdef EXPERIMENTAL
 	openedTags().push_back( _tag_en );
-//	std::cout << "\n-open tag " << getString(_tag_en) << " : openedTags() size)=" << openedTags().size() << "\n";
 #endif
 }
 //-----------------------------------------------------------------------------------

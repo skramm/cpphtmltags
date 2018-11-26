@@ -93,7 +93,7 @@ namespace httag {
 
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181126-0918
+// timestamp: 20181126-1128
 enum En_Httag
 {
 	HT_A,
@@ -224,7 +224,7 @@ enum En_Httag
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181126-0918
+// timestamp: 20181126-1128
 enum En_Attrib
 {
 	AT_ACCEPT,
@@ -366,7 +366,7 @@ enum En_Attrib
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181126-0918
+// timestamp: 20181126-1128
 const char*
 getString( En_Httag a )
 {
@@ -503,7 +503,7 @@ getString( En_Httag a )
 }
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181126-0918
+// timestamp: 20181126-1128
 const char*
 getString( En_Attrib a )
 {
@@ -651,7 +651,7 @@ getString( En_Attrib a )
 }
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181126-0918
+// timestamp: 20181126-1128
 /// Conveniency typedef
 typedef std::map<En_Attrib,std::vector<En_Httag>> MapAttribs_t;
 /// Private class, holds map of allowed attributes
@@ -1241,7 +1241,6 @@ Httag::openTag()
 //	_printAttribs = false;
 #ifdef EXPERIMENTAL
 	openedTags().push_back( _tag_en );
-//	std::cout << "\n-open tag " << getString(_tag_en) << " : openedTags() size)=" << openedTags().size() << "\n";
 #endif
 }
 //-----------------------------------------------------------------------------------
@@ -1351,31 +1350,26 @@ Httag::p_addAttrib( En_Attrib attr, std::string value )
 	}
 #ifndef HTTAGS_NO_CHECK
 	if( !attribIsAllowed( attr, _tag_en ) )
-		HTTAGS_ERROR( std::string( "attempt to assign attribute ") + getString(attr) + " to tag " + getString( _tag_en )+  ": invalid with html5" );
+		HTTAGS_ERROR( std::string( "attempt to assign attribute '") + getString(attr) + "' to tag '" + getString( _tag_en )+  "': invalid with html5" );
 #endif
 
 // check for unneeded pairs attribute/value
 		if( attr == AT_COLSPAN && value == "1" )
 		{
-			HTTAGS_WARNING << "asking to add unnecessary attribute/value: " << getString(attr) << "/" << value << '\n';
+			HTTAGS_WARNING << "asking to add unnecessary attribute/value: '" << getString(attr) << "'=" << value << '\n';
 			return;
 		}
 		if( attr == AT_ROWSPAN && value == "1" )
 		{
-			HTTAGS_WARNING << "asking to add unnecessary attribute/value: " << getString(attr) << "/" << value << '\n';
+			HTTAGS_WARNING << "asking to add unnecessary attribute/value: '" << getString(attr) << "'=" << value << '\n';
 			return;
 		}
 
 	if( _attr_map.find(attr) != _attr_map.end() )   // check if element is already present or not
 	{
-//		if( attr != AT_CLASS && attr != AT_STYLE )
-//			throw std::runtime_error( "Can't add attribute that is not AT_CLASS or AT_STYLE" );//, value );
-//		else
-		{
-			std::ostringstream oss;
-			oss << _attr_map[attr] << ' ' << value;
-			_attr_map[attr] = oss.str();
-		}
+		std::ostringstream oss;
+		oss << _attr_map[attr] << ' ' << value;
+		_attr_map[attr] = oss.str();
 	}
 	else
 		_attr_map[attr] = value;
