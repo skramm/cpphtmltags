@@ -4,30 +4,41 @@
 # it generates C++ code that will ge embedded in the library
 # it takes as input some reference html data, as raw text files in "ref" folder
 
-function generate()
+function print_header()
 {
-echo -e "const char* getString( $name a )"> $file_s
-echo -e "enum $name\n{"> $file_e
-
-echo -e "{\n\tconst char* n=0;">> $file_s
-echo -e "\tswitch( a )">> $file_s
-echo -e "\t{">> $file_s
-
-while read str
-do
-	v=$(echo $str | tr '[:lower:]' '[:upper:]')
-	echo -e "\t\tcase ${pre}_$v: n = \"$str\"; break;">> $file_s
-	echo -e "\t${pre}_$v," >> $file_e
-done < $file_input
-
-echo -e "\n\t\tdefault: assert(0);">> $file_s
-echo -e "\t}">> $file_s
-echo -e "\treturn n;\n}\n">> $file_s
-
-echo -e "\n\t${pre}_DUMMY">> $file_e
-echo -e "};\n">> $file_e
+	echo "// -------- GENERATED CODE ! --------"> $1
+	echo "// timestamp: $(date +%Y%m%d-%H%M)">> $1
 }
 
+function generate()
+{
+	print_header $file_s
+	print_header $file_e
+
+	echo -e "const char*\ngetString( $name a )">> $file_s
+	echo -e "enum $name\n{">> $file_e
+
+	echo -e "{\n\tconst char* n=0;">> $file_s
+	echo -e "\tswitch( a )">> $file_s
+	echo -e "\t{">> $file_s
+
+	while read str
+	do
+		v=$(echo $str | tr '[:lower:]' '[:upper:]')
+		echo -e "\t\tcase ${pre}_$v: n = \"$str\"; break;">> $file_s
+		echo -e "\t${pre}_$v," >> $file_e
+	done < $file_input
+
+	echo -e "\n\t\tdefault: assert(0);">> $file_s
+	echo -e "\t}">> $file_s
+	echo -e "\treturn n;\n}\n">> $file_s
+
+	echo -e "\n\t${pre}_DUMMY">> $file_e
+	echo -e "};\n">> $file_e
+}
+
+
+mkdir -p tmp
 # STEP 0: generate list of attributes from authorized tags/attributes file
 
 file_input=ref/valid_attribs.ref
@@ -62,10 +73,12 @@ generate
 file_input=ref/valid_attribs.ref
 file_out=tmp/attrib_tags.src
 
-echo "/// Conveniency typedef"> $file_out
+print_header $file_out
+
+echo "/// Conveniency typedef">> $file_out
 echo "typedef std::map<En_Attrib"",std::vector<En_Httag>> MapAttribs_t;">> $file_out
 
-echo "/// Private class, holds map pf allowed attributes">> $file_out
+echo "/// Private class, holds map of allowed attributes">> $file_out
 echo -e "struct MapAttribs\n{">> $file_out
 echo -e "\tMapAttribs_t _map;">> $file_out
 echo -e "\tconst MapAttribs_t& get() {">> $file_out
@@ -75,7 +88,6 @@ echo -e "\tMapAttribs()\n\t{" >>$file_out
 while IFS=$':' read a b
 do
 	at=$(echo $a | tr '[:lower:]' '[:upper:]')
-#	echo "a=$a at=$at b=$b"
 	echo -en "\t\t_map[AT_$at]\t=\t { ">> $file_out
 	IFS=',' read -ra TAG <<< "$b"
 	n=0

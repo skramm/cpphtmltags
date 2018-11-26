@@ -92,6 +92,8 @@ namespace httag {
 
 
 
+// -------- GENERATED CODE ! --------
+// timestamp: 20181126-0918
 enum En_Httag
 {
 	HT_A,
@@ -221,6 +223,8 @@ enum En_Httag
 	HT_DUMMY
 };
 
+// -------- GENERATED CODE ! --------
+// timestamp: 20181126-0918
 enum En_Attrib
 {
 	AT_ACCEPT,
@@ -361,7 +365,10 @@ enum En_Attrib
 	AT_DUMMY
 };
 
-const char* getString( En_Httag a )
+// -------- GENERATED CODE ! --------
+// timestamp: 20181126-0918
+const char*
+getString( En_Httag a )
 {
 	const char* n=0;
 	switch( a )
@@ -495,7 +502,10 @@ const char* getString( En_Httag a )
 	return n;
 }
 
-const char* getString( En_Attrib a )
+// -------- GENERATED CODE ! --------
+// timestamp: 20181126-0918
+const char*
+getString( En_Attrib a )
 {
 	const char* n=0;
 	switch( a )
@@ -640,9 +650,11 @@ const char* getString( En_Attrib a )
 	return n;
 }
 
+// -------- GENERATED CODE ! --------
+// timestamp: 20181126-0918
 /// Conveniency typedef
 typedef std::map<En_Attrib,std::vector<En_Httag>> MapAttribs_t;
-/// Private class, holds map pf allowed attributes
+/// Private class, holds map of allowed attributes
 struct MapAttribs
 {
 	MapAttribs_t _map;

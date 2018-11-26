@@ -42,18 +42,6 @@
 					<Add option="-s" />
 				</Linker>
 			</Target>
-			<Target title="test2">
-				<Option output="./cpphtmltags" prefix_auto="1" extension_auto="1" />
-				<Option object_output="./" />
-				<Option type="1" />
-				<Option compiler="gcc" />
-				<Compiler>
-					<Add option="-O2" />
-				</Compiler>
-				<Linker>
-					<Add option="-s" />
-				</Linker>
-			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
@@ -68,31 +56,53 @@
 		<Unit filename="README.md">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="build.sh" />
+		<Unit filename="build.sh">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
 		<Unit filename="cpphtmltags.hpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="cpphtmltags_1.hh">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="cpphtmltags_2.hh">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="demo/demo1.cpp">
 			<Option target="main1" />
-			<Option target="supported" />
+		</Unit>
+		<Unit filename="demo/demo2.cpp">
 			<Option target="main2" />
 		</Unit>
-		<Unit filename="cpphtmltags_1.hh" />
-		<Unit filename="cpphtmltags_2.hh" />
-		<Unit filename="dev_info.md" />
-		<Unit filename="manual.md" />
-		<Unit filename="ref/global_attribs.ref" />
-		<Unit filename="ref/tags.ref" />
-		<Unit filename="ref/valid_attribs.ref" />
-		<Unit filename="ref/void_elements.ref" />
-		<Unit filename="tests/supported.cpp">
+		<Unit filename="demo/supported.cpp">
 			<Option target="supported" />
+		</Unit>
+		<Unit filename="dev_info.md">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="manual.md">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="ref/global_attribs.ref">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="ref/tags.ref">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="ref/valid_attribs.ref">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="ref/void_elements.ref">
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="tests/test1.cpp">
-			<Option target="main1" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="tests/test2.cpp">
-			<Option target="main2" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="tests/test_A.cpp">
-			<Option target="test2" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Extensions>
 			<envvars />

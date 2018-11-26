@@ -2,23 +2,27 @@
 
 
 # not used at present but could be for multiple test files
-#SRC_TEST_FILES = $(wildcard tests/test_*.cpp)
-#EXE_TEST_FILES := $(patsubst tests/%.cpp, bin/%, $(SRC_TEST_FILES))
+SRC_DEMO_FILES = $(wildcard demo/*.cpp)
+EXE_DEMO_FILES := $(patsubst demo/%.cpp, %, $(SRC_DEMO_FILES))
 TEST_FILE=tests/test_A.cpp
 
 CFLAGS := -std=c++11
 
-#test: $(EXE_TEST_FILES)
 test: a.out
 	@echo "-Start test"
 	@./a.out
 #	@./a.out -s
 
-# for tests
+# for unit testing
 a.out: cpphtmltags.hpp $(TEST_FILE) Makefile
 	@echo "-start compiling $(TEST_FILE)"
 	@$(CXX) $(CFLAGS) $(TEST_FILE)
 
+demo: $(EXE_DEMO_FILES) Makefile
+	@echo done
+
+%:demo/%.cpp
+	$(CXX) -o $@ $(CFLAGS) $<
 
 # builds the sample programs
 

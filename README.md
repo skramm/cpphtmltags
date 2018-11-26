@@ -2,14 +2,16 @@
 Generation of HTML tags from C++ code
 
 - Author: Sebastien Kramm (contact: firstname.lastname@univ-rouen.fr)
-- Status: alpha
+- Status: beta
 - Language: C++11
-- homepage: https://github.com/skramm/cpphtmltags/
-- licence: LGPL v3
-- bugs/issues/requests: please use github issue tracker
+- Dependencies: none
+- Homepage: https://github.com/skramm/cpphtmltags/
+- Licence: LGPL v3
+- Bugs/issues/requests: please use github issue tracker
 
 ## Goals
 
+This library is designed to help any user code that needs to generate Html content from C++ code.
 The goal is to make generation of valid html5 content from C++ code **simple** and **reliable**, with maximum versatility.
 The idea is:
 - to add some abstraction to html generation,

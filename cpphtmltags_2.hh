@@ -565,31 +565,26 @@ Httag::p_addAttrib( En_Attrib attr, std::string value )
 	}
 #ifndef HTTAGS_NO_CHECK
 	if( !attribIsAllowed( attr, _tag_en ) )
-		HTTAGS_ERROR( std::string( "attempt to assign attribute ") + getString(attr) + " to tag " + getString( _tag_en )+  ": invalid with html5" );
+		HTTAGS_ERROR( std::string( "attempt to assign attribute '") + getString(attr) + "' to tag '" + getString( _tag_en )+  "': invalid with html5" );
 #endif
 
 // check for unneeded pairs attribute/value
 		if( attr == AT_COLSPAN && value == "1" )
 		{
-			HTTAGS_WARNING << "asking to add unnecessary attribute/value: " << getString(attr) << "/" << value << '\n';
+			HTTAGS_WARNING << "asking to add unnecessary attribute/value: '" << getString(attr) << "'=" << value << '\n';
 			return;
 		}
 		if( attr == AT_ROWSPAN && value == "1" )
 		{
-			HTTAGS_WARNING << "asking to add unnecessary attribute/value: " << getString(attr) << "/" << value << '\n';
+			HTTAGS_WARNING << "asking to add unnecessary attribute/value: '" << getString(attr) << "'=" << value << '\n';
 			return;
 		}
 
 	if( _attr_map.find(attr) != _attr_map.end() )   // check if element is already present or not
 	{
-//		if( attr != AT_CLASS && attr != AT_STYLE )
-//			throw std::runtime_error( "Can't add attribute that is not AT_CLASS or AT_STYLE" );//, value );
-//		else
-		{
-			std::ostringstream oss;
-			oss << _attr_map[attr] << ' ' << value;
-			_attr_map[attr] = oss.str();
-		}
+		std::ostringstream oss;
+		oss << _attr_map[attr] << ' ' << value;
+		_attr_map[attr] = oss.str();
 	}
 	else
 		_attr_map[attr] = value;
