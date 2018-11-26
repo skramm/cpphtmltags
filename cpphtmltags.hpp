@@ -56,7 +56,7 @@ Refs:
 #include <iostream>
 #include <algorithm>
 
-#define HTAG_PRINT_INFO( msg ) \
+#define HTTAG_PRINT_INFO( msg ) \
 		std::cerr << "httag: fatal error: " \
 			<< "\n - file: " << __FILE__ \
 			<< "\n - line: " << __LINE__ \
@@ -64,26 +64,26 @@ Refs:
 			<< "\n";
 
 
-#ifdef HTAGS_SILENT_MODE
-	#define HTAGS_SILENT_WARNINGS
-	#define HTAGS_SILENT_ERRORS
+#ifdef HTTAG_SILENT_MODE
+	#define HTTAG_SILENT_WARNINGS
+	#define HTTAG_SILENT_ERRORS
 #endif
 
-#ifdef HTAGS_SILENT_WARNINGS
-	#define HTTAGS_WARNING if(0) std::cerr
+#ifdef HTTAG_SILENT_WARNINGS
+	#define HTTAG_WARNING if(0) std::cerr
 #else
-	#define HTTAGS_WARNING if(1) std::cerr << "httag: Warning: "
+	#define HTTAG_WARNING if(1) std::cerr << "httag: Warning: "
 #endif
 
-#ifdef HTAGS_SILENT_ERRORS
-	#define HTTAGS_ERROR( msg ) \
+#ifdef HTTAG_SILENT_ERRORS
+	#define HTTAG_ERROR( msg ) \
 		{ \
 			throw std::runtime_error( "httag: fatal error" ); \
 		}
 #else
-	#define HTTAGS_ERROR( msg ) \
+	#define HTTAG_ERROR( msg ) \
 		{ \
-			HTAG_PRINT_INFO( msg ); \
+			HTTAG_PRINT_INFO( msg ); \
 			throw std::runtime_error( "httag: fatal error" ); \
 		}
 #endif
@@ -93,7 +93,7 @@ namespace httag {
 
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181126-1128
+// timestamp: 20181126-1444
 enum En_Httag
 {
 	HT_A,
@@ -224,7 +224,7 @@ enum En_Httag
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181126-1128
+// timestamp: 20181126-1444
 enum En_Attrib
 {
 	AT_ACCEPT,
@@ -366,7 +366,7 @@ enum En_Attrib
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181126-1128
+// timestamp: 20181126-1444
 const char*
 getString( En_Httag a )
 {
@@ -503,7 +503,7 @@ getString( En_Httag a )
 }
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181126-1128
+// timestamp: 20181126-1444
 const char*
 getString( En_Attrib a )
 {
@@ -651,7 +651,7 @@ getString( En_Attrib a )
 }
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181126-1128
+// timestamp: 20181126-1444
 /// Conveniency typedef
 typedef std::map<En_Attrib,std::vector<En_Httag>> MapAttribs_t;
 /// Private class, holds map of allowed attributes
@@ -791,7 +791,7 @@ struct MapAttribs
 /// A global attribute can be used in \b any html tag
 /**
 for a list, see: https://www.w3schools.com/tags/ref_standardattributes.asp
-\todo Is this function needed, really ?
+\todo Is this function needed, really ? Deprecate it ? (anyhow, needs some updating)
 */
 inline
 bool
@@ -812,6 +812,7 @@ isGlobalAttr( En_Attrib attr )
 	return false;
 }
 
+//-----------------------------------------------------------------------------------
 /// Returns true if attribute \c attr is allowed for \c tag
 /**
 Refs:
@@ -864,36 +865,7 @@ typedef std::map<En_Httag, PairAttribString_t> GlobAttribMap_t;
 //-----------------------------------------------------------------------------------
 /// HTML tag
 /**
-This class can be used in two ways:
-- either as a regular object, for example:
-\code
-	Httag tag( f, HT_LI );
-	tag.openTag();
-	f << ... some content
-	tag.Closetag();
-\endcode
-This form is identified by having the output file (of type FileHTML) as first argument of the constructor
-
-- either as an object build in-place that gets streamed, for example, this:
-\code
-	f << Httag( HT_LI, "content" );
-\endcode
-will produce:
-\code
-	<li>content</li>
-\endcode
-
-This form is identified by having as first argument of constructor a value of type En_Httag
-
-These two constructors both allow as third and fourth argument an HTML attribute type and value. For example, this:
-\code
-	f << Httag( HT_LI, "content", AT_CLASS, "abc" );
-\endcode
-will produce:
-\code
-	<li class="abc">content</li>
-\endcode
-
+Main class, see homepage for details
 */
 class Httag
 {
@@ -1035,7 +1007,7 @@ Httag::Httag( En_Httag tag, T content ) : Httag( tag )
 	_content = std::to_string( content );
 }
 
-/// constructor 2: specialisation for string
+/// constructor 2: specialization for string
 template<>
 inline
 Httag::Httag( En_Httag tag, std::string content ) : Httag( tag )
@@ -1043,7 +1015,7 @@ Httag::Httag( En_Httag tag, std::string content ) : Httag( tag )
 	_content = content;
 }
 
-/// constructor 2: specialisation for string
+/// constructor 2: specialization for string
 template<>
 inline
 Httag::Httag( En_Httag tag, const char* content ) : Httag( tag )
@@ -1139,7 +1111,7 @@ void
 Httag::addContent<std::string>( std::string content )
 {
 	if( isVoidElement( _tag_en ) )
-		HTTAGS_ERROR( std::string("attempting to store content '") + content + "' into a void-element tag '" + getString( _tag_en ) + '\'' );
+		HTTAG_ERROR( std::string("attempting to store content '") + content + "' into a void-element tag '" + getString( _tag_en ) + '\'' );
 	_content += content;
 }
 #if 1
@@ -1214,14 +1186,14 @@ void
 Httag::p_checkValidFileType( std::string action )
 {
 	if( !_isFileType )
-		HTTAGS_ERROR( std::string("object tag '") + getString(_tag_en) + "' is not a \"file type\" object." );
+		HTTAG_ERROR( std::string("object tag '") + getString(_tag_en) + "' is not a \"file type\" object." );
 
 	if( !_file )
-		HTTAGS_ERROR( std::string("object tag '") + getString(_tag_en) + "': asked to " + action + " but file not available" );
+		HTTAG_ERROR( std::string("object tag '") + getString(_tag_en) + "': asked to " + action + " but file not available" );
 
 #if 0
 	if( !_file->is_open() )
-		HTTAGS_ERROR << "tag '" << getString(_tag_en) << "': asked to '" << action << "' but file is closed.\n";
+		HTTAG_ERROR << "tag '" << getString(_tag_en) << "': asked to '" << action << "' but file is closed.\n";
 #endif
 }
 //-----------------------------------------------------------------------------------
@@ -1233,7 +1205,7 @@ Httag::openTag()
 	p_checkValidFileType( "open" );
 	if( _tagIsOpen )
 	{
-		HTTAGS_WARNING << "tag '" << getString(_tag_en) << "': asked to open but was already open.\n";
+		HTTAG_WARNING << "tag '" << getString(_tag_en) << "': asked to open but was already open.\n";
 	}
 	else
 		*_file << '<' << getString(_tag_en) << p_getAttribs() << '>';
@@ -1252,14 +1224,14 @@ Httag::closeTag( bool linefeed )
 	p_checkValidFileType( "close" );
 
 	if( !_tagIsOpen )
-		HTTAGS_ERROR( std::string( "tag '" ) + getString(_tag_en) + "': asked to close but was already closed." );
+		HTTAG_ERROR( std::string( "tag '" ) + getString(_tag_en) + "': asked to close but was already closed." );
 	*_file << "</" << getString(_tag_en) << '>';
 
 
 #ifdef EXPERIMENTAL
 	assert( openedTags().size() > 0 );
 	if( openedTags().back() != _tag_en )
-		HTTAGS_ERROR( std::string( "asking to close tag '") + getString(_tag_en) + "' but tag '" +  getString(openedTags().back()) + "' still open" );
+		HTTAG_ERROR( std::string( "asking to close tag '") + getString(_tag_en) + "' but tag '" +  getString(openedTags().back()) + "' still open" );
 
 	openedTags().pop_back();
 #endif
@@ -1341,27 +1313,27 @@ void
 Httag::p_addAttrib( En_Attrib attr, std::string value )
 {
 	if( _tagIsOpen ) // because if it is already opened, then we can't add an attribute !
-		HTTAGS_ERROR( std::string("unable to add attribute '") + getString(attr) + "' with value '" << value << "', tag is already opened." );
+		HTTAG_ERROR( std::string("unable to add attribute '") + getString(attr) + "' with value '" << value << "', tag is already opened." );
 
 	if( value.empty() ) // empty string => nothing to add
 	{
-		HTTAGS_WARNING << "warning: asking to add tag attribute '" << getString(attr) << "' but string is empty\n";
+		HTTAG_WARNING << "warning: asking to add tag attribute '" << getString(attr) << "' but string is empty\n";
 		return;
 	}
-#ifndef HTTAGS_NO_CHECK
+#ifndef HTTAG_NO_CHECK
 	if( !attribIsAllowed( attr, _tag_en ) )
-		HTTAGS_ERROR( std::string( "attempt to assign attribute '") + getString(attr) + "' to tag '" + getString( _tag_en )+  "': invalid with html5" );
+		HTTAG_ERROR( std::string( "attempt to assign attribute '") + getString(attr) + "' to tag '" + getString( _tag_en )+  "': invalid with html5" );
 #endif
 
 // check for unneeded pairs attribute/value
 		if( attr == AT_COLSPAN && value == "1" )
 		{
-			HTTAGS_WARNING << "asking to add unnecessary attribute/value: '" << getString(attr) << "'=" << value << '\n';
+			HTTAG_WARNING << "asking to add unnecessary attribute/value: '" << getString(attr) << "'=" << value << '\n';
 			return;
 		}
 		if( attr == AT_ROWSPAN && value == "1" )
 		{
-			HTTAGS_WARNING << "asking to add unnecessary attribute/value: '" << getString(attr) << "'=" << value << '\n';
+			HTTAG_WARNING << "asking to add unnecessary attribute/value: '" << getString(attr) << "'=" << value << '\n';
 			return;
 		}
 
@@ -1384,11 +1356,11 @@ void
 Httag::removeAttrib( En_Attrib attr )
 {
 //	if( _tagIsOpen ); // because if it is open, then we can't remove it!
-//		HTTAGS_ERROR( "asking to remove attribute on open tag" );
+//		HTTAG_ERROR( "asking to remove attribute on open tag" );
 
 	if( _attr_map.find(attr) == _attr_map.end() )   // check if element is already present or not
 	{
-		HTTAGS_WARNING << "asked to remove attribute "
+		HTTAG_WARNING << "asked to remove attribute "
 			<< getString( attr )
 			<< " to tag " << getString( _tag_en )
 			<< " but attribute no present.\n";

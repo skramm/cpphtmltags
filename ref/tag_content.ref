@@ -1,0 +1,6 @@
+# holds allowed content for a given tag
+# PRELIMINAR !
+ul:li
+ol:li
+menu:li,C_flow
+

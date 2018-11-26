@@ -83,9 +83,11 @@
 		<Unit filename="manual.md">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
+		<Unit filename="ref/element_cat.ref" />
 		<Unit filename="ref/global_attribs.ref">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
+		<Unit filename="ref/tag_content.ref" />
 		<Unit filename="ref/tags.ref">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
@@ -93,12 +95,6 @@
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="ref/void_elements.ref">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="tests/test1.cpp">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="tests/test2.cpp">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="tests/test_A.cpp">

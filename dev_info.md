@@ -1,5 +1,7 @@
 # Developper information
 
+Here, some details about the project for the ones that may be interested in contributing.
+
 ## Generation of library file
 
 Starting from release 1.0, the actual library file (`cpphtmltags.hpp`) is actually generated from several files.
@@ -29,3 +31,12 @@ All the reference stuff (tags/attribs strings, map of allowed attributes, ...) a
 In order to make this work in a header file, the classical "lazy static initialization" trick is used:
 The variable is stored in a static function, that just returns the variable.
 The variable is build upon first call of the function.
+
+
+## Testing
+
+This project has an automated unit test file, based on the [catch](https://github.com/catchorg/Catch2/) framework.
+If is is installed on your machine, you can run the tests with `make test`.
+Currently used with catch 2.3.0.
+Coverage is currently not complete, but will expand.
+

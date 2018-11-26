@@ -2,7 +2,6 @@
 
 Homepage: https://github.com/skramm/cpphtmltags/
 
-
 There is a single class to use: `Httag`.
 It is defined in the namespace `httag`. Some helper function are also available, also in this namespace.
 
@@ -71,7 +70,29 @@ p.setContent( "a paragraph" );
 p.addContent( " of text" );
 ```
 
-## Global attributes
+## Attributes
+
+Tag attributes can be added to the tag at creation time (see above) or afterwards:
+```C++
+Httag p( HT_P );
+p.addAttrib(  AT_CLASS, "abc" );
+```
+
+The API is templatized, so for some attributes, you can use integer values as well:
+```C++
+Httag td( HT_TD );
+td.addAttrib( AT_COLSPAN, 3 );
+```
+
+Beware, of 'file-type' objects, you can add attributes but only before opening the tag:
+```C++
+Httag td( std::cout, HT_TD );
+td.addAttrib( AT_COLSPAN, 3 );  // fine
+td.openTag();
+td.addAttrib( AT_CLASS, "abc" );  // this will throw an error
+```
+
+## Tag global attributes
 
 It is possible to add to a given tag a "global attribute", that is each time you will output that tag, this attribute-value pair will be automatically added.
 For example, at one point you want to add to all the tags `li` the attribute `class="my_class"`.
@@ -108,33 +129,26 @@ Httag::setLineFeedMode( LF_Always );
 ## Error handling
 
 In case of non fatal problem, this library will simply issue a warning with a clear message on `std::cerr`.
-This can be disabled by passing the option `HTAGS_SILENT_WARNINGS` before including the file.
+This can be disabled by passing the option `HTTAG_SILENT_WARNINGS` before including the file.
 
 In case of fatal error, this library will issue a message on `std::cerr` with line number and the error message, and throw
 an error of type `std::runtime_error`.
 
-Similarly, error messages can be removed by defining the symbol `HTAGS_SILENT_ERRORS`.
-You can mute both errors and warnings by defining `HTAGS_SILENT_MODE`. This will guarantee that no output will be streamed in `std::cerr`.
+Similarly, error messages can be removed by defining the symbol `HTTAG_SILENT_ERRORS`.
+You can mute both errors and warnings by defining `HTTAG_SILENT_MODE`. This will guarantee that no output will be streamed in `std::cerr`.
 
-### html5 tag/attribute enforcing
+### HTML 5 tag/attribute enforcing
 
-The html5 standard specifies two kinds of attributes:
+The HTML 5 standard specifies two kinds of attributes:
 - "global" attributes: these can be assigned to any tag
 - regular attributes: each of these can be assigned to a limited number of tags
 
 This library can ensure that this is enforced by checking at each time you add an attribute to a tag.
-This checking can be disabled by defining the symbol `HTTAGS_NO_CHECK` before the "include" line.
+This checking can be disabled by defining the symbol `HTTAG_NO_CHECK` before the "include" line.
 
 
-## Testing
+## Developer information
 
-This project has an automated test file, based on the [catch](https://github.com/catchorg/Catch2/) framework.
-If is is installed on your machine, you can run the tests with `make test`.
-Coverage is currently not complete, but will expand.
-
-
-## Developper information
-
-Check out [Developper information](dev_info.md).
+Check out [Developer information](dev_info.md).
 
 Copyright Sebastien Kramm - 2018

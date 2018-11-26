@@ -1,5 +1,5 @@
 # cpphtmltags
-Generation of HTML tags from C++ code
+Generation of HTML content from C++ code
 
 - Author: Sebastien Kramm (contact: firstname.lastname@univ-rouen.fr)
 - Status: beta
@@ -12,12 +12,12 @@ Generation of HTML tags from C++ code
 ## Goals
 
 This library is designed to help any user code that needs to generate Html content from C++ code.
-The goal is to make generation of valid html5 content from C++ code **simple** and **reliable**, with maximum versatility.
+The goal is to make generation of valid HTML 5 content **simple** and **reliable**, with maximum versatility.
 The idea is:
-- to add some abstraction to html generation,
+- to add some abstraction to HTML generation,
 - to avoid unnecessary repetition of strings in your code,
 - to avoid some basic errors that can happen if you directly generate the html code with hardcoded strings,
-- to avoid generating invalid html5 code.
+- to avoid generating invalid HTML 5 code.
 
 For example, if you generate tags by some direct string output,
 some errors may go unnoticed. Say you forget the 'p' in "script":<br>
@@ -35,8 +35,8 @@ This library enforces wrong order of tags opening/closing, for example, somethin
 may not happen.
 
 This library also enforces the html5 standard.
-For example, you known that some attributes are only allowed on certain tags.
-This is considered here, and if you attempt to use an illegal attribute, an error will be thrown at runtime.
+For example, some attributes are only allowed on certain tags.
+This is enforced here, and if you attempt to use an illegal attribute, an error will be thrown at runtime.
 
 ## Usage
 
@@ -78,16 +78,14 @@ will produce:
 
 For more details, see [manual](manual.md).
 
-## Html coverage
+## HTML 5 coverage
 - covers 123 html tags ("elements", as they say at w3c) and 134 attributes
-- limitations: html comments not handled at present
+- limitations: html comments (`<!-- ... -->`)not handled at present (but you can still stream these directly).
+- at present, the different tag categories are not considered, this is to be considered in future releases.
 
 ## Build and install
 - build: no build, header-only
-- install: just fetch the single file (`cpphtmltags.hpp`)[cpphtmltags.hpp], put it somewhere (`/usr/include` should be fine) and include it in your code.
-
-## Motivation
-Needed this, couldn't find...
+- install: just fetch the single file [`cpphtmltags.hpp`](cpphtmltags.hpp), put it somewhere (`/usr/include` should be fine) and include it in your code.
 
 ## Related software
 - C#: https://github.com/HtmlTags/htmltags
@@ -98,7 +96,7 @@ Needed this, couldn't find...
 
 ## References
 
-All the html5 standard material has been fetched from these sources:
+All the HTML 5 standard material has been fetched from these sources:
 - attributes:
   - https://www.w3.org/wiki/Html/Attributes/_Global
   - https://www.w3schools.com/tags/ref_attributes.asp
@@ -110,5 +108,8 @@ All the html5 standard material has been fetched from these sources:
 - Global attributes:
   - http://w3c.github.io/html-reference/global-attributes.html
   - https://www.w3schools.com/tags/ref_standardattributes.asp
+
+- content catagories:
+ - https://www.w3.org/TR/html5/dom.html#kinds-of-content
 
 Copyright Sebastien Kramm - 2018

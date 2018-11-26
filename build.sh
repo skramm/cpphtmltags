@@ -108,6 +108,8 @@ done < $file_input
 echo -e "\t}\n};" >>$file_out
 
 # STEP 3 : generate header file
+
+echo "// THIS IS A GENERATED FILE, DO NOT EDIT !">cpphtmltags.hpp
 cat \
 	cpphtmltags_1.hh \
 	tmp/tags_enum.src \
@@ -116,5 +118,5 @@ cat \
 	tmp/attribs_switch.src \
 	tmp/attrib_tags.src \
 	cpphtmltags_2.hh \
-	> cpphtmltags.hpp \
+	>> cpphtmltags.hpp \
 

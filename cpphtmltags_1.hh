@@ -1,4 +1,3 @@
-// THIS IS A GENERATED FILE, DO NOT EDIT !
 /*
     Copyright (C) 2018 Sebastien Kramm
 
@@ -56,7 +55,7 @@ Refs:
 #include <iostream>
 #include <algorithm>
 
-#define HTAG_PRINT_INFO( msg ) \
+#define HTTAG_PRINT_INFO( msg ) \
 		std::cerr << "httag: fatal error: " \
 			<< "\n - file: " << __FILE__ \
 			<< "\n - line: " << __LINE__ \
@@ -64,26 +63,26 @@ Refs:
 			<< "\n";
 
 
-#ifdef HTAGS_SILENT_MODE
-	#define HTAGS_SILENT_WARNINGS
-	#define HTAGS_SILENT_ERRORS
+#ifdef HTTAG_SILENT_MODE
+	#define HTTAG_SILENT_WARNINGS
+	#define HTTAG_SILENT_ERRORS
 #endif
 
-#ifdef HTAGS_SILENT_WARNINGS
-	#define HTTAGS_WARNING if(0) std::cerr
+#ifdef HTTAG_SILENT_WARNINGS
+	#define HTTAG_WARNING if(0) std::cerr
 #else
-	#define HTTAGS_WARNING if(1) std::cerr << "httag: Warning: "
+	#define HTTAG_WARNING if(1) std::cerr << "httag: Warning: "
 #endif
 
-#ifdef HTAGS_SILENT_ERRORS
-	#define HTTAGS_ERROR( msg ) \
+#ifdef HTTAG_SILENT_ERRORS
+	#define HTTAG_ERROR( msg ) \
 		{ \
 			throw std::runtime_error( "httag: fatal error" ); \
 		}
 #else
-	#define HTTAGS_ERROR( msg ) \
+	#define HTTAG_ERROR( msg ) \
 		{ \
-			HTAG_PRINT_INFO( msg ); \
+			HTTAG_PRINT_INFO( msg ); \
 			throw std::runtime_error( "httag: fatal error" ); \
 		}
 #endif
