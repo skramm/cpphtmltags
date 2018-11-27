@@ -30,7 +30,8 @@ And in case you forget a letter somewhere, it will generate a compile-time error
 
 However, it is always possible to print out anything into the output stream, at any time (and even manually written Html tags!)
 
-This library enforces wrong order of tags opening/closing, for example, something like this:<br>
+This library enforces wrong order of tags opening/closing, (aka "Misnested tags").
+For example, something like this:<br>
 `<h2>title<p></h2>paragraph</p>`<br>
 may not happen.
 
@@ -109,7 +110,8 @@ All the HTML 5 standard material has been fetched from these sources:
   - http://w3c.github.io/html-reference/global-attributes.html
   - https://www.w3schools.com/tags/ref_standardattributes.asp
 
-- content catagories:
+- content categories:
  - https://www.w3.org/TR/html5/dom.html#kinds-of-content
+ - https://www.w3.org/TR/html52/dom.html#kinds-of-content
 
 Copyright Sebastien Kramm - 2018

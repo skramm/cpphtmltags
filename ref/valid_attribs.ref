@@ -1,3 +1,5 @@
+# This file holds for each attribute the list of html elements where they are allowed
+
 accept:input
 accept_charset:form
 action:form

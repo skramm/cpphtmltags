@@ -1,3 +1,4 @@
+# This file holds the attribute that are "global" (i.e. that can be used in any html element)
 accesskey
 class
 contenteditable

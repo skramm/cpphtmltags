@@ -3,4 +3,8 @@
 ul:li
 ol:li
 menu:li,C_flow
+html:head,body
+head:title,meta,script,base
+article:C_flow
+
 

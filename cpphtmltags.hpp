@@ -87,7 +87,7 @@ namespace httag {
 
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181127-0837
+// timestamp: 20181127-1534
 enum En_Httag
 {
 	HT_A,
@@ -218,7 +218,7 @@ enum En_Httag
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181127-0837
+// timestamp: 20181127-1534
 enum En_Attrib
 {
 	AT_ACCEPT,
@@ -360,7 +360,7 @@ enum En_Attrib
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181127-0837
+// timestamp: 20181127-1534
 const char*
 getString( En_Httag a )
 {
@@ -497,7 +497,7 @@ getString( En_Httag a )
 }
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181127-0837
+// timestamp: 20181127-1534
 const char*
 getString( En_Attrib a )
 {
@@ -645,7 +645,7 @@ getString( En_Attrib a )
 }
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181127-0837
+// timestamp: 20181127-1534
 /// Conveniency typedef
 typedef std::map<En_Attrib,std::vector<En_Httag>> MapAttribs_t;
 /// Private class, holds map of allowed attributes

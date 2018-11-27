@@ -59,9 +59,6 @@
 		<Unit filename="build.sh">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="cpphtmltags.hpp">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
 		<Unit filename="cpphtmltags_1.hh">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # This file is part of cpphtmltags
-# it generates C++ code that will ge embedded in the library
+# it generates some C++ code that will get embedded in the library
 # it takes as input some reference html data, as raw text files in "ref" folder
 
 function print_header()
@@ -24,9 +24,13 @@ function generate()
 
 	while read str
 	do
-		v=$(echo $str | tr '[:lower:]' '[:upper:]')
-		echo -e "\t\tcase ${pre}_$v: n = \"$str\"; break;">> $file_s
-		echo -e "\t${pre}_$v," >> $file_e
+		if [ "${str:0:1}" != "#" ]; then
+			if [ ${#str} -ne 0 ]; then
+				v=$(echo $str | tr '[:lower:]' '[:upper:]')
+				echo -e "\t\tcase ${pre}_$v: n = \"$str\"; break;">> $file_s
+				echo -e "\t${pre}_$v," >> $file_e
+			fi
+		fi
 	done < $file_input
 
 	echo -e "\n\t\tdefault: assert(0);">> $file_s
@@ -37,8 +41,10 @@ function generate()
 	echo -e "};\n">> $file_e
 }
 
+#**************************************************
 echo "-Start build script"
 mkdir -p tmp
+
 # STEP 0: generate list of attributes from authorized tags/attributes file
 
 file_input=ref/valid_attribs.ref
@@ -47,7 +53,11 @@ file_output=tmp/attribs_1.ref
 rm $file_output
 while IFS=$':' read a b
 do
-	echo "$a" >> $file_output
+	if [ "${a:0:1}" != "#" ]; then
+		if [ ${#a} -ne 0 ]; then
+			echo "$a" >> $file_output
+		fi
+	fi
 done < $file_input
 cat tmp/attribs_1.ref ref/global_attribs.ref> tmp/attribs_2.ref
 sort <tmp/attribs_2.ref >tmp/attribs.ref
@@ -87,22 +97,26 @@ echo -e "\tMapAttribs()\n\t{" >>$file_out
 
 while IFS=$':' read a b
 do
-	at=$(echo $a | tr '[:lower:]' '[:upper:]')
-	echo -en "\t\t_map[AT_$at]\t=\t { ">> $file_out
-	IFS=',' read -ra TAG <<< "$b"
-	n=0
-	nb=${#TAG[@]}
-	for t in "${TAG[@]}";
-	do
-		tag=$(echo $t | tr '[:lower:]' '[:upper:]')
-		echo -n "HT_$tag" >> $file_out
-		((n++))
-		if [ $n != $nb ]
-		then
-			echo -n ", " >> $file_out
+	if [ "${a:0:1}" != "#" ]; then
+		if [ ${#a} -ne 0 ]; then
+			at=$(echo $a | tr '[:lower:]' '[:upper:]')
+			echo -en "\t\t_map[AT_$at]\t=\t { ">> $file_out
+			IFS=',' read -ra TAG <<< "$b"
+			n=0
+			nb=${#TAG[@]}
+			for t in "${TAG[@]}";
+			do
+				tag=$(echo $t | tr '[:lower:]' '[:upper:]')
+				echo -n "HT_$tag" >> $file_out
+				((n++))
+				if [ $n != $nb ]
+				then
+					echo -n ", " >> $file_out
+				fi
+			done
+			echo -e " };">> $file_out
 		fi
-	done
-	echo -e " };">> $file_out
+	fi
 done < $file_input
 
 echo -e "\t}\n};" >>$file_out

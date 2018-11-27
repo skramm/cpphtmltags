@@ -4,7 +4,7 @@
 
 
 # Metadata content
-C_metadata:
+C_metadata:base,link,meta,noscript,script,style,template,title
 
 # Flow content
 C_flow:
