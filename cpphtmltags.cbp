@@ -56,9 +56,11 @@
 		<Unit filename="README.md">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
+		<Unit filename="bcat.sh" />
 		<Unit filename="build.sh">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
+		<Unit filename="cpphtmltags.hpp" />
 		<Unit filename="cpphtmltags_1.hh">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>

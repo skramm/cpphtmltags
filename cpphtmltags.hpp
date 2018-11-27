@@ -87,7 +87,7 @@ namespace httag {
 
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181127-1534
+// timestamp: 20181127-1848
 enum En_Httag
 {
 	HT_A,
@@ -218,7 +218,7 @@ enum En_Httag
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181127-1534
+// timestamp: 20181127-1848
 enum En_Attrib
 {
 	AT_ACCEPT,
@@ -360,7 +360,7 @@ enum En_Attrib
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181127-1534
+// timestamp: 20181127-1848
 const char*
 getString( En_Httag a )
 {
@@ -497,7 +497,7 @@ getString( En_Httag a )
 }
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181127-1534
+// timestamp: 20181127-1848
 const char*
 getString( En_Attrib a )
 {
@@ -645,9 +645,10 @@ getString( En_Attrib a )
 }
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181127-1534
+// timestamp: 20181127-1848
 /// Conveniency typedef
 typedef std::map<En_Attrib,std::vector<En_Httag>> MapAttribs_t;
+
 /// Private class, holds map of allowed attributes
 struct MapAttribs
 {
@@ -778,8 +779,65 @@ struct MapAttribs
 		_map[AT_WRAP]	=	 { HT_TEXTAREA };
 	}
 };
+/// Enum holding tag categories
+enum En_TagCat
+{
+	C_METADATA,
+	C_FLOW,
+	C_SECTIONING,
+	C_HEADING,
+	C_PHRASING,
+	C_EMBEDDED,
+	C_INTERACTIVE,
+
+	C_DUMMY
+};
+/// Conveniency typedef
+typedef std::map<En_TagCat,std::vector<En_Httag>> TagCat_t;
+
+/// Private class, holds map of categories of tags
+struct TagCat
+{
+	TagCat_t _map_cat;
+	const TagCat_t& get() {
+		return _map_cat;
+	}
+	TagCat()
+	{
+		_map_cat[C_METADATA]	=	 { HT_BASE, HT_LINK, HT_META, HT_NOSCRIPT, HT_SCRIPT, HT_STYLE, HT_TEMPLATE, HT_TITLE };
+		_map_cat[C_FLOW]	=	 { HT_A, HT_ABBR, HT_ADDRESS, HT_AREA, HT_ARTICLE, HT_ASIDE, HT_AUDIO, HT_B, HT_BDI, HT_BDO, HT_BLOCKQUOTE, HT_BR, HT_BUTTON, HT_CANVAS, HT_CITE, HT_CODE, HT_DATA, HT_DATALIST, HT_DEL, HT_DETAILS, HT_DFN, HT_DIALOG, HT_DIV, HT_DL, HT_EM, HT_EMBED, HT_FIELDSET, HT_FIGURE, HT_FOOTER, HT_FORM, HT_H1, HT_H2, HT_H3, HT_H4, HT_H5, HT_H6, HT_HEADER, HT_HR, HT_I, HT_IFRAME, HT_IMG, HT_INPUT, HT_INS, HT_KBD, HT_LABEL, HT_LINK, HT_MAIN, HT_MAP, HT_MARK, HT_METER, HT_NAV, HT_NOSCRIPT, HT_OBJECT, HT_OL, HT_OUTPUT, HT_P, HT_PICTURE, HT_PRE, HT_PROGRESS, HT_Q, HT_RUBY, HT_S, HT_SAMP, HT_SCRIPT, HT_SECTION, HT_SELECT, HT_SMALL, HT_SPAN, HT_STRONG, HT_STYLE, HT_SUB, HT_SUP, HT_SVG, HT_TABLE, HT_TEMPLATE, HT_TEXTAREA, HT_TIME, HT_U, HT_UL, HT_VAR, HT_VIDEO, HT_WBR };
+		_map_cat[C_SECTIONING]	=	 { HT_ARTICLE, HT_ASIDE, HT_NAV, HT_SECTION };
+		_map_cat[C_HEADING]	=	 { HT_H1, HT_H2, HT_H3, HT_H4, HT_H5, HT_H6 };
+		_map_cat[C_PHRASING]	=	 { HT_A, HT_ABBR, HT_AREA, HT_AUDIO, HT_B, HT_BDI, HT_BDO, HT_BR, HT_BUTTON, HT_CANVAS, HT_CITE, HT_CODE, HT_DATA, HT_DATALIST, HT_DEL, HT_DFN, HT_EM, HT_EMBED, HT_I, HT_IFRAME, HT_IMG, HT_INPUT, HT_INS, HT_KBD, HT_LABEL, HT_LINK, HT_MAP, HT_MARK, HT_METER, HT_NOSCRIPT, HT_OBJECT, HT_OUTPUT, HT_PICTURE, HT_PROGRESS, HT_Q, HT_RUBY, HT_S, HT_SAMP, HT_SCRIPT, HT_SELECT, HT_SMALL, HT_SPAN, HT_STRONG, HT_SUB, HT_SUP, HT_SVG, HT_TEMPLATE, HT_TEXTAREA, HT_TIME, HT_U, HT_VAR, HT_VIDEO, HT_WBR };
+		_map_cat[C_EMBEDDED]	=	 { HT_AUDIO, HT_CANVAS, HT_EMBED, HT_IFRAME, HT_IMG, HT_OBJECT, HT_PICTURE, HT_SVG, HT_VIDEO };
+		_map_cat[C_INTERACTIVE]	=	 {  };
+	}
+};
 
 
+//-----------------------------------------------------------------------------------
+/// Returns the category for a given tag
+/// \todo PROBLEM HERE: a tag can be member of more than one category !!!
+En_TagCat
+getTagCat( En_Httag tag )
+{
+	static TagCat tagcat;
+	for( auto v_cat: tagcat.get() )
+	{
+		auto it = std::find(
+				std::begin(v_cat.second),
+				std::end(v_cat.second),
+				tag
+			);
+		if( it == std::end(v_cat.second) )
+		{
+			HTTAG_ERROR( "cannot find tag" );
+		}
+		else
+			return v_cat.first;
+	}
+	assert(0); // shouldn't be there
+}
 
 //-----------------------------------------------------------------------------------
 /// A global attribute can be used in \b any html tag
@@ -863,7 +921,7 @@ Main class, see homepage for details
 */
 class Httag
 {
-	friend class MapAttribs;
+//	friend class MapAttribs;
 	template<typename T>
 	friend Httag&         operator << ( Httag&         tag,    const T& );
 	friend std::ostream& operator << ( std::ostream& stream, const Httag& );

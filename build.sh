@@ -86,7 +86,7 @@ file_out=tmp/attrib_tags.src
 print_header $file_out
 
 echo "/// Conveniency typedef">> $file_out
-echo "typedef std::map<En_Attrib"",std::vector<En_Httag>> MapAttribs_t;">> $file_out
+echo -e "typedef std::map<En_Attrib"",std::vector<En_Httag>> MapAttribs_t;\n">> $file_out
 
 echo "/// Private class, holds map of allowed attributes">> $file_out
 echo -e "struct MapAttribs\n{">> $file_out
@@ -131,6 +131,8 @@ cat \
 	tmp/tags_switch.src \
 	tmp/attribs_switch.src \
 	tmp/attrib_tags.src \
+	tmp/element_cat_enum.src \
+	tmp/element_cat.src \
 	cpphtmltags_2.hh \
 	>> cpphtmltags.hpp \
 

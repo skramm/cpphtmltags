@@ -1,5 +1,28 @@
 
 
+//-----------------------------------------------------------------------------------
+/// Returns the category for a given tag
+/// \todo PROBLEM HERE: a tag can be member of more than one category !!!
+En_TagCat
+getTagCat( En_Httag tag )
+{
+	static TagCat tagcat;
+	for( auto v_cat: tagcat.get() )
+	{
+		auto it = std::find(
+				std::begin(v_cat.second),
+				std::end(v_cat.second),
+				tag
+			);
+		if( it == std::end(v_cat.second) )
+		{
+			HTTAG_ERROR( "cannot find tag" );
+		}
+		else
+			return v_cat.first;
+	}
+	assert(0); // shouldn't be there
+}
 
 //-----------------------------------------------------------------------------------
 /// A global attribute can be used in \b any html tag
@@ -83,7 +106,7 @@ Main class, see homepage for details
 */
 class Httag
 {
-	friend class MapAttribs;
+//	friend class MapAttribs;
 	template<typename T>
 	friend Httag&         operator << ( Httag&         tag,    const T& );
 	friend std::ostream& operator << ( std::ostream& stream, const Httag& );

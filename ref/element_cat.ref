@@ -2,12 +2,11 @@
 # PRELIMINAR !
 # http://w3c.github.io/html/single-page.html#kinds-of-content
 
-
 # Metadata content
 C_metadata:base,link,meta,noscript,script,style,template,title
 
 # Flow content
-C_flow:
+C_flow:a,abbr,address,area,article,aside,audio,b,bdi,bdo,blockquote,br,button,canvas,cite,code,data,datalist,del,details,dfn,dialog,div,dl,em,embed,fieldset,figure,footer,form,h1,h2,h3,h4,h5,h6,header,hr,i,iframe,img,input,ins,kbd,label,link, main,map,mark,meter,nav,noscript,object,ol,output,p,picture,pre,progress,q,ruby,s,samp,script,section,select,small,span,strong,style,sub,sup,svg,table,template,textarea,time,u,ul,var,video,wbr
 
 # Sectioning content
 C_sectioning:article,aside,nav,section
@@ -16,10 +15,10 @@ C_sectioning:article,aside,nav,section
  C_heading:h1,h2,h3,h4,h5,h6
 
 # Phrasing content
-C_phrasing:a,abbr,area,audio,b,bdi,bdo,br,button,canvas,cite,code,data,datalist,del,dfn,em,embed,i,iframe,img,input,ins,kbd,label,link,map,mark,math,meter,noscript,object,output,picture,progress q ruby,s,samp,script,select,small,span,strong,sub,sup,svg,template,textarea,time,u,var,video,wbr
+C_phrasing:a,abbr,area,audio,b,bdi,bdo,br,button,canvas,cite,code,data,datalist,del,dfn,em,embed,i,iframe,img,input,ins,kbd,label,link,map,mark,meter,noscript,object,output,picture,progress,q,ruby,s,samp,script,select,small,span,strong,sub,sup,svg,template,textarea,time,u,var,video,wbr
 
 # Embedded content
-C_embedded:audio,canvas,embed,iframe,img,MathML,math,object,picture,svg,video
+C_embedded:audio,canvas,embed,iframe,img,object,picture,svg,video
 
 # Interactive content
 C_interactive:
