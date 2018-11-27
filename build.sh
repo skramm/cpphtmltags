@@ -7,7 +7,7 @@
 function print_header()
 {
 	echo "// -------- GENERATED CODE ! --------"> $1
-	echo "// timestamp: $(date +%Y%m%d-%H%M)">> $1
+	echo -e "// timestamp: $(date +%Y%m%d-%H%M)\n">> $1
 }
 
 function generate()
@@ -85,6 +85,7 @@ file_out=tmp/attrib_tags.src
 
 print_header $file_out
 
+echo -e "namespace priv {\n">> $file_out
 echo "/// Conveniency typedef">> $file_out
 echo -e "typedef std::map<En_Attrib"",std::vector<En_Httag>> MapAttribs_t;\n">> $file_out
 
@@ -120,6 +121,7 @@ do
 done < $file_input
 
 echo -e "\t}\n};" >>$file_out
+echo -e "\n} // namespace priv\n">> $file_out
 
 # STEP 3 : generate header file
 

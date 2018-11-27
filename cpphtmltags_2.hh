@@ -1,4 +1,5 @@
 
+namespace priv {
 
 //-----------------------------------------------------------------------------------
 /// Returns the category for a given tag
@@ -89,6 +90,8 @@ isVoidElement( En_Httag tag )
 	}
 	return false; // to avoid a compiler warning
 }
+
+} // namespace priv
 
 /// Line Feed Mode (see manual)
 enum En_LineFeedMode
@@ -201,7 +204,7 @@ class Httag
 			return _lf_mode;
 		}
 	private:
-		En_Httag         _tag_en;
+		En_Httag        _tag_en;
 		std::ostream*   _file;
 		bool            _isFileType;
 		std::string     _content;
@@ -346,7 +349,7 @@ template<>
 void
 Httag::addContent<std::string>( std::string content )
 {
-	if( isVoidElement( _tag_en ) )
+	if( priv::isVoidElement( _tag_en ) )
 		HTTAG_ERROR( std::string("attempting to store content '") + content + "' into a void-element tag '" + getString( _tag_en ) + '\'' );
 	_content += content;
 }
@@ -552,7 +555,7 @@ Httag::p_addAttrib( En_Attrib attr, std::string value )
 		return;
 	}
 #ifndef HTTAG_NO_CHECK
-	if( !attribIsAllowed( attr, _tag_en ) )
+	if( !priv::attribIsAllowed( attr, _tag_en ) )
 		HTTAG_ERROR( std::string( "attempt to assign attribute '") + getString(attr) + "' to tag '" + getString( _tag_en )+  "': invalid with html5" );
 #endif
 
@@ -697,7 +700,7 @@ operator << ( std::ostream& s, const Httag& h )
 	s << '<' << getString( h._tag_en )
 		<< h.p_getAttribs()
 		<< '>';
-	if( !isVoidElement( h.getTag() ) )
+	if( !priv::isVoidElement( h.getTag() ) )
 		s << h._content << "</" << getString( h._tag_en ) << '>';
     if( h._isFileType )
 		h.doLineFeed();

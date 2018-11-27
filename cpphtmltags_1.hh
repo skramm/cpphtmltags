@@ -21,8 +21,6 @@
 
 homepage: https://github.com/skramm/cpphtmltags
 
-\todo add targets to Makefile to build demos (test target is done)
-
 \todo Clarify usage/need of _printAttribs
 
 
@@ -82,6 +80,5 @@ Refs:
 #endif
 
 namespace httag {
-
 
 

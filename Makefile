@@ -20,13 +20,13 @@ a.out: $(SRC_FILE) $(TEST_FILE) Makefile
 	@echo "-Start compiling $(TEST_FILE)"
 	@$(CXX) $(CFLAGS) $(TEST_FILE)
 
-$(SRC_FILE): cpphtmltags_1.hh cpphtmltags_2.hh $(REF_FILES)
+$(SRC_FILE): cpphtmltags_1.hh cpphtmltags_2.hh $(REF_FILES) build.sh
 	./build.sh
 
 demo: $(EXE_DEMO_FILES) Makefile
 	@echo done
 
-%:demo/%.cpp
+%:demo/%.cpp $(SRC_FILE)
 	$(CXX) -o $@ $(CFLAGS) $<
 
 # builds the sample programs

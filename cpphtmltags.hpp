@@ -22,8 +22,6 @@
 
 homepage: https://github.com/skramm/cpphtmltags
 
-\todo add targets to Makefile to build demos (test target is done)
-
 \todo Clarify usage/need of _printAttribs
 
 
@@ -85,9 +83,9 @@ Refs:
 namespace httag {
 
 
-
 // -------- GENERATED CODE ! --------
-// timestamp: 20181127-1848
+// timestamp: 20181128-0014
+
 enum En_Httag
 {
 	HT_A,
@@ -218,7 +216,8 @@ enum En_Httag
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181127-1848
+// timestamp: 20181128-0014
+
 enum En_Attrib
 {
 	AT_ACCEPT,
@@ -360,7 +359,8 @@ enum En_Attrib
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181127-1848
+// timestamp: 20181128-0014
+
 const char*
 getString( En_Httag a )
 {
@@ -497,7 +497,8 @@ getString( En_Httag a )
 }
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181127-1848
+// timestamp: 20181128-0014
+
 const char*
 getString( En_Attrib a )
 {
@@ -645,7 +646,10 @@ getString( En_Attrib a )
 }
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181127-1848
+// timestamp: 20181128-0014
+
+namespace priv {
+
 /// Conveniency typedef
 typedef std::map<En_Attrib,std::vector<En_Httag>> MapAttribs_t;
 
@@ -779,6 +783,11 @@ struct MapAttribs
 		_map[AT_WRAP]	=	 { HT_TEXTAREA };
 	}
 };
+
+} // namespace priv
+
+namespace priv {
+
 /// Enum holding tag categories
 enum En_TagCat
 {
@@ -813,7 +822,10 @@ struct TagCat
 		_map_cat[C_INTERACTIVE]	=	 {  };
 	}
 };
+} // namespace priv
 
+
+namespace priv {
 
 //-----------------------------------------------------------------------------------
 /// Returns the category for a given tag
@@ -904,6 +916,8 @@ isVoidElement( En_Httag tag )
 	}
 	return false; // to avoid a compiler warning
 }
+
+} // namespace priv
 
 /// Line Feed Mode (see manual)
 enum En_LineFeedMode
@@ -1016,7 +1030,7 @@ class Httag
 			return _lf_mode;
 		}
 	private:
-		En_Httag         _tag_en;
+		En_Httag        _tag_en;
 		std::ostream*   _file;
 		bool            _isFileType;
 		std::string     _content;
@@ -1161,7 +1175,7 @@ template<>
 void
 Httag::addContent<std::string>( std::string content )
 {
-	if( isVoidElement( _tag_en ) )
+	if( priv::isVoidElement( _tag_en ) )
 		HTTAG_ERROR( std::string("attempting to store content '") + content + "' into a void-element tag '" + getString( _tag_en ) + '\'' );
 	_content += content;
 }
@@ -1367,7 +1381,7 @@ Httag::p_addAttrib( En_Attrib attr, std::string value )
 		return;
 	}
 #ifndef HTTAG_NO_CHECK
-	if( !attribIsAllowed( attr, _tag_en ) )
+	if( !priv::attribIsAllowed( attr, _tag_en ) )
 		HTTAG_ERROR( std::string( "attempt to assign attribute '") + getString(attr) + "' to tag '" + getString( _tag_en )+  "': invalid with html5" );
 #endif
 
@@ -1512,7 +1526,7 @@ operator << ( std::ostream& s, const Httag& h )
 	s << '<' << getString( h._tag_en )
 		<< h.p_getAttribs()
 		<< '>';
-	if( !isVoidElement( h.getTag() ) )
+	if( !priv::isVoidElement( h.getTag() ) )
 		s << h._content << "</" << getString( h._tag_en ) << '>';
     if( h._isFileType )
 		h.doLineFeed();
