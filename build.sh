@@ -37,7 +37,7 @@ function generate()
 	echo -e "};\n">> $file_e
 }
 
-
+echo "-Start build script"
 mkdir -p tmp
 # STEP 0: generate list of attributes from authorized tags/attributes file
 

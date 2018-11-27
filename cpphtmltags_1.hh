@@ -42,13 +42,7 @@ Refs:
 #ifndef HG_CPPHTMLTAGS_HPP
 #define HG_CPPHTMLTAGS_HPP
 
-
-#define EXPERIMENTAL
-
-#ifdef EXPERIMENTAL
-	#include <vector>
-#endif
-
+#include <vector>
 #include <sstream>
 #include <map>
 #include <cassert>

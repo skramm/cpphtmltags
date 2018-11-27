@@ -43,13 +43,7 @@ Refs:
 #ifndef HG_CPPHTMLTAGS_HPP
 #define HG_CPPHTMLTAGS_HPP
 
-
-#define EXPERIMENTAL
-
-#ifdef EXPERIMENTAL
-	#include <vector>
-#endif
-
+#include <vector>
 #include <sstream>
 #include <map>
 #include <cassert>
@@ -93,7 +87,7 @@ namespace httag {
 
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181126-1444
+// timestamp: 20181127-0837
 enum En_Httag
 {
 	HT_A,
@@ -224,7 +218,7 @@ enum En_Httag
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181126-1444
+// timestamp: 20181127-0837
 enum En_Attrib
 {
 	AT_ACCEPT,
@@ -366,7 +360,7 @@ enum En_Attrib
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181126-1444
+// timestamp: 20181127-0837
 const char*
 getString( En_Httag a )
 {
@@ -503,7 +497,7 @@ getString( En_Httag a )
 }
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181126-1444
+// timestamp: 20181127-0837
 const char*
 getString( En_Attrib a )
 {
@@ -651,7 +645,7 @@ getString( En_Attrib a )
 }
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181126-1444
+// timestamp: 20181127-0837
 /// Conveniency typedef
 typedef std::map<En_Attrib,std::vector<En_Httag>> MapAttribs_t;
 /// Private class, holds map of allowed attributes
@@ -947,13 +941,12 @@ class Httag
 		void p_checkValidFileType( std::string action );
 		std::string p_getAttribs() const;
 
-#ifdef EXPERIMENTAL
 		static std::vector<En_Httag>& openedTags()
 		{
 			static std::vector<En_Httag> s_opened_tags;
 			return s_opened_tags;
 		}
-#endif
+
 		static GlobAttribMap_t& globalAttrib()
 		{
 			static GlobAttribMap_t s_global_attrib;
@@ -1211,9 +1204,7 @@ Httag::openTag()
 		*_file << '<' << getString(_tag_en) << p_getAttribs() << '>';
 	_tagIsOpen = true;
 //	_printAttribs = false;
-#ifdef EXPERIMENTAL
 	openedTags().push_back( _tag_en );
-#endif
 }
 //-----------------------------------------------------------------------------------
 /// Close the tag (this function needs to be called ONLY for "file" object types
@@ -1227,14 +1218,11 @@ Httag::closeTag( bool linefeed )
 		HTTAG_ERROR( std::string( "tag '" ) + getString(_tag_en) + "': asked to close but was already closed." );
 	*_file << "</" << getString(_tag_en) << '>';
 
-
-#ifdef EXPERIMENTAL
 	assert( openedTags().size() > 0 );
 	if( openedTags().back() != _tag_en )
 		HTTAG_ERROR( std::string( "asking to close tag '") + getString(_tag_en) + "' but tag '" +  getString(openedTags().back()) + "' still open" );
 
 	openedTags().pop_back();
-#endif
 
 	_tagIsOpen = false;
 	doLineFeed( linefeed );

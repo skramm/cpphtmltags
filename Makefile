@@ -1,7 +1,8 @@
 # makefile for cpphtmltags
 
 
-# not used at present but could be for multiple test files
+SRC_FILE=cpphtmltags.hpp
+
 SRC_DEMO_FILES = $(wildcard demo/*.cpp)
 EXE_DEMO_FILES := $(patsubst demo/%.cpp, %, $(SRC_DEMO_FILES))
 TEST_FILE=tests/test_A.cpp
@@ -14,9 +15,12 @@ test: a.out
 #	@./a.out -s
 
 # for unit testing
-a.out: cpphtmltags.hpp $(TEST_FILE) Makefile
-	@echo "-start compiling $(TEST_FILE)"
+a.out: $(SRC_FILE) $(TEST_FILE) Makefile
+	@echo "-Start compiling $(TEST_FILE)"
 	@$(CXX) $(CFLAGS) $(TEST_FILE)
+
+$(SRC_FILE): cpphtmltags_1.hh cpphtmltags_2.hh
+	./build.sh
 
 demo: $(EXE_DEMO_FILES) Makefile
 	@echo done

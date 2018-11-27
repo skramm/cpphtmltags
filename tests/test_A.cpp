@@ -3,7 +3,7 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
-#define HTAGS_SILENT_MODE
+#define HTTAG_SILENT_MODE
 #include "../cpphtmltags.hpp"
 
 
@@ -122,14 +122,33 @@ TEST_CASE( "test1", "[mytest]" )
 
 TEST_CASE( "Error checking", "[mytest]" )
 {
-	Httag t0( HT_P );
-	CHECK_THROWS( t0.openTag() ); // cannot open a non-file type tag
+	Httag t0a( HT_P );
+	CHECK_THROWS( t0a.openTag() ); // cannot open a non-file type tag
 
-	Httag t1( HT_P );
-	CHECK_THROWS( t1.closeTag() ); // cannot open a non-file type tag
+	Httag t0b( HT_P );
+	CHECK_THROWS( t0b.closeTag() ); // cannot close a non-file type tag
+
+	Httag t1( std::cout, HT_P );
+	CHECK_THROWS( t1.closeTag() );
 
 	Httag t2( HT_BR );
 	CHECK_THROWS( t2.addContent( "tag cannot have content" ) );
+
+	std::ostringstream oss;
+	Httag t3a( oss, HT_H2 );       // checking for
+	Httag t3b( oss, HT_P );        // correct opening/closing order
+	t3a.openTag();
+	t3a << "title";
+	t3b.openTag();
+	t3b << "paragraph";
+	CHECK_THROWS( t3a.closeTag() );
+
+	{
+		std::ostringstream oss;
+		Httag t4( oss, HT_H2 );       // cannot add attributes to an already opened tag
+		t4.openTag();
+		CHECK_THROWS( t4.addAttrib( AT_CLASS, "abc" ) );
+	}
 }
 
 TEST_CASE( "File type tags", "[mytest]" )
