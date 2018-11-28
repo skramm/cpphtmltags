@@ -6,5 +6,11 @@ menu:li,C_flow
 html:head,body
 head:title,meta,script,base
 article:C_flow
+h1:C_phrasing
+h2:C_phrasing
+h3:C_phrasing
+h4:C_phrasing
+h5:C_phrasing
+h6:C_phrasing
 
 

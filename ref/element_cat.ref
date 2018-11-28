@@ -1,6 +1,6 @@
 # holds element categories
 # PRELIMINAR !
-# http://w3c.github.io/html/single-page.html#kinds-of-content
+# https://www.w3.org/TR/html5/dom.html#kinds-of-content
 
 # Metadata content
 C_metadata:base,link,meta,noscript,script,style,template,title
@@ -22,5 +22,13 @@ C_embedded:audio,canvas,embed,iframe,img,object,picture,svg,video
 
 # Interactive content
 C_interactive:
+
+a,audio,button,details,embed iframe,img,input,label,select,textarea,video
+
+
+C_palpable:
+
+
+C_script:script,template
 
 

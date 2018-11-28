@@ -179,7 +179,8 @@ class Httag
 		{
 			lf_mode() = mode;
 		}
-		static void printSupported( std::ostream& );
+		static void printSupported(  std::ostream& );
+		static void printOpenedTags( std::ostream& );
 
 	private:
 		void doLineFeed( bool linefeed=false ) const;
@@ -227,6 +228,20 @@ Httag::printSupported( std::ostream& f )
 	f << "* Supported attributes: " << AT_DUMMY;
 	for( size_t i=0; i<AT_DUMMY; i++ )
 		f <<  "\n - " << getString( static_cast<En_Attrib>(i) );
+	f << '\n';
+}
+
+//-----------------------------------------------------------------------------------
+inline
+void
+Httag::printOpenedTags( std::ostream& f )
+{
+	f << "Currently opened tags: ";
+	const auto& v= openedTags();
+	for( const auto t: v )
+	{
+		f << '<' << getString( t ) << '>';
+	}
 	f << '\n';
 }
 
