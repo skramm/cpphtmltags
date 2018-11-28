@@ -1,9 +1,16 @@
 #!/bin/bash
+
+# generation of C++ code
+# builds
+
 set +x
 
 file_input=ref/element_cat.ref
 file_out1=tmp/element_cat_enum.src
 file_out2=tmp/element_cat.src
+
+
+# START
 
 #echo "/// private namespace"> $file_out1
 echo -e "namespace priv {\n"> $file_out1

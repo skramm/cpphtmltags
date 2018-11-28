@@ -58,6 +58,8 @@ int main()
 		f2.openTag();
 		cout << "li-content";
 
+		Httag::printOpenedTags( cout );
+
 		f2.closeTag();
 		f1.closeTag();
 
