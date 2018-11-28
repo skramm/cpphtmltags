@@ -87,7 +87,7 @@ namespace httag {
 
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181127-1534
+// timestamp: 20181128-1349
 enum En_Httag
 {
 	HT_A,
@@ -116,6 +116,7 @@ enum En_Httag
 	HT_CODE,
 	HT_COL,
 	HT_COLGROUP,
+	HT_COMMENT,
 	HT_DATA,
 	HT_DATALIST,
 	HT_DD,
@@ -126,6 +127,7 @@ enum En_Httag
 	HT_DIR,
 	HT_DIV,
 	HT_DL,
+	HT_DOCTYPE,
 	HT_DT,
 	HT_EM,
 	HT_EMBED,
@@ -218,7 +220,7 @@ enum En_Httag
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181127-1534
+// timestamp: 20181128-1349
 enum En_Attrib
 {
 	AT_ACCEPT,
@@ -360,7 +362,7 @@ enum En_Attrib
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181127-1534
+// timestamp: 20181128-1349
 const char*
 getString( En_Httag a )
 {
@@ -393,6 +395,7 @@ getString( En_Httag a )
 		case HT_CODE: n = "code"; break;
 		case HT_COL: n = "col"; break;
 		case HT_COLGROUP: n = "colgroup"; break;
+		case HT_COMMENT: n = "comment"; break;
 		case HT_DATA: n = "data"; break;
 		case HT_DATALIST: n = "datalist"; break;
 		case HT_DD: n = "dd"; break;
@@ -403,6 +406,7 @@ getString( En_Httag a )
 		case HT_DIR: n = "dir"; break;
 		case HT_DIV: n = "div"; break;
 		case HT_DL: n = "dl"; break;
+		case HT_DOCTYPE: n = "doctype"; break;
 		case HT_DT: n = "dt"; break;
 		case HT_EM: n = "em"; break;
 		case HT_EMBED: n = "embed"; break;
@@ -497,7 +501,7 @@ getString( En_Httag a )
 }
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181127-1534
+// timestamp: 20181128-1349
 const char*
 getString( En_Attrib a )
 {
@@ -645,7 +649,7 @@ getString( En_Attrib a )
 }
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181127-1534
+// timestamp: 20181128-1349
 /// Conveniency typedef
 typedef std::map<En_Attrib,std::vector<En_Httag>> MapAttribs_t;
 /// Private class, holds map of allowed attributes
@@ -836,6 +840,7 @@ isVoidElement( En_Httag tag )
 {
 	switch( tag )
 	{
+		case HT_DOCTYPE:
 		case HT_INPUT:
 		case HT_IMG:
 		case HT_HR:
@@ -845,6 +850,55 @@ isVoidElement( En_Httag tag )
 			return false;
 	}
 	return false; // to avoid a compiler warning
+}
+
+//-----------------------------------------------------------------------------------
+/// Returns true if the default behavior for \c tag is to have a line feed after opening
+bool
+hasDefaultLF_Open( En_Httag tag )
+{
+	switch( tag )
+	{
+		case HT_HTML:
+		case HT_BODY:
+		case HT_HEAD:
+		case HT_TABLE:
+		case HT_TR:
+		case HT_UL:
+		case HT_OL:
+			return true;
+		default: break;
+	}
+	return false;
+}
+
+//-----------------------------------------------------------------------------------
+/// Returns true if the default behavior for \c tag is to have a line feed after closing
+bool
+hasDefaultLF_Close( En_Httag tag )
+{
+	switch( tag )
+	{
+		case HT_HTML:
+		case HT_BODY:
+		case HT_HEAD:
+		case HT_TITLE:
+		case HT_FORM:
+		case HT_DIV:
+		case HT_SPAN:
+		case HT_TABLE:
+		case HT_TR:
+		case HT_UL:
+		case HT_OL:
+		case HT_LI:
+		case HT_H1:
+		case HT_H2:
+		case HT_H3:
+		case HT_H4:
+			return true;
+		default: break;
+	}
+	return false;
 }
 
 /// Line Feed Mode (see manual)
@@ -1201,10 +1255,21 @@ Httag::openTag()
 		HTTAG_WARNING << "tag '" << getString(_tag_en) << "': asked to open but was already open.\n";
 	}
 	else
-		*_file << '<' << getString(_tag_en) << p_getAttribs() << '>';
+	{
+		switch( _tag_en )
+		{
+			case HT_COMMENT:  *_file << "<!-- "; break;
+			case HT_DOCTYPE: *_file << "<!DOCTYPE html>\n"; break;
+			default:
+				*_file << '<' << getString(_tag_en) << p_getAttribs() << '>';
+		}
+	}
 	_tagIsOpen = true;
 //	_printAttribs = false;
 	openedTags().push_back( _tag_en );
+
+	if( hasDefaultLF_Open( _tag_en ) )
+		*_file << '\n';
 }
 //-----------------------------------------------------------------------------------
 /// Close the tag (this function needs to be called ONLY for "file" object types
@@ -1214,9 +1279,16 @@ Httag::closeTag( bool linefeed )
 {
 	p_checkValidFileType( "close" );
 
+	if( isVoidElement( _tag_en ) )
+		HTTAG_ERROR( std::string( "asked to close tag '" ) + getString(_tag_en) + "' but is void-element" );
+
 	if( !_tagIsOpen )
 		HTTAG_ERROR( std::string( "tag '" ) + getString(_tag_en) + "': asked to close but was already closed." );
-	*_file << "</" << getString(_tag_en) << '>';
+
+	if( _tag_en == HT_COMMENT )
+		*_file << "-->\n";
+	else
+		*_file << "</" << getString(_tag_en) << '>';
 
 	assert( openedTags().size() > 0 );
 	if( openedTags().back() != _tag_en )
@@ -1403,31 +1475,6 @@ Httag::p_getAttribs() const
 	return out;
 }
 //-----------------------------------------------------------------------------------
-/// Returns true if the default behavior for \c tag is to have a line feed after
-bool
-hasDefaultLineFeed( En_Httag tag )
-{
-	switch( tag )
-	{
-		case HT_TITLE:
-		case HT_FORM:
-		case HT_DIV:
-		case HT_SPAN:
-		case HT_TABLE:
-		case HT_TR:
-		case HT_UL:
-		case HT_OL:
-		case HT_LI:
-		case HT_H1:
-		case HT_H2:
-		case HT_H3:
-		case HT_H4:
-			return true;
-		default: break;
-	}
-	return false;
-}
-//-----------------------------------------------------------------------------------
 /// Add a linefeed, either if requested (argument), either if default behaviour
 inline
 void
@@ -1438,7 +1485,7 @@ Httag::doLineFeed( bool linefeed ) const
 	{
 		case LF_Always: doIt = true; break;
 		case LF_None: break;
-		case LF_Default: doIt = hasDefaultLineFeed( _tag_en ) | linefeed; break;
+		case LF_Default: doIt = hasDefaultLF_Close( _tag_en ) | linefeed; break;
 		default: assert(0);
 	}
 
@@ -1451,11 +1498,22 @@ inline
 std::ostream&
 operator << ( std::ostream& s, const Httag& h )
 {
-	s << '<' << getString( h._tag_en )
-		<< h.p_getAttribs()
-		<< '>';
+	switch( h._tag_en )
+	{
+		case HT_COMMENT: s << "<!-- "; break;
+		case HT_DOCTYPE: s << "<!DOCTYPE html>\n"; break;
+		default:
+			s << '<' << getString( h._tag_en )
+				<< h.p_getAttribs() << '>';
+	}
 	if( !isVoidElement( h.getTag() ) )
-		s << h._content << "</" << getString( h._tag_en ) << '>';
+	{
+		s << h._content;
+		if( h._tag_en == HT_COMMENT )
+			s << " -->\n";
+		else
+			s << "</" << getString( h._tag_en ) << '>';
+	}
     if( h._isFileType )
 		h.doLineFeed();
 	return s;

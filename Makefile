@@ -26,7 +26,7 @@ $(SRC_FILE): cpphtmltags_1.hh cpphtmltags_2.hh $(REF_FILES)
 demo: $(EXE_DEMO_FILES) Makefile
 	@echo done
 
-%:demo/%.cpp
+%:demo/%.cpp $(SRC_FILE)
 	$(CXX) -o $@ $(CFLAGS) $<
 
 # builds the sample programs

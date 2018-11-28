@@ -26,6 +26,7 @@ cite
 code
 col
 colgroup
+comment
 data
 datalist
 dd
@@ -36,6 +37,7 @@ dialog
 dir
 div
 dl
+doctype
 dt
 em
 embed
