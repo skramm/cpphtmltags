@@ -48,7 +48,7 @@ Refs:
 #include <algorithm>
 
 #define HTTAG_PRINT_INFO( msg ) \
-		std::cerr << "httag: fatal error: " \
+		std::cerr << "\nhttag: fatal error: " \
 			<< "\n - file: " << __FILE__ \
 			<< "\n - line: " << __LINE__ \
 			<< "\n - message: " << msg \
@@ -63,19 +63,19 @@ Refs:
 #ifdef HTTAG_SILENT_WARNINGS
 	#define HTTAG_WARNING if(0) std::cerr
 #else
-	#define HTTAG_WARNING if(1) std::cerr << "httag: Warning: "
+	#define HTTAG_WARNING if(1) std::cerr << "\nhttag: Warning: "
 #endif
 
 #ifdef HTTAG_SILENT_ERRORS
 	#define HTTAG_ERROR( msg ) \
 		{ \
-			throw std::runtime_error( "httag: fatal error" ); \
+			throw std::runtime_error( std::string("httag: fatal error: ") + msg ); \
 		}
 #else
 	#define HTTAG_ERROR( msg ) \
 		{ \
 			HTTAG_PRINT_INFO( msg ); \
-			throw std::runtime_error( "httag: fatal error" ); \
+			throw std::runtime_error( std::string("httag: fatal error: ") + msg ); \
 		}
 #endif
 

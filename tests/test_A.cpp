@@ -3,7 +3,7 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
-#define HTTAG_SILENT_MODE
+//#define HTTAG_SILENT_MODE
 #include "../cpphtmltags.hpp"
 
 
@@ -122,6 +122,8 @@ TEST_CASE( "test1", "[mytest]" )
 
 TEST_CASE( "Error checking", "[mytest]" )
 {
+	CHECK( Httag::printOpenedTags( std::cout ) == 0 );
+
 	Httag t0a( HT_P );
 	CHECK_THROWS( t0a.openTag() ); // cannot open a non-file type tag
 
@@ -142,6 +144,14 @@ TEST_CASE( "Error checking", "[mytest]" )
 	t3b.openTag();
 	t3b << "paragraph";
 	CHECK_THROWS( t3a.closeTag() );
+
+	{
+		std::ostringstream oss;
+		Httag ta( oss, HT_P );
+		Httag tb( oss, HT_P );
+		ta.openTag();
+		CHECK_THROWS( tb.openTag() );
+	}
 
 	{
 		std::ostringstream oss;
@@ -199,22 +209,23 @@ TEST_CASE( "tag closure", "[mytest]" )
 {
 	SECTION( "self closing tag" )
 	{
-		std::ostringstream oss0, oss1, oss2, oss3, oss4;
 		{
-			Httag t0( oss0, HT_P );                        // adding content to a tag
+			std::ostringstream oss;
+			Httag t0( oss, HT_P );                        // adding content to a tag
 			t0 << "content";
 			t0.openTag();
 			t0 << ", some more content";
 			t0.printTag();
+			CHECK( oss.str() == "<p>content, some more content</p>" );
 		}
-		CHECK( oss0.str() == "<p>content, some more content</p>" );
 
 		{
-			Httag t0( oss1, HT_P );                        // adding content to a tag
+			std::ostringstream oss;
+			Httag t0( oss, HT_P );                        // adding content to a tag
 			t0 << "some content";
 			t0.printTag();
+			CHECK( oss.str() == "<p>some content</p>" );
 		}
-		CHECK( oss1.str() == "<p>some content</p>" );
 	}
 }
 

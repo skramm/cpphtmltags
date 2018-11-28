@@ -27,11 +27,11 @@ int main()
 	cout << t2;
 
 	t2.addAttrib( AT_CLASS, "bbb" );
-	t2.setContent( "Hello World" );
+	t2.setContent( "t2: Hello World" );
 	cout << t2 << '\n';
 	Httag::setGlobalAttrib( HT_P, AT_STYLE, "globalstyle" );
 
-	Httag t3( HT_P );
+	Httag t3( HT_P, "t3" );
 	cout << t2 << '\n';
 	cout << t3 << '\n';
 
@@ -64,6 +64,31 @@ int main()
 		f1.closeTag();
 
 	}
+
+	Httag::printOpenedTags( cout, "before TEST" );
+
+cout << "\nTEST\n";
+
+		std::ostringstream oss;
+		{
+			Httag t0( oss, HT_P );                        // adding content to a tag
+			t0 << "content";
+			t0.openTag();
+			t0 << ", some more content";
+			t0.printTag();
+			Httag::printOpenedTags( cout, "A" );
+			cout << oss.str() << "\n";
+		}
+		Httag::printOpenedTags( cout, "B" );
+
+		{
+			Httag t0( oss, HT_P );                        // adding content to a tag
+			t0 << "some content";
+			Httag::printOpenedTags( cout, "C" );
+			t0.printTag();
+			Httag::printOpenedTags( cout, "D" );
+			cout << oss.str() << "\n";
+		}
 
 
 }

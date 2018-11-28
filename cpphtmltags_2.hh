@@ -208,7 +208,7 @@ class Httag
 			lf_mode() = mode;
 		}
 		static void printSupported(  std::ostream& );
-		static void printOpenedTags( std::ostream& );
+		static size_t printOpenedTags( std::ostream&, const char* msg=0 );
 
 	private:
 		void doLineFeed( bool linefeed=false ) const;
@@ -261,16 +261,19 @@ Httag::printSupported( std::ostream& f )
 
 //-----------------------------------------------------------------------------------
 inline
-void
-Httag::printOpenedTags( std::ostream& f )
+size_t
+Httag::printOpenedTags( std::ostream& f, const char* msg )
 {
-	f << "Currently opened tags: ";
+	f << "httag: opened tags (#=" << openedTags().size() << "):";
+	if( msg )
+		f << "msg='" << msg << "' ";
 	const auto& v= openedTags();
 	for( const auto t: v )
 	{
 		f << '<' << getString( t ) << '>';
 	}
 	f << '\n';
+	return openedTags().size();
 }
 
 //-----------------------------------------------------------------------------------
@@ -451,7 +454,9 @@ void Httag::printWithContent( T c )
 		*_file << _content;
 	*_file << c;
 //	_printAttribs = false;
-	closeTag();
+
+	if( !priv::isVoidElement( _tag_en ) )
+		closeTag();
 }
 
 //-----------------------------------------------------------------------------------
@@ -459,8 +464,12 @@ void Httag::printWithContent( T c )
 inline
 Httag::~Httag()
 {
-	if( _tagIsOpen && _isFileType )
+//	std::cout << "DESTRUCTOR tag " << getString( _tag_en ) << "isopen=" << _tagIsOpen << "\n";
+	if( _tagIsOpen && _isFileType && !priv::isVoidElement( _tag_en ) )
+	{
+//		std::cout << " => call closeTag()\n";
 		closeTag();
+	}
 }
 
 //-----------------------------------------------------------------------------------
@@ -491,6 +500,10 @@ Httag::openTag()
 	}
 	else
 	{
+		if( openedTags().size() )
+			if( openedTags().back() == _tag_en )
+				HTTAG_ERROR( std::string("attempt to open tag '") + getString(_tag_en) + "' but currently opened tag is identical" );
+
 		switch( _tag_en )
 		{
 			case HT_COMMENT:  *_file << "<!-- "; break;
@@ -498,13 +511,17 @@ Httag::openTag()
 			default:
 				*_file << '<' << getString(_tag_en) << p_getAttribs() << '>';
 		}
-	}
+
 	_tagIsOpen = true;
 //	_printAttribs = false;
+
+//	std::cout << "OPENING TAG: BEFORE nb opened=" << openedTags().size() << "\n";
 	openedTags().push_back( _tag_en );
+//	std::cout << "OPENING TAG: AFTER nb opened=" << openedTags().size() << "\n";
 
 	if( priv::hasDefaultLF_Open( _tag_en ) )
 		*_file << '\n';
+	}
 }
 //-----------------------------------------------------------------------------------
 /// Close the tag (this function needs to be called ONLY for "file" object types
@@ -512,6 +529,7 @@ inline
 void
 Httag::closeTag( bool linefeed )
 {
+//	std::cout << "CLOSING TAG " << getString(_tag_en) << "\n";
 	p_checkValidFileType( "close" );
 
 	if( priv::isVoidElement( _tag_en ) )
@@ -529,7 +547,9 @@ Httag::closeTag( bool linefeed )
 	if( openedTags().back() != _tag_en )
 		HTTAG_ERROR( std::string( "asking to close tag '") + getString(_tag_en) + "' but tag '" +  getString(openedTags().back()) + "' still open" );
 
+//	std::cout << "CLOSING TAG: BEFORE nb opened=" << openedTags().size() << "\n";
 	openedTags().pop_back();
+//	std::cout << "CLOSING TAG: AFTER nb opened=" << openedTags().size() << "\n";
 
 	_tagIsOpen = false;
 	doLineFeed( linefeed );
@@ -608,7 +628,7 @@ void
 Httag::p_addAttrib( En_Attrib attr, std::string value )
 {
 	if( _tagIsOpen ) // because if it is already opened, then we can't add an attribute !
-		HTTAG_ERROR( std::string("unable to add attribute '") + getString(attr) + "' with value '" << value << "', tag is already opened." );
+		HTTAG_ERROR( std::string("unable to add attribute '") + getString(attr) + "' with value '" + value + "', tag is already opened." );
 
 	if( value.empty() ) // empty string => nothing to add
 	{
