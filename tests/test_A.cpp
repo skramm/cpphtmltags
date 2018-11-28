@@ -3,13 +3,13 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
-//#define HTTAG_SILENT_MODE
+#define HTTAG_SILENT_MODE
 #include "../cpphtmltags.hpp"
 
 
 using namespace httag;
 
-TEST_CASE( "test1", "[mytest]" )
+TEST_CASE( "test1", "[t1]" )
 {
 	std::cout << "Running tests with catch " << CATCH_VERSION_MAJOR << '.' << CATCH_VERSION_MINOR << '.' << CATCH_VERSION_PATCH << '\n';
 
@@ -120,8 +120,10 @@ TEST_CASE( "test1", "[mytest]" )
 	}
 }
 
-TEST_CASE( "Error checking", "[mytest]" )
+TEST_CASE( "Error checking", "[t2]" )
 {
+	SECTION( "Errors-1" )
+	{
 	CHECK( Httag::printOpenedTags( std::cout ) == 0 );
 
 	Httag t0a( HT_P );
@@ -131,37 +133,40 @@ TEST_CASE( "Error checking", "[mytest]" )
 	CHECK_THROWS( t0b.closeTag() ); // cannot close a non-file type tag
 
 	Httag t1( std::cout, HT_P );
-	CHECK_THROWS( t1.closeTag() );
+	CHECK_THROWS( t1.closeTag() ); // cannot close before opening tag
 
 	Httag t2( HT_BR );
 	CHECK_THROWS( t2.addContent( "tag cannot have content" ) );
 
+
 	std::ostringstream oss;
 	Httag t3a( oss, HT_H2 );       // checking for
-	Httag t3b( oss, HT_P );        // correct opening/closing order
+	Httag t3b( oss, HT_STRONG );        // correct opening/closing order
 	t3a.openTag();
 	t3a << "title";
 	t3b.openTag();
+
+	CHECK( Httag::printOpenedTags( std::cout ) == 2 );
+
 	t3b << "paragraph";
 	CHECK_THROWS( t3a.closeTag() );
+	}
 
+	SECTION( "Errors-2" )
 	{
 		std::ostringstream oss;
 		Httag ta( oss, HT_P );
 		Httag tb( oss, HT_P );
 		ta.openTag();
 		CHECK_THROWS( tb.openTag() );
-	}
 
-	{
-		std::ostringstream oss;
 		Httag t4( oss, HT_H2 );       // cannot add attributes to an already opened tag
 		t4.openTag();
 		CHECK_THROWS( t4.addAttrib( AT_CLASS, "abc" ) );
 	}
 }
 
-TEST_CASE( "File type tags", "[mytest]" )
+TEST_CASE( "File type tags", "[t3]" )
 {
 	SECTION( "File type tags 1" )
 	{
@@ -205,7 +210,7 @@ TEST_CASE( "File type tags", "[mytest]" )
 	}
 }
 
-TEST_CASE( "tag closure", "[mytest]" )
+TEST_CASE( "tag closure", "[t4]" )
 {
 	SECTION( "self closing tag" )
 	{

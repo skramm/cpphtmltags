@@ -464,12 +464,8 @@ void Httag::printWithContent( T c )
 inline
 Httag::~Httag()
 {
-//	std::cout << "DESTRUCTOR tag " << getString( _tag_en ) << "isopen=" << _tagIsOpen << "\n";
 	if( _tagIsOpen && _isFileType && !priv::isVoidElement( _tag_en ) )
-	{
-//		std::cout << " => call closeTag()\n";
 		closeTag();
-	}
 }
 
 //-----------------------------------------------------------------------------------
@@ -515,9 +511,7 @@ Httag::openTag()
 	_tagIsOpen = true;
 //	_printAttribs = false;
 
-//	std::cout << "OPENING TAG: BEFORE nb opened=" << openedTags().size() << "\n";
 	openedTags().push_back( _tag_en );
-//	std::cout << "OPENING TAG: AFTER nb opened=" << openedTags().size() << "\n";
 
 	if( priv::hasDefaultLF_Open( _tag_en ) )
 		*_file << '\n';
@@ -529,7 +523,6 @@ inline
 void
 Httag::closeTag( bool linefeed )
 {
-//	std::cout << "CLOSING TAG " << getString(_tag_en) << "\n";
 	p_checkValidFileType( "close" );
 
 	if( priv::isVoidElement( _tag_en ) )
@@ -547,9 +540,7 @@ Httag::closeTag( bool linefeed )
 	if( openedTags().back() != _tag_en )
 		HTTAG_ERROR( std::string( "asking to close tag '") + getString(_tag_en) + "' but tag '" +  getString(openedTags().back()) + "' still open" );
 
-//	std::cout << "CLOSING TAG: BEFORE nb opened=" << openedTags().size() << "\n";
 	openedTags().pop_back();
-//	std::cout << "CLOSING TAG: AFTER nb opened=" << openedTags().size() << "\n";
 
 	_tagIsOpen = false;
 	doLineFeed( linefeed );
