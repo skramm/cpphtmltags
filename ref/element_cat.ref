@@ -21,9 +21,7 @@ C_phrasing:a,abbr,area,audio,b,bdi,bdo,br,button,canvas,cite,code,data,datalist,
 C_embedded:audio,canvas,embed,iframe,img,object,picture,svg,video
 
 # Interactive content
-C_interactive:
-
-a,audio,button,details,embed iframe,img,input,label,select,textarea,video
+C_interactive:a,audio,button,details,embed,iframe,img,input,label,select,textarea,video
 
 
 C_palpable:

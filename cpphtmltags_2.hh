@@ -69,28 +69,6 @@ attribIsAllowed( En_Attrib attr, En_Httag tag )
 	}
 	return true;
 }
-//-----------------------------------------------------------------------------------
-/// Returns true if the tag must be closed (i.e. is not a void-elements)
-/**
-Example: \c <br>: no need to close, vs \c <p>, that need to be closed)
-*/
-inline
-bool
-isVoidElement( En_Httag tag )
-{
-	switch( tag )
-	{
-		case HT_DOCTYPE:
-		case HT_INPUT:
-		case HT_IMG:
-		case HT_HR:
-		case HT_BR:
-			return true;
-		default:
-			return false;
-	}
-	return false; // to avoid a compiler warning
-}
 
 //-----------------------------------------------------------------------------------
 /// Returns true if the default behavior for \c tag is to have a line feed after opening

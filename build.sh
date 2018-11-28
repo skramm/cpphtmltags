@@ -78,7 +78,33 @@ pre=AT
 name=En_Attrib
 generate
 
-# STEP 2: generate map of allowed tags for each attribute
+# STEP 2: generate function isVoidElement()
+
+file_in=ref/void_elements.ref
+file_out=tmp/void_element.src
+
+print_header $file_out
+echo "/// Returns true if the tag is a void-element">> $file_out
+echo -e "inline\nbool\nisVoidElement( En_Httag tag )\n{">> $file_out
+echo -e "\tswitch( tag )\n\t{">> $file_out
+
+while read elem
+do
+	if [ "${elem:0:1}" != "#" ]; then
+		if [ ${#elem} -ne 0 ]; then
+			e=$(echo $elem | tr '[:lower:]' '[:upper:]')
+			echo -e "\t\tcase HT_$e:">> $file_out
+		fi
+	fi
+done < $file_in
+
+echo -e "\t\t\treturn true;">> $file_out
+echo -e "\t\tdefault: break;\n\t}">> $file_out
+echo -e "\treturn false; // to avoid a compiler warning\n}\n">> $file_out
+
+echo -e "\n} // namespace priv\n">> $file_out
+
+# STEP 3: generate map of allowed tags for each attribute
 
 file_input=ref/valid_attribs.ref
 file_out=tmp/attrib_tags.src
@@ -121,7 +147,7 @@ do
 done < $file_input
 
 echo -e "\t}\n};" >>$file_out
-echo -e "\n} // namespace priv\n">> $file_out
+#echo -e "\n} // namespace priv\n">> $file_out
 
 # STEP 3 : generate header file
 
@@ -135,6 +161,7 @@ cat \
 	tmp/attrib_tags.src \
 	tmp/element_cat_enum.src \
 	tmp/element_cat.src \
+	tmp/void_element.src \
 	cpphtmltags_2.hh \
 	>> cpphtmltags.hpp \
 

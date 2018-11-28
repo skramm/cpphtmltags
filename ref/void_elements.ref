@@ -1,14 +1,15 @@
-document
+# this file holds the list of void-elements
+# need to check: command and keygen (removed at present)
+
+doctype
 area
 base
 br
 col
-command
 embed
 hr
 img
 input
-keygen
 link
 meta
 param

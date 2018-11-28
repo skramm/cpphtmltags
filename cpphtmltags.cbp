@@ -67,6 +67,7 @@
 		<Unit filename="cpphtmltags_2.hh">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
+		<Unit filename="demo/demo0.cpp" />
 		<Unit filename="demo/demo1.cpp">
 			<Option target="main1" />
 		</Unit>

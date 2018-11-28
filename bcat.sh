@@ -13,8 +13,8 @@ file_out2=tmp/element_cat.src
 # START
 
 #echo "/// private namespace"> $file_out1
-echo -e "namespace priv {\n"> $file_out1
-echo "/// Enum holding tag categories">> $file_out1
+#echo -e "namespace priv {\n"> $file_out1
+echo "/// Enum holding tag categories"> $file_out1
 echo -e "enum En_TagCat\n{">> $file_out1
 
 echo "/// Conveniency typedef"> $file_out2
@@ -55,7 +55,7 @@ done < $file_input
 echo -e "\n\tC_DUMMY\n};" >>$file_out1
 
 echo -e "\t}\n};" >>$file_out2
-echo -e "} // namespace priv\n">> $file_out2
+#echo -e "} // namespace priv\n">> $file_out2
 
 
 
