@@ -81,7 +81,7 @@ For more details, see [manual](manual.md).
 
 ## HTML 5 coverage
 - covers 123 html tags ("elements", as they say at w3c) and 134 attributes
-- limitations: html comments (`<!-- ... -->`)not handled at present (but you can still stream these directly).
+- Comments (`<!-- ... -->`) and doctype are handled as special tags, see demo/demo0.cpp
 - at present, the different tag categories are not considered, this is to be considered in future releases.
 
 ## Build and install
