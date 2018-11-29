@@ -124,32 +124,32 @@ TEST_CASE( "Error checking", "[t2]" )
 {
 	SECTION( "Errors-1" )
 	{
-	CHECK( Httag::printOpenedTags( std::cout ) == 0 );
+		CHECK( Httag::printOpenedTags( std::cout ) == 0 );
 
-	Httag t0a( HT_P );
-	CHECK_THROWS( t0a.openTag() ); // cannot open a non-file type tag
+		Httag t0a( HT_P );
+		CHECK_THROWS( t0a.openTag() ); // cannot open a non-file type tag
 
-	Httag t0b( HT_P );
-	CHECK_THROWS( t0b.closeTag() ); // cannot close a non-file type tag
+		Httag t0b( HT_P );
+		CHECK_THROWS( t0b.closeTag() ); // cannot close a non-file type tag
 
-	Httag t1( std::cout, HT_P );
-	CHECK_THROWS( t1.closeTag() ); // cannot close before opening tag
+		Httag t1( std::cout, HT_P );
+		CHECK_THROWS( t1.closeTag() ); // cannot close before opening tag
 
-	Httag t2( HT_BR );
-	CHECK_THROWS( t2.addContent( "tag cannot have content" ) );
+		Httag t2( HT_BR );
+		CHECK_THROWS( t2.addContent( "tag cannot have content" ) );
 
 
-	std::ostringstream oss;
-	Httag t3a( oss, HT_H2 );       // checking for
-	Httag t3b( oss, HT_STRONG );        // correct opening/closing order
-	t3a.openTag();
-	t3a << "title";
-	t3b.openTag();
+		std::ostringstream oss;
+		Httag t3a( oss, HT_H2 );       // checking for
+		Httag t3b( oss, HT_STRONG );        // correct opening/closing order
+		t3a.openTag();
+		t3a << "title";
+		t3b.openTag();
 
-	CHECK( Httag::printOpenedTags( std::cout ) == 2 );
+		CHECK( Httag::printOpenedTags( std::cout ) == 2 );
 
-	t3b << "paragraph";
-	CHECK_THROWS( t3a.closeTag() );
+		t3b << "paragraph";
+		CHECK_THROWS( t3a.closeTag() );
 	}
 
 	SECTION( "Errors-2" )
@@ -158,7 +158,7 @@ TEST_CASE( "Error checking", "[t2]" )
 		Httag ta( oss, HT_P );
 		Httag tb( oss, HT_P );
 		ta.openTag();
-		CHECK_THROWS( tb.openTag() );
+		CHECK_THROWS( tb.openTag() );  // cannot open a <p> inside a <p>
 
 		Httag t4( oss, HT_H2 );       // cannot add attributes to an already opened tag
 		t4.openTag();
@@ -234,3 +234,11 @@ TEST_CASE( "tag closure", "[t4]" )
 	}
 }
 
+TEST_CASE( "test_cat", "[t5]" )
+{
+	CHECK( priv::tagBelongsToCat( HT_H1,      priv::C_HEADING    ) );
+	CHECK( priv::tagBelongsToCat( HT_A,       priv::C_FLOW       ) );
+	CHECK( priv::tagBelongsToCat( HT_A,       priv::C_PHRASING   ) );
+	CHECK( priv::tagBelongsToCat( HT_ARTICLE, priv::C_SECTIONING ) );
+	CHECK( priv::tagBelongsToCat( HT_AUDIO,   priv::C_EMBEDDED   ) );
+}

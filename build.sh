@@ -100,9 +100,9 @@ done < $file_in
 
 echo -e "\t\t\treturn true;">> $file_out
 echo -e "\t\tdefault: break;\n\t}">> $file_out
-echo -e "\treturn false; // to avoid a compiler warning\n}\n">> $file_out
+echo -e "\treturn false;\n}\n">> $file_out
 
-echo -e "\n} // namespace priv\n">> $file_out
+#echo -e "\n} // namespace priv\n">> $file_out
 
 # STEP 3: generate map of allowed tags for each attribute
 
@@ -111,9 +111,7 @@ file_out=tmp/attrib_tags.src
 
 print_header $file_out
 
-echo -e "namespace priv {\n">> $file_out
-echo "/// Conveniency typedef">> $file_out
-echo -e "typedef std::map<En_Attrib"",std::vector<En_Httag>> MapAttribs_t;\n">> $file_out
+#echo -e "namespace priv {\n">> $file_out
 
 echo "/// Private class, holds map of allowed attributes">> $file_out
 echo -e "struct MapAttribs\n{">> $file_out
@@ -158,10 +156,12 @@ cat \
 	tmp/attribs_enum.src \
 	tmp/tags_switch.src \
 	tmp/attribs_switch.src \
-	tmp/attrib_tags.src \
 	tmp/element_cat_enum.src \
+	cpphtmltags_2.hh \
+	tmp/attrib_tags.src \
 	tmp/element_cat.src \
 	tmp/void_element.src \
-	cpphtmltags_2.hh \
+	tmp/tag_content.src \
+	cpphtmltags_3.hh \
 	>> cpphtmltags.hpp \
 

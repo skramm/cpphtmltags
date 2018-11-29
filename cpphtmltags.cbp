@@ -57,6 +57,7 @@
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="bcat.sh" />
+		<Unit filename="bcontent.sh" />
 		<Unit filename="build.sh">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
@@ -67,6 +68,7 @@
 		<Unit filename="cpphtmltags_2.hh">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
+		<Unit filename="cpphtmltags_3.hh" />
 		<Unit filename="demo/demo0.cpp" />
 		<Unit filename="demo/demo1.cpp">
 			<Option target="main1" />

@@ -1,3 +1,4 @@
+//--- START: TEMPLATE FILE cpphtmltags_1.hh
 /*
     Copyright (C) 2018 Sebastien Kramm
 
@@ -46,6 +47,7 @@ Refs:
 #include <cassert>
 #include <iostream>
 #include <algorithm>
+//#include <utility>
 
 #define HTTAG_PRINT_INFO( msg ) \
 		std::cerr << "\nhttag: fatal error: " \
@@ -82,3 +84,4 @@ Refs:
 namespace httag {
 
 
+//--- END: TEMPLATE FILE cpphtmltags_1.hh

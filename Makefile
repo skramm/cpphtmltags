@@ -2,7 +2,7 @@
 
 
 SRC_FILE=cpphtmltags.hpp
-
+TEMPLATE_FILES := $(wildcard *.hh)
 REF_FILES      := $(wildcard ref/*.ref)
 SRC_DEMO_FILES := $(wildcard demo/*.cpp)
 EXE_DEMO_FILES := $(patsubst demo/%.cpp, %, $(SRC_DEMO_FILES))
@@ -20,7 +20,7 @@ a.out: $(SRC_FILE) $(TEST_FILE) Makefile
 	@echo "-Start compiling $(TEST_FILE)"
 	@$(CXX) $(CFLAGS) $(TEST_FILE)
 
-$(SRC_FILE): cpphtmltags_1.hh cpphtmltags_2.hh $(REF_FILES) build.sh
+$(SRC_FILE): $(TEMPLATE_FILES) $(REF_FILES) build.sh
 	./build.sh
 
 demo: $(EXE_DEMO_FILES) Makefile

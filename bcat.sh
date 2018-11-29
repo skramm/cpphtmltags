@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # generation of C++ code
-# builds
+# builds map of categories of tags
 
 set +x
 
@@ -12,15 +12,12 @@ file_out2=tmp/element_cat.src
 
 # START
 
-#echo "/// private namespace"> $file_out1
-#echo -e "namespace priv {\n"> $file_out1
-echo "/// Enum holding tag categories"> $file_out1
+echo -e "namespace priv {\n"> $file_out1
+echo "/// Enum holding tag categories">> $file_out1
 echo -e "enum En_TagCat\n{">> $file_out1
 
-echo "/// Conveniency typedef"> $file_out2
-echo -e "typedef std::map<En_TagCat,std::vector<En_Httag>> TagCat_t;\n">> $file_out2
 
-echo "/// Private class, holds map of categories of tags">> $file_out2
+echo "/// Private class, holds map of categories of tags"> $file_out2
 echo -e "struct TagCat\n{">> $file_out2
 echo -e "\tTagCat_t _map_cat;">> $file_out2
 echo -e "\tconst TagCat_t& get() {">> $file_out2
@@ -55,7 +52,3 @@ done < $file_input
 echo -e "\n\tC_DUMMY\n};" >>$file_out1
 
 echo -e "\t}\n};" >>$file_out2
-#echo -e "} // namespace priv\n">> $file_out2
-
-
-

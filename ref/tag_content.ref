@@ -1,5 +1,6 @@
 # holds allowed content for a given tag
 # PRELIMINAR !
+
 ul:li
 ol:li
 menu:li,C_flow
@@ -12,5 +13,6 @@ h3:C_phrasing
 h4:C_phrasing
 h5:C_phrasing
 h6:C_phrasing
+header:C_flow
 
 
