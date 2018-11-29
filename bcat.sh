@@ -6,13 +6,14 @@
 set +x
 
 file_input=ref/element_cat.ref
-file_out1=tmp/element_cat_enum.src
+file_out1=tmp/cat_enum.src
 file_out2=tmp/element_cat.src
-
+file_out3=tmp/cat_switch.src
 
 # START
 
 echo -e "namespace priv {\n"> $file_out1
+
 echo "/// Enum holding tag categories">> $file_out1
 echo -e "enum En_TagCat\n{">> $file_out1
 
@@ -52,3 +53,23 @@ done < $file_input
 echo -e "\n\tC_DUMMY\n};" >>$file_out1
 
 echo -e "\t}\n};" >>$file_out2
+
+
+
+echo -e "const char*\ngetString( En_TagCat a )"> $file_out3
+
+echo -e "{\n\tconst char* n=0;">> $file_out3
+echo -e "\tswitch( a )">> $file_out3
+echo -e "\t{">> $file_out3
+
+while IFS=$':' read a b
+do
+	if [ "${a:0:1}" != "#" ]; then
+		if [ ${#a} -ne 0 ]; then
+			at=$(echo $a | tr '[:lower:]' '[:upper:]')
+			echo -e "\t\tcase $at:\tn=\"$a\";\tbreak;">> $file_out3
+		fi
+	fi
+done < $file_input
+echo -e "\t\tdefault: assert(0);">> $file_out3
+echo -e "\t}\n\treturn n;\n}">> $file_out3

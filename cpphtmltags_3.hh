@@ -261,6 +261,7 @@ Httag::printSupported( std::ostream& f )
 	f << '\n';
 
 	auto ac = p_getAllowedContent();
+
 	auto acC = ac._map_content_C;
 	auto nb1 = std::count_if(
 		std::begin( acC ), std::end( acC ),
@@ -271,6 +272,8 @@ Httag::printSupported( std::ostream& f )
 		}
 	);
     f << "* Nb of tags holding an allowed tag category=" << nb1 << "\n";
+//	for( const auto& elem: acC )
+//		std::cout << getString( elem.first ) << "\n";
 
 
 	auto acT = ac._map_content_T;

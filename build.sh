@@ -156,7 +156,8 @@ cat \
 	tmp/attribs_enum.src \
 	tmp/tags_switch.src \
 	tmp/attribs_switch.src \
-	tmp/element_cat_enum.src \
+	tmp/cat_enum.src \
+	tmp/cat_switch.src \
 	cpphtmltags_2.hh \
 	tmp/attrib_tags.src \
 	tmp/element_cat.src \
