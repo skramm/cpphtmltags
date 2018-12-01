@@ -53,7 +53,7 @@ figcaption
 figure
 font
 footer
-form
+form:C_flow,!form
 frame
 frameset
 h1:C_phrasing
@@ -69,10 +69,10 @@ html:head,body
 i
 iframe
 img
-input
+input:VOID
 ins
 kbd
-label
+label:C_phrasing,!label
 legend
 li
 link
@@ -90,10 +90,10 @@ ol
 optgroup
 option
 output
-p
+p:C_phrasing
 param
 picture:source,img
-pre
+pre:C_phrasing
 progress
 q
 rp

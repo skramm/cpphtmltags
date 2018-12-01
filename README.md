@@ -98,6 +98,9 @@ For more details, see [manual](manual.md).
 ## References
 
 All the HTML 5 standard material has been fetched from these sources:
+- general:
+  - https://html.spec.whatwg.org/multipage/
+  - https://www.w3.org/TR/html52/
 - attributes:
   - https://www.w3.org/wiki/Html/Attributes/_Global
   - https://www.w3schools.com/tags/ref_attributes.asp
@@ -113,5 +116,6 @@ All the HTML 5 standard material has been fetched from these sources:
 - content categories:
  - https://www.w3.org/TR/html5/dom.html#kinds-of-content
  - https://www.w3.org/TR/html52/dom.html#kinds-of-content
+
 
 Copyright Sebastien Kramm - 2018

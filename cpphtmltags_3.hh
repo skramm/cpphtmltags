@@ -214,11 +214,49 @@ class Httag
 		void p_checkValidFileType( std::string action );
 		std::string p_getAttribs() const;
 
+#ifdef NEW_OT
+	class OpenedTags
+	{
+		private:
+			std::vector<En_Httag> _v_ot;
+		public:
+			size_t size() const { return _v_ot.size();  }
+			void printOT( std::ostream& f ) const
+			{
+				for( const auto& e: _v_ot )
+					f << e << '-';
+			}
+			void pushTag( En_Httag tag )
+			{
+				_v_ot.push_back( tag );
+			}
+			void pop( En_Httag tag )
+			{
+				assert( _v_ot.size() > 0 );
+				if( _v_ot.back() != tag )
+					HTTAG_ERROR( std::string( "asking to close tag '") + getString(tag) + "' but tag '" +  getString(_v_ot.back()) + "' still open" );
+				_v_ot.pop_back();
+			}
+			void print( std::ostream& ) const;
+			En_Httag current() const
+			{
+				assert( _v_ot.size() );
+				return _v_ot.back();
+			}
+	};
+
+		static OpenedTags& p_getOT()
+		{
+			static OpenedTags s_ot;
+			return s_ot;
+		}
+#else
 		static std::vector<En_Httag>& p_openedTags()
 		{
 			static std::vector<En_Httag> s_opened_tags;
 			return s_opened_tags;
 		}
+#endif
 		static priv::TagContent p_getAllowedContent()
 		{
 			static priv::TagContent s_allowed_tags;
@@ -290,6 +328,29 @@ Httag::printSupported( std::ostream& f )
 }
 
 //-----------------------------------------------------------------------------------
+#ifdef NEW_OT
+inline
+size_t
+Httag::printOpenedTags( std::ostream& f, const char* msg )
+{
+	f << "httag: opened tags (#=" << p_getOT().size() << "):";
+	if( msg )
+		f << "msg='" << msg << "' ";
+	p_getOT().print( f );
+	return p_getOT().size();
+}
+
+inline
+void
+Httag::OpenedTags::print( std::ostream& f ) const
+{
+	for( const auto t: _v_ot )
+	{
+		f << '<' << getString( t ) << '>';
+	}
+	f << '\n';
+}
+#else
 inline
 size_t
 Httag::printOpenedTags( std::ostream& f, const char* msg )
@@ -305,7 +366,7 @@ Httag::printOpenedTags( std::ostream& f, const char* msg )
 	f << '\n';
 	return p_openedTags().size();
 }
-
+#endif
 //-----------------------------------------------------------------------------------
 /// constructor 1
 inline
@@ -530,10 +591,15 @@ Httag::openTag()
 	}
 	else
 	{
+#ifdef NEW_OT
+		if( p_getOT().size() )
+			if( p_getOT().current() == _tag_en )
+				HTTAG_ERROR( std::string("attempt to open tag '") + getString(_tag_en) + "' but currently opened tag is identical" );
+#else
 		if( p_openedTags().size() )
 			if( p_openedTags().back() == _tag_en )
 				HTTAG_ERROR( std::string("attempt to open tag '") + getString(_tag_en) + "' but currently opened tag is identical" );
-
+#endif
 		switch( _tag_en )
 		{
 			case HT_COMMENT:  *_file << "<!-- "; break;
@@ -545,8 +611,11 @@ Httag::openTag()
 	_tagIsOpen = true;
 //	_printAttribs = false;
 
+#ifdef NEW_OT
+	p_getOT().pushTag( _tag_en );
+#else
 	p_openedTags().push_back( _tag_en );
-
+#endif
 	if( priv::hasDefaultLF_Open( _tag_en ) )
 		*_file << '\n';
 	}
@@ -570,12 +639,15 @@ Httag::closeTag( bool linefeed )
 	else
 		*_file << "</" << getString(_tag_en) << '>';
 
+#ifdef NEW_OT
+	p_getOT().pop( _tag_en );
+#else
 	assert( p_openedTags().size() > 0 );
 	if( p_openedTags().back() != _tag_en )
 		HTTAG_ERROR( std::string( "asking to close tag '") + getString(_tag_en) + "' but tag '" +  getString(p_openedTags().back()) + "' still open" );
 
 	p_openedTags().pop_back();
-
+#endif
 	_tagIsOpen = false;
 	doLineFeed( linefeed );
 }

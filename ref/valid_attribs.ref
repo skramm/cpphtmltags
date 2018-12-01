@@ -1,4 +1,6 @@
 # This file holds for each attribute the list of html elements where they are allowed
+# manually build from https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes, 2018/11
+# (not guaranteed to be accurate, please post issue or pull request if you spot any error)
 
 accept:input
 accept_charset:form

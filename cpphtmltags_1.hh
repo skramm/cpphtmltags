@@ -41,13 +41,14 @@ Refs:
 #ifndef HG_CPPHTMLTAGS_HPP
 #define HG_CPPHTMLTAGS_HPP
 
+#define NEW_OT
+
 #include <vector>
 #include <sstream>
 #include <map>
 #include <cassert>
 #include <iostream>
 #include <algorithm>
-//#include <utility>
 
 #define HTTAG_PRINT_INFO( msg ) \
 		std::cerr << "\nhttag: fatal error: " \
