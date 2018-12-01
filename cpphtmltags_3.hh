@@ -283,6 +283,27 @@ class Httag
 };
 
 //-----------------------------------------------------------------------------------
+namespace priv {
+inline
+void
+TagContent::print( std::ostream& f ) const
+{
+	f << "* Counting empty tags (total=" << _map_AllowedContent.size() << "\n";
+
+	size_t isEmpty = 0;
+	for( const auto& elem: _map_AllowedContent )
+	{
+		if( elem.second.isEmpty() )
+		{
+			f << "tag " << getString(elem.first) << " is empty !\n";
+			isEmpty++;
+		}
+	}
+	f << "Nb empty tags: = " << isEmpty << "\n";
+//	std::map<En_Httag,AllowedContent> _map_AllowedContent;
+}
+}
+//-----------------------------------------------------------------------------------
 /// helper function, prints the tags and attributes currently supported
 inline
 void
@@ -298,8 +319,11 @@ Httag::printSupported( std::ostream& f )
 		f << getString( static_cast<En_Attrib>(i) ) << '-';
 	f << '\n';
 
-	auto ac = p_getAllowedContent();
 
+	auto ac = p_getAllowedContent();
+	ac.print( f );
+
+#if 0
 	auto acC = ac._map_content_C;
 	auto nb1 = std::count_if(
 		std::begin( acC ), std::end( acC ),
@@ -325,6 +349,7 @@ Httag::printSupported( std::ostream& f )
 	);
 
     f << "* Nb of tags holding an allowed tag list=" << nb2 << "\n";
+#endif
 }
 
 //-----------------------------------------------------------------------------------

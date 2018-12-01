@@ -1,53 +1,64 @@
 # This file holds the list of all html elements
 # AND the allowed content for each tag
 
-# syntax:
-# a:b,c,d,C_c1,!e
-# means that inside that tag <a> are allowed the tags <b> and <c> and all the tags belonging to category "c1" EXCEPT the tag <e>
+# syntax: one of these 3:
+
+# syntax 1:
+# tag:a,b,c,d,C_c1,!e
+# means that inside that tag <tag> are allowed the tags <a>,<b> and <c> and all the tags belonging to category "c1" EXCEPT the tag <e>
+
+# syntax 2: for void elements
+# tag:E_VOID
+
+# syntax 3: for elements that can only hold text
+# tag:E_TEXT
+
 
 # PRELIMINAR !!!
 
-a
-abbr
+abbr:C_phrasing
+a:!C_interactive,!a
 acronym
 address
 applet
-area
+area:E_VOID
 article:C_flow
 aside
 audio
-b
-base
+base:E_VOID
 basefont
-bdi
-bdo
+b:C_phrasing
+bdi:C_phrasing
+bdo:C_phrasing
 big
 blockquote
 body
-br
+br:E_VOID
 button
 canvas
 caption:C_flow
 center
-cite
-code
-col
+cite:C_phrasing
+code:C_phrasing
+col:E_VOID
 colgroup:col,template
 comment
 data
+data:C_phrasing
 datalist
 dd
 del
 details
 dfn
+dfn:C_phrasing,!dfn
 dialog
 dir
 div
 dl
-doctype
+doctype:E_VOID
 dt
-em
-embed
+embed:E_VOID
+em:C_phrasing
 fieldset
 figcaption
 figure
@@ -64,55 +75,57 @@ h5:C_phrasing
 h6:C_phrasing
 head
 header:C_flow
-hr
+hr:E_VOID
 html:head,body
-i
+i:C_phrasing
 iframe
-img
-input:VOID
+img:E_VOID
+input:E_VOID
 ins
 kbd
+kbd:C_phrasing
 label:C_phrasing,!label
 legend
 li
-link
+link:E_VOID
 main
 map
-mark
+mark:C_phrasing
 menu:li,C_flow
-meta
+meta:E_VOID
 meter
 nav
 noframes
 noscript
 object
-ol
+ol:li
 optgroup
 option
 output
+param:E_VOID
 p:C_phrasing
-param
 picture:source,img
 pre:C_phrasing
 progress
 q
-rp
-rt
-ruby
-s
-samp
+q:C_phrasing
+rp:E_TEXT
+rt:C_phrasing
+ruby:C_phrasing,!ruby
+samp:C_phrasing
+s:C_phrasing
 script
 section
 select
-small
-source
-span
+small:C_phrasing
+source:E_VOID
+span:C_phrasing
 strike
-strong
+strong:C_phrasing
 style
-sub
+sub:C_phrasing
 summary
-sup
+sup:C_phrasing
 svg
 table:caption,colgroup,thead,tbody,tr,tfoot
 tbody:tr
@@ -122,13 +135,13 @@ textarea
 tfoot:tr,C_script
 th:C_flow,!header,!footer
 thead:tr,C_script
-time
+time:C_phrasing
 title
+track:E_VOID
 tr:td,th,C_script
-track
 tt
-u
-ul
-var
+u:C_phrasing
+ul:li
+var:C_phrasing
 video
-wbr
+wbr:E_VOID
