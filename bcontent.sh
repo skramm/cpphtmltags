@@ -4,25 +4,25 @@
 # builds map of categories of tags
 
 
-file_input=ref/tag_content_2.ref
+file_input=ref/tag_content.ref
 file_out=tmp/tag_content.src
 
 echo "/// Holds for each tag its allowed content"> $file_out
-echo -e "struct TagContent\n{">> $file_out
+echo -e "struct AllowedContentMap\n{">> $file_out
 
 echo -e "\tstd::map<En_Httag,AllowedContent> _map_AllowedContent;">> $file_out
-
-#echo -e "\tTagAllowedContent<En_TagCat> _map_AllowedCats;">> $file_out
-#echo -e "\tTagAllowedContent<En_Httag> _map_AllowedTags;">> $file_out
-#echo -e "\tTagAllowedContent<En_Httag> _map_ForbiddenTags;">> $file_out
 
 echo -e "\tAllowedContent& get( En_Httag tag )\n\t{">> $file_out
 echo -e "\t\tassert( _map_AllowedContent.count(tag) );">> $file_out
 echo -e "\t\treturn _map_AllowedContent[tag];\n\t}">> $file_out
 
+echo -e "\tconst AllowedContent& getC( En_Httag tag ) const\n\t{">> $file_out
+echo -e "\t\tassert( _map_AllowedContent.count(tag) );">> $file_out
+echo -e "\t\treturn _map_AllowedContent.at(tag);\n\t}">> $file_out
+
 echo -e "\n\tvoid print( std::ostream& ) const;">> $file_out
 
-echo -e "\n\tTagContent()\n\t{">> $file_out
+echo -e "\n\tAllowedContentMap()\n\t{">> $file_out
 
 
 while IFS=$':' read a b

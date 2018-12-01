@@ -3,7 +3,7 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
-#define HTTAG_SILENT_MODE
+//#define HTTAG_SILENT_MODE
 #include "../cpphtmltags.hpp"
 
 
@@ -241,4 +241,13 @@ TEST_CASE( "test_cat", "[t5]" )
 	CHECK( priv::tagBelongsToCat( HT_A,       priv::C_PHRASING   ) );
 	CHECK( priv::tagBelongsToCat( HT_ARTICLE, priv::C_SECTIONING ) );
 	CHECK( priv::tagBelongsToCat( HT_AUDIO,   priv::C_EMBEDDED   ) );
+}
+
+TEST_CASE( "test_ac", "[t6]" )
+{
+	std::ostringstream oss;
+	Httag t1( oss, HT_P );
+	Httag t2( oss, HT_H1 );
+	t1.openTag();
+	CHECK_THROWS( t2.openTag() );      // cannot have <h1> inside <p>
 }

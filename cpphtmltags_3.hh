@@ -121,8 +121,91 @@ hasDefaultLF_Close( En_Httag tag )
 	return false;
 }
 
+//-----------------------------------------------------------------------------------
+/// holds the list of currently opened tags
+class OpenedTags
+{
+	private:
+		std::vector<En_Httag> _v_ot;
+	public:
+		size_t size() const { return _v_ot.size();  }
+		void printOT( std::ostream& f ) const
+		{
+			for( const auto& e: _v_ot )
+				f << e << '-';
+		}
+		void pushTag( En_Httag tag )
+		{
+			_v_ot.push_back( tag );
+		}
+		void pullTag( En_Httag tag )
+		{
+			assert( _v_ot.size() > 0 );
+			if( _v_ot.back() != tag )
+				HTTAG_ERROR( std::string( "asking to close tag '") + getString(tag) + "' but tag '" +  getString(_v_ot.back()) + "' still open" );
+			_v_ot.pop_back();
+		}
+		void print( std::ostream& ) const;
+		En_Httag current() const
+		{
+			assert( _v_ot.size() );
+			return _v_ot.back();
+		}
+};
+
+
+//-----------------------------------------------------------------------------------
+//tagAllowsTag( En_Httag tag,
+//-----------------------------------------------------------------------------------
+/// Returns true if tag is allowed inside tag chain
+inline
+bool
+tagIsAllowed( En_Httag tag, const OpenedTags& ot, const AllowedContentMap& acm )
+{
+	const auto& ac = acm.getC( ot.current() ); // allowed content of currently (latest) opened tag
+
+	for( auto e: ac._v_forbiddenTags )
+		if( e == tag )
+			return false;
+
+	for( auto cat: ac._v_forbiddenCats )
+		if( tagBelongsToCat( tag, cat ) )
+			return false;
+
+	for( auto cat: ac._v_allowedCats )
+		if( tagBelongsToCat( tag, cat ) )
+			return true;
+
+	for( auto e: ac._v_allowedTags )
+		if( e == tag )
+			return true;
+
+	return false;
+}
+//-----------------------------------------------------------------------------------
+/// Prints some details about allowed tags content
+inline
+void
+AllowedContentMap::print( std::ostream& f ) const
+{
+	f << "* Counting empty tags (total=" << _map_AllowedContent.size() << "\n";
+
+	size_t isEmpty = 0;
+	for( const auto& elem: _map_AllowedContent )
+	{
+		if( elem.second.isEmpty() )
+		{
+			f << "tag " << getString(elem.first) << " is empty !\n";
+			isEmpty++;
+		}
+	}
+	f << "Nb empty tags: = " << isEmpty << "\n";
+}
+//-----------------------------------------------------------------------------------
+
 } // namespace priv
 
+//-----------------------------------------------------------------------------------
 /// Line Feed Mode (see manual)
 enum En_LineFeedMode
 {
@@ -214,45 +297,14 @@ class Httag
 		void p_checkValidFileType( std::string action );
 		std::string p_getAttribs() const;
 
-	class OpenedTags
-	{
-		private:
-			std::vector<En_Httag> _v_ot;
-		public:
-			size_t size() const { return _v_ot.size();  }
-			void printOT( std::ostream& f ) const
-			{
-				for( const auto& e: _v_ot )
-					f << e << '-';
-			}
-			void pushTag( En_Httag tag )
-			{
-				_v_ot.push_back( tag );
-			}
-			void pullTag( En_Httag tag )
-			{
-				assert( _v_ot.size() > 0 );
-				if( _v_ot.back() != tag )
-					HTTAG_ERROR( std::string( "asking to close tag '") + getString(tag) + "' but tag '" +  getString(_v_ot.back()) + "' still open" );
-				_v_ot.pop_back();
-			}
-			void print( std::ostream& ) const;
-			En_Httag current() const
-			{
-				assert( _v_ot.size() );
-				return _v_ot.back();
-			}
-	};
-
-		static OpenedTags& p_getOT()
+		static priv::OpenedTags& p_getOT()
 		{
-			static OpenedTags s_ot;
+			static priv::OpenedTags s_ot;
 			return s_ot;
 		}
-
-		static priv::TagContent p_getAllowedContent()
+		static priv::AllowedContentMap p_getAllowedContentMap()
 		{
-			static priv::TagContent s_allowed_tags;
+			static priv::AllowedContentMap s_allowed_tags;
 			return s_allowed_tags;
 		}
 		static priv::GlobAttribMap_t& globalAttrib()
@@ -276,28 +328,7 @@ class Httag
 };
 
 //-----------------------------------------------------------------------------------
-namespace priv {
-inline
-void
-TagContent::print( std::ostream& f ) const
-{
-	f << "* Counting empty tags (total=" << _map_AllowedContent.size() << "\n";
-
-	size_t isEmpty = 0;
-	for( const auto& elem: _map_AllowedContent )
-	{
-		if( elem.second.isEmpty() )
-		{
-			f << "tag " << getString(elem.first) << " is empty !\n";
-			isEmpty++;
-		}
-	}
-	f << "Nb empty tags: = " << isEmpty << "\n";
-//	std::map<En_Httag,AllowedContent> _map_AllowedContent;
-}
-}
-//-----------------------------------------------------------------------------------
-/// helper function, prints the tags and attributes currently supported
+/// Helper function, prints the tags and attributes currently supported
 inline
 void
 Httag::printSupported( std::ostream& f )
@@ -313,7 +344,7 @@ Httag::printSupported( std::ostream& f )
 	f << '\n';
 
 
-	auto ac = p_getAllowedContent();
+	auto ac = p_getAllowedContentMap();
 	ac.print( f );
 
 #if 0
@@ -359,7 +390,7 @@ Httag::printOpenedTags( std::ostream& f, const char* msg )
 
 inline
 void
-Httag::OpenedTags::print( std::ostream& f ) const
+priv::OpenedTags::print( std::ostream& f ) const
 {
 	for( const auto t: _v_ot )
 	{
@@ -592,9 +623,17 @@ Httag::openTag()
 	else
 	{
 		if( p_getOT().size() )
+		{
 			if( p_getOT().current() == _tag_en )
 				HTTAG_ERROR( std::string("attempt to open tag '") + getString(_tag_en) + "' but currently opened tag is identical" );
 
+			if( !tagIsAllowed( _tag_en, p_getOT(), p_getAllowedContentMap() ) )
+			{
+				std::cerr << "TAG NOT ALLOWED !!!\n";
+				p_getOT().print( std::cerr );
+				HTTAG_ERROR( std::string("attempt to open tag '") + getString(_tag_en) + "' but is not allowed in current context" );
+			}
+		}
 		switch( _tag_en )
 		{
 			case HT_COMMENT:  *_file << "<!-- "; break;
