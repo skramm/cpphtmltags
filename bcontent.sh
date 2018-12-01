@@ -30,15 +30,15 @@ do
 	if [ "${a:0:1}" != "#" ]; then
 		if [ ${#a} -ne 0 ]; then
 			at=$(echo $a | tr '[:lower:]' '[:upper:]')
-			echo -e "\t\t{\n\t\t\tAllowedContent ac;">> $file_out
 			if [ "${b:0:2}" = "E_" ]; then
 				if [ "$b" = "E_VOID" ]; then
-					echo -e "\t\t\tac._isVoid=true;">> $file_out
+					echo -e "\t\t{\n\t\t\tAllowedContent ac(AllowedContent::TT_VOID);">> $file_out
 				fi
 				if [ "$b" = "E_TEXT" ]; then
-					echo -e "\t\t\tac._isText=true;">> $file_out
+					echo -e "\t\t{\n\t\t\tAllowedContent ac(AllowedContent::TT_TEXT);">> $file_out
 				fi
 			else
+				echo -e "\t\t{\n\t\t\tAllowedContent ac;">> $file_out
 				IFS=',' read -ra TAG <<< "$b"
 				for t in "${TAG[@]}";
 				do

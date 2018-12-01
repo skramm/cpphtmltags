@@ -1,18 +1,146 @@
-# holds allowed content for a given tag
-# PRELIMINAR !
+# This file holds the list of all html elements
+# AND the allowed content for each tag
 
-ul:li
-ol:li
-menu:li,C_flow
-html:head,body
-head:title,meta,script,base
+# syntax: one of these 3:
+
+# syntax 1:
+# tag:a,b,c,d,C_c1,!e
+# means that inside that tag <tag> are allowed the tags <a>,<b> and <c> and all the tags belonging to category "c1" EXCEPT the tag <e>
+
+# syntax 2: for void elements
+# tag:E_VOID
+
+# syntax 3: for elements that can only hold text
+# tag:E_TEXT
+
+
+# PRELIMINAR !!!
+
+abbr:C_phrasing
+a:!C_interactive,!a
+acronym
+address
+applet
+area:E_VOID
 article:C_flow
+aside
+audio
+base:E_VOID
+basefont
+b:C_phrasing
+bdi:C_phrasing
+bdo:C_phrasing
+big
+blockquote
+body
+br:E_VOID
+button
+canvas
+caption:C_flow
+center
+cite:C_phrasing
+code:C_phrasing
+col:E_VOID
+colgroup:col,template
+comment
+data
+data:C_phrasing
+datalist
+dd
+del
+details
+dfn
+dfn:C_phrasing,!dfn
+dialog
+dir
+div:C_flow
+dl:div,dt
+doctype:E_VOID
+dt:C_flow,!C_sectioning,!C_heading,!header,!footer
+embed:E_VOID
+em:C_phrasing
+fieldset
+figcaption
+figure
+font
+footer
+form:C_flow,!form
+frame
+frameset
 h1:C_phrasing
 h2:C_phrasing
 h3:C_phrasing
 h4:C_phrasing
 h5:C_phrasing
 h6:C_phrasing
+head:title,meta,script,base
 header:C_flow
-
-
+hr:E_VOID
+html:head,body
+i:C_phrasing
+iframe
+img:E_VOID
+input:E_VOID
+ins
+kbd
+kbd:C_phrasing
+label:C_phrasing,!label
+legend
+li:C_flow
+link:E_VOID
+main:C_flow
+map
+mark:C_phrasing
+menu:li,C_flow
+meta:E_VOID
+meter
+nav:C_flow
+noframes
+noscript
+object
+ol:li
+optgroup
+option
+output
+param:E_VOID
+p:C_phrasing
+picture:source,img
+pre:C_phrasing
+progress
+q:C_phrasing
+rp:E_TEXT
+rt:C_phrasing
+ruby:C_phrasing,!ruby
+samp:C_phrasing
+s:C_phrasing
+script
+section:C_flow
+select
+small:C_phrasing
+source:E_VOID
+span:C_phrasing
+strike
+strong:C_phrasing
+style
+sub:C_phrasing
+summary
+sup:C_phrasing
+svg
+table:caption,colgroup,thead,tbody,tr,tfoot
+tbody:tr
+td:C_flow
+template
+textarea
+tfoot:tr,C_script
+th:C_flow,!header,!footer,!C_sectioning,!C_heading
+thead:tr,C_script
+time:C_phrasing
+title
+track:E_VOID
+tr:td,th,C_script
+tt
+u:C_phrasing
+ul:li
+var:C_phrasing
+video
+wbr:E_VOID

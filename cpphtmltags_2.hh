@@ -22,6 +22,17 @@ struct AllowedContent
 	bool _isVoid = false;
 	bool _isText = false;
 
+/// type of tag
+	enum En_TagType{ TT_NEITHER, TT_VOID, TT_TEXT };
+
+	/// Constructor
+	AllowedContent( En_TagType tt=TT_NEITHER )
+	{
+		if( tt == TT_VOID )
+			_isVoid = true;
+		if( tt == TT_TEXT )
+			_isText = true;
+	}
 	void addForbiddenTag( En_Httag en )
 	{
 		_v_forbiddenTags.push_back( en );
@@ -55,12 +66,5 @@ struct AllowedContent
 		return true;
 	}
 };
-
-//template<typename T> using TagAllowedContent = std::map<En_Httag,std::vector<T>>;
-
-//typedef std::map<En_Httag,AllowedContent> TagAllowedContent_t;
-
-//typedef std::map<En_Httag,std::vector<En_TagCat>> TagContentC_t;
-//typedef std::map<En_Httag,std::vector<En_Httag>>  TagContentT_t;
 
 //--- END: TEMPLATE FILE cpphtmltags_2.hh
