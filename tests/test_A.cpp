@@ -138,10 +138,9 @@ TEST_CASE( "Error checking", "[t2]" )
 		Httag t2( HT_BR );
 		CHECK_THROWS( t2.addContent( "tag cannot have content" ) );
 
-
 		std::ostringstream oss;
 		Httag t3a( oss, HT_H2 );       // checking for
-		Httag t3b( oss, HT_STRONG );        // correct opening/closing order
+		Httag t3b( oss, HT_STRONG );   // correct opening/closing order
 		t3a.openTag();
 		t3a << "title";
 		t3b.openTag();
@@ -155,14 +154,17 @@ TEST_CASE( "Error checking", "[t2]" )
 	SECTION( "Errors-2" )
 	{
 		std::ostringstream oss;
-		Httag ta( oss, HT_P );
-		Httag tb( oss, HT_P );
-		ta.openTag();
-		CHECK_THROWS( tb.openTag() );  // cannot open a <p> inside a <p>
-
-		Httag t4( oss, HT_H2 );       // cannot add attributes to an already opened tag
-		t4.openTag();
-		CHECK_THROWS( t4.addAttrib( AT_CLASS, "abc" ) );
+		{
+			Httag ta( oss, HT_P );
+			Httag tb( oss, HT_P );
+			ta.openTag();
+			CHECK_THROWS( tb.openTag() );  // cannot open a <p> inside a <p>
+		}
+		{
+			Httag t4( oss, HT_H2 );       // cannot add attributes to an already opened tag
+			t4.openTag();
+			CHECK_THROWS( t4.addAttrib( AT_CLASS, "abc" ) );
+		}
 	}
 }
 
@@ -223,7 +225,6 @@ TEST_CASE( "tag closure", "[t4]" )
 			t0.printTag();
 			CHECK( oss.str() == "<p>content, some more content</p>" );
 		}
-
 		{
 			std::ostringstream oss;
 			Httag t0( oss, HT_P );                        // adding content to a tag
@@ -243,11 +244,20 @@ TEST_CASE( "test_cat", "[t5]" )
 	CHECK( priv::tagBelongsToCat( HT_AUDIO,   priv::C_EMBEDDED   ) );
 }
 
-TEST_CASE( "test_ac", "[t6]" )
+TEST_CASE( "test_ac", "[t6]" ) // testing allowed content in a tag
 {
 	std::ostringstream oss;
-	Httag t1( oss, HT_P );
-	Httag t2( oss, HT_H1 );
-	t1.openTag();
-	CHECK_THROWS( t2.openTag() );      // cannot have <h1> inside <p>
+	{
+		Httag t1( oss, HT_P );
+		Httag t2( oss, HT_H1 );
+		Httag t3( oss, HT_STRONG );
+		t1.openTag();
+		oss << "this is ";
+		CHECK_THROWS( t2.openTag() );      // cannot have <h1> inside <p>
+		CHECK_NOTHROW( t3.openTag() );     // but <strong> is ok
+		oss << "important";
+		t3.closeTag();
+		oss << ", is it ?";
+	}
+	CHECK( oss.str() == "<p>this is <strong>important</strong>, is it ?<p>" );
 }

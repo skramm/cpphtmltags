@@ -164,11 +164,11 @@ tagIsAllowed( En_Httag tag, const OpenedTags& ot, const AllowedContentMap& acm )
 {
 	const auto& ac = acm.getC( ot.current() ); // allowed content of currently (latest) opened tag
 
-	for( auto e: ac._v_forbiddenTags )
+	for( auto e: ac.v_forbiddenTags )
 		if( e == tag )
 			return false;
 
-	for( auto cat: ac._v_forbiddenCats )
+	for( auto cat: ac.v_forbiddenCats )
 		if( tagBelongsToCat( tag, cat ) )
 			return false;
 
@@ -176,11 +176,24 @@ tagIsAllowed( En_Httag tag, const OpenedTags& ot, const AllowedContentMap& acm )
 		if( tagBelongsToCat( tag, cat ) )
 			return true;
 
-	for( auto e: ac._v_allowedTags )
+	for( auto e: ac.v_allowedTags )
 		if( e == tag )
 			return true;
 
 	return false;
+}
+
+//-----------------------------------------------------------------------------------
+template<typename T>
+void
+printAllowedContent( std::ostream& f, std::string af, std::string type, std::vector<T> vec )
+{
+	if( vec.size() )
+	{
+		f << "\n -" << af << ' ' << vec.size() << ' ' << type << "(s): ";
+		for( const auto& e: vec )
+			f << getString(e) << ' ';
+	}
 }
 //-----------------------------------------------------------------------------------
 /// Prints some details about allowed tags content
@@ -188,18 +201,29 @@ inline
 void
 AllowedContentMap::print( std::ostream& f ) const
 {
-	f << "* Counting empty tags (total=" << _map_AllowedContent.size() << "\n";
+	f << "* List of allowed content in a tag:\n";
 
-	size_t isEmpty = 0;
+	size_t nbEmpty = 0;
 	for( const auto& elem: _map_AllowedContent )
 	{
-		if( elem.second.isEmpty() )
+		const auto& s = elem.second;
+		f << "tag <" << getString(elem.first) << '>';
+		if( s.isEmpty() )
 		{
-			f << "tag " << getString(elem.first) << " is empty !\n";
-			isEmpty++;
+			nbEmpty++;
+			f << " : EMPTY !!!";
 		}
+		else
+		{
+			printAllowedContent( f, "allows",  "categorie", s._v_allowedCats );
+			printAllowedContent( f, "allows",  "tag",       s.v_allowedTags );
+			printAllowedContent( f, "forbids", "categorie", s.v_forbiddenCats );
+			printAllowedContent( f, "forbids", "tag",       s.v_forbiddenTags );
+		}
+		f << '\n';
 	}
-	f << "Nb empty tags: = " << isEmpty << "\n";
+	f << "\n -Nb empty tags: = " << nbEmpty;
+	f << "\n -Nb tags = " << _map_AllowedContent.size() << '\n';
 }
 //-----------------------------------------------------------------------------------
 
