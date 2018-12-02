@@ -145,17 +145,21 @@ class OpenedTags
 				HTTAG_ERROR( std::string( "asking to close tag '") + getString(tag) + "' but tag '" +  getString(_v_ot.back()) + "' still open" );
 			_v_ot.pop_back();
 		}
-		void print( std::ostream& ) const;
+//		void print( std::ostream& ) const;
+		std::string str() const
+		{
+			std::ostringstream oss;
+			for( const auto t: _v_ot )
+				oss << '<' << getString( t ) << '>';
+			return oss.str();
+		}
+
 		En_Httag current() const
 		{
 			assert( _v_ot.size() );
 			return _v_ot.back();
 		}
 };
-
-
-//-----------------------------------------------------------------------------------
-//tagAllowsTag( En_Httag tag,
 //-----------------------------------------------------------------------------------
 /// Returns true if tag is allowed inside tag chain
 inline
@@ -182,7 +186,6 @@ tagIsAllowed( En_Httag tag, const OpenedTags& ot, const AllowedContentMap& acm )
 
 	return false;
 }
-
 //-----------------------------------------------------------------------------------
 template<typename T>
 void
@@ -321,7 +324,7 @@ class Httag
 		void p_checkValidFileType( std::string action );
 		std::string p_getAttribs() const;
 
-		static priv::OpenedTags& p_getOT()
+		static priv::OpenedTags& p_getOpenedTags()
 		{
 			static priv::OpenedTags s_ot;
 			return s_ot;
@@ -398,29 +401,6 @@ Httag::printSupported( std::ostream& f )
 
     f << "* Nb of tags holding an allowed tag list=" << nb2 << "\n";
 #endif
-}
-
-//-----------------------------------------------------------------------------------
-inline
-size_t
-Httag::printOpenedTags( std::ostream& f, const char* msg )
-{
-	f << "httag: opened tags (#=" << p_getOT().size() << "):";
-	if( msg )
-		f << "msg='" << msg << "' ";
-	p_getOT().print( f );
-	return p_getOT().size();
-}
-
-inline
-void
-priv::OpenedTags::print( std::ostream& f ) const
-{
-	for( const auto t: _v_ot )
-	{
-		f << '<' << getString( t ) << '>';
-	}
-	f << '\n';
 }
 //-----------------------------------------------------------------------------------
 /// constructor 1
@@ -617,7 +597,17 @@ Httag::~Httag()
 	if( _tagIsOpen && _isFileType && !priv::isVoidElement( _tag_en ) )
 		closeTag();
 }
-
+//-----------------------------------------------------------------------------------
+inline
+size_t
+Httag::printOpenedTags( std::ostream& f, const char* msg )
+{
+	f << "httag: opened tags (#=" << p_getOpenedTags().size() << "):";
+	if( msg )
+		f << "msg='" << msg << "' ";
+	f << p_getOpenedTags().str() << '\n';
+	return p_getOpenedTags().size();
+}
 //-----------------------------------------------------------------------------------
 void
 Httag::p_checkValidFileType( std::string action )
@@ -646,16 +636,16 @@ Httag::openTag()
 	}
 	else
 	{
-		if( p_getOT().size() )
+		if( p_getOpenedTags().size() )
 		{
-			if( p_getOT().current() == _tag_en )
+			if( p_getOpenedTags().current() == _tag_en )
 				HTTAG_ERROR( std::string("attempt to open tag '") + getString(_tag_en) + "' but currently opened tag is identical" );
 
-			if( !tagIsAllowed( _tag_en, p_getOT(), p_getAllowedContentMap() ) )
+			if( !tagIsAllowed( _tag_en, p_getOpenedTags(), p_getAllowedContentMap() ) )
 			{
-				std::cerr << "TAG NOT ALLOWED !!!\n";
-				p_getOT().print( std::cerr );
-				HTTAG_ERROR( std::string("attempt to open tag '") + getString(_tag_en) + "' but is not allowed in current context" );
+//				std::cerr << "TAG NOT ALLOWED !!!\n";
+
+				HTTAG_ERROR( std::string("attempt to open tag '") + getString(_tag_en) + "' but is not allowed in current context:" + p_getOpenedTags().str() );
 			}
 		}
 		switch( _tag_en )
@@ -669,7 +659,7 @@ Httag::openTag()
 	_tagIsOpen = true;
 //	_printAttribs = false;
 
-	p_getOT().pushTag( _tag_en );
+	p_getOpenedTags().pushTag( _tag_en );
 
 	if( priv::hasDefaultLF_Open( _tag_en ) )
 		*_file << '\n';
@@ -694,7 +684,7 @@ Httag::closeTag( bool linefeed )
 	else
 		*_file << "</" << getString(_tag_en) << '>';
 
-	p_getOT().pullTag( _tag_en );
+	p_getOpenedTags().pullTag( _tag_en );
 
 	_tagIsOpen = false;
 	doLineFeed( linefeed );

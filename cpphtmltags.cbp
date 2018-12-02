@@ -76,6 +76,7 @@
 		<Unit filename="demo/demo2.cpp">
 			<Option target="main2" />
 		</Unit>
+		<Unit filename="demo/demo3.cpp" />
 		<Unit filename="demo/supported.cpp">
 			<Option target="supported" />
 		</Unit>
