@@ -3,7 +3,7 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
-//#define HTTAG_SILENT_MODE
+#define HTTAG_SILENT_MODE
 #include "../cpphtmltags.hpp"
 
 
@@ -48,6 +48,15 @@ TEST_CASE( "test1", "[t1]" )
 		oss << t1;
 		CHECK( oss.str() == "<p class=\"myclass\">content</p>" );
 	}
+	{
+		std::ostringstream oss;
+		Httag t1( HT_P );
+		t1 << "some";
+		t1 << " text";
+		oss << t1;
+		CHECK( oss.str() == "<p>some text</p>" );
+	}
+
 } // section end
 
 	SECTION( "creation and streaming in single step" ) {
@@ -105,7 +114,7 @@ TEST_CASE( "test1", "[t1]" )
 		std::ostringstream oss1, oss2, oss3, oss4;
 
 		oss1 << Httag( HT_P, "hi there" );
-		CHECK( oss1.str() == "<p class=\"cdef\">hi there</p>" ); // global attributes stay
+		CHECK( oss1.str() == "<p class=\"cdef\">hi there</p>" ); // global attributes defined before stay
 
 		Httag p3( HT_P, "hi there" );
 		oss3 << p3;
@@ -259,5 +268,12 @@ TEST_CASE( "test_ac", "[t6]" ) // testing allowed content in a tag
 		t3.closeTag();
 		oss << ", is it ?";
 	}
-	CHECK( oss.str() == "<p>this is <strong>important</strong>, is it ?<p>" );
+	CHECK( oss.str() == "<p>this is <strong>important</strong>, is it ?</p>" );
+}
+TEST_CASE( "test_void", "[t7]" ) // testing void elements
+{
+	CHECK( priv::isVoidElement(HT_IMG) );
+	CHECK( priv::isVoidElement(HT_META) );
+	CHECK( priv::isVoidElement(HT_BR) );
+	CHECK( priv::isVoidElement(HT_HR) );
 }

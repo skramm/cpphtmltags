@@ -2,17 +2,32 @@
 
 Homepage: https://github.com/skramm/cpphtmltags/
 
-There is a single class to use: `Httag`.
-It is defined in the namespace `httag`. Some helper function are also available, also in this namespace.
+## Introduction
+This library is build around a single class to use: `Httag`, along with some helper free functions.
+All of it is defined in the namespace `httag`.
+This class models an HTML tag (aka element), that can be streamed in file.
 
 Two types of tags can be created, but they are both handled trough the same class, for conveniency.
 They only differ in the way they are created, and how they generate some output.
-The first type is independant of any output device, it is up to the user to stream them in some output stream.
+The first type is independent of any output device, it is up to the user to stream them in some output stream.
 With the second type, you assign an output stream at creation time.
 
-## Instanciation
+The library and the contained class can be used in two ways, either through classical object paradigm, either through a set of macros.
+These basically wrap the code, it ends up as the same thing.
+The first method can be considered as a bit "cleaner", but the second method has a large advantage during development stage:
+it gives the location of your incorrect code in case of illegal usage. For more details, [see here](#macro).
 
-### Method 1
+But anyhow, you might want to check the classical API first.
+
+
+## A - Classical User Interface
+
+
+### A.1 - Instanciation
+
+Two types of constructors are available, the second one offering a mean to store the output stream in the object.
+
+#### Type 1 constructor
 Just a regular object:
 ```C++
 Httag mytag( HT_P );
@@ -29,7 +44,7 @@ Or both, at creation time:
 ```C++
 Httag mytag( HT_P, "a paragraph", AT_CLASS, "abc" );
 ```
-### Method 2
+#### Type 2 constructor
 You can specify the stream where the html code must be generated.
 It can be of type `std::ostream`, or `std::ofstream`, or even `std::ostringstream`. `std::cout` works fine too:
 ```C++
@@ -42,14 +57,13 @@ Httag p1( file, HT_P, AT_CLASS, "abc" );
 Httag p2( file, HT_P, "a paragraph" );
 Httag p3( file, HT_P, "a paragraph", AT_CLASS, "abc" );
 ```
-
 Please note that when a tag is created that way, nothing is printed in the stream.
 This will only happen when you call either:
 - `openTag()` : only prints the opening tag
-- `printTag()`: prints the closing tag
+- `printTag()`: prints the whole thing, opening tag, text content, and closing tag
 - `printWithContent( "something" )`
 
-## Adding content to a tag
+### A.2 - Adding text content to a tag
 
 The "content" is what is inside the tag, i.e. `<p>Content</p>`
 
@@ -69,8 +83,14 @@ Httag p( HT_P );
 p.setContent( "a paragraph" );
 p.addContent( " of text" );
 ```
+- but you can also directly stream something **into** the tag:
+```C++
+Httag p( HT_P );
+p << "a paragraph" );
+p << " of text" );
+```
 
-## Attributes
+### A.3 - Attributes
 
 Tag attributes can be added to the tag at creation time (see above) or afterwards:
 ```C++
@@ -84,7 +104,7 @@ Httag td( HT_TD );
 td.addAttrib( AT_COLSPAN, 3 );
 ```
 
-Beware, of 'file-type' objects, you can add attributes but only before opening the tag:
+Beware, for 'file-type' objects, you can add attributes but only before opening the tag:
 ```C++
 Httag td( std::cout, HT_TD );
 td.addAttrib( AT_COLSPAN, 3 );  // fine
@@ -92,7 +112,7 @@ td.openTag();
 td.addAttrib( AT_CLASS, "abc" );  // this will throw an error
 ```
 
-## Tag global attributes
+### A.4 - Tag global attributes
 
 It is possible to add to a given tag a "global attribute", that is each time you will output that tag, this attribute-value pair will be automatically added.
 For example, at one point you want to add to all the tags `li` the attribute `class="my_class"`.
@@ -106,7 +126,7 @@ To remove, you can:
 `Httag::clearGlobalAttrib( <tag id> )`
 
 
-## Line feeds
+### A.5 - Line feeds
 
 In order to be human readable, it may be a good idea to have here and then some line feeds in the output html code.
 On the other side, for large files it may be wanted to have "compact" html code, by removing all the unnecessary linefeeds.
@@ -126,18 +146,17 @@ Httag::setLineFeedMode( LF_Always );
 ```
 
 
-## Error handling
+### A.6 - Error handling
 
 In case of non fatal problem, this library will simply issue a warning with a clear message on `std::cerr`.
 This can be disabled by passing the option `HTTAG_SILENT_WARNINGS` before including the file.
 
-In case of fatal error, this library will issue a message on `std::cerr` with line number and the error message, and throw
-an error of type `std::runtime_error`.
+In case of fatal error, this library will issue a message on `std::cerr` with line number and the error message, and throw an error of type `std::runtime_error`.
 
 Similarly, error messages can be removed by defining the symbol `HTTAG_SILENT_ERRORS`.
 You can mute both errors and warnings by defining `HTTAG_SILENT_MODE`. This will guarantee that no output will be streamed in `std::cerr`.
 
-### HTML 5 tag/attribute enforcing
+#### HTML 5 tag/attribute enforcing
 
 The HTML 5 standard specifies two kinds of attributes:
 - "global" attributes: these can be assigned to any tag
@@ -147,7 +166,16 @@ This library can ensure that this is enforced by checking at each time you add a
 This checking can be disabled by defining the symbol `HTTAG_NO_CHECK` before the "include" line.
 
 
-## Developer information
+## <a name="macro"></a>B - Macro-based user interface
+
+Several macros are available to mimic the behavior of the classical API.
+The advantage is that in case of illegal HTML code, instead of throwing an error, using these macros will print out a clear message on stderr and give the location of your faulty line.
+
+To provide a protection against side effects (possible with macros), they are all prefixed with `HTTAG_`.
+
+
+<hr>
+### Developer information
 
 Check out [Developer information](dev_info.md).
 
