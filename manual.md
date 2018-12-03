@@ -3,7 +3,7 @@
 Homepage: https://github.com/skramm/cpphtmltags/
 
 ## Introduction
-This library is build around a single class to use: `Httag`, along with some helper free functions.
+This library is build around a single class: `Httag`, along with some helper free functions.
 All of it is defined in the namespace `httag`.
 This class models an HTML tag (aka element), that can be streamed in file.
 
@@ -82,6 +82,7 @@ p.closeTag();
 Httag p( HT_P );
 p.setContent( "a paragraph" );
 p.addContent( " of text" );
+std::cout << p;  // <p>a paragraph of text</p>
 ```
 - but you can also directly stream something **into** the tag:
 ```C++
@@ -92,6 +93,7 @@ p << " of text" );
 
 ### A.3 - Attributes
 
+#### Adding attributes
 Tag attributes can be added to the tag at creation time (see above) or afterwards:
 ```C++
 Httag p( HT_P );
@@ -112,7 +114,7 @@ td.openTag();
 td.addAttrib( AT_CLASS, "abc" );  // this will throw an error
 ```
 
-### A.4 - Tag global attributes
+####  Tag global attributes
 
 It is possible to add to a given tag a "global attribute", that is each time you will output that tag, this attribute-value pair will be automatically added.
 For example, at one point you want to add to all the tags `li` the attribute `class="my_class"`.
@@ -125,8 +127,24 @@ To remove, you can:
 - remove the global attribute on a given tag:<br>
 `Httag::clearGlobalAttrib( <tag id> )`
 
+#### Attributes uniqueness enforcement
 
-### A.5 - Line feeds
+HTML 5 mandates that no attribute shall be present more than once.
+This is enforced here, and adding attributes will end up as a concatenation of the values, space separated.
+For example, this:
+```C++
+Httag p( std::cout, HT_P, "text" );
+td.addAttrib( AT_CLASS, "abc" );
+td.addAttrib( AT_CLASS, "cde" );
+p.printTag();
+```
+will printout: `<p class="abc cde">text</p>`
+
+For global attributes, it works the same.
+Please note that the global attribute will always be added at the end of the string.
+
+
+### A.4 - Line feeds
 
 In order to be human readable, it may be a good idea to have here and then some line feeds in the output html code.
 On the other side, for large files it may be wanted to have "compact" html code, by removing all the unnecessary linefeeds.
@@ -146,7 +164,7 @@ Httag::setLineFeedMode( LF_Always );
 ```
 
 
-### A.6 - Error handling
+### A.5 - Error handling
 
 In case of non fatal problem, this library will simply issue a warning with a clear message on `std::cerr`.
 This can be disabled by passing the option `HTTAG_SILENT_WARNINGS` before including the file.
@@ -169,10 +187,30 @@ This checking can be disabled by defining the symbol `HTTAG_NO_CHECK` before the
 ## <a name="macro"></a>B - Macro-based user interface
 
 Several macros are available to mimic the behavior of the classical API.
-The advantage is that in case of illegal HTML code, instead of throwing an error, using these macros will print out a clear message on stderr and give the location of your faulty line.
+The advantage is that in case of illegal HTML code, instead of throwing an error, using these macros will
+-# print out a clear message on stderr and give the location of your faulty line,
+-# continue to process you code.
 
 To provide a protection against side effects (possible with macros), they are all prefixed with `HTTAG_`.
 
+Macro                      | code equivalent
+-------------------------- | --------------
+`HTTAG_OPENTAG( t );`               | `t.openTag();`
+`HTTAG_CLOSETAG( t );`               | `t.closeTag();`
+
+
+
+## <a name="errors"></a>C - List of errors
+
+This code enforce several rules to avoid producing invalid HTML code.
+This is done by throwing an error in case of incorrect usage by the client code.
+
+- asking to open a tag `<x>` inside an identical tag.
+Sample: whatever the tag, this: `<x><x>content</x></x>` is invalid html
+- asking to add an attribute to a tag where that attribute is not allowed.
+
+
+TO BE CONTINUED !
 
 <hr>
 ### Developer information

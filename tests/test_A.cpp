@@ -127,6 +127,15 @@ TEST_CASE( "test1", "[t1]" )
 		oss4 << Httag( HT_P, "hi" );
 		CHECK( oss4.str() == "<p>hi</p>" );
 	}
+	SECTION( "iterative adding of attributes 3" )
+	{
+		std::ostringstream oss;
+		Httag p( oss, HT_P, "text" );
+		p.addAttrib( AT_CLASS, "abc" );
+		p.addAttrib( AT_CLASS, "cde" );
+		p.printTag();
+		CHECK( oss.str() == "<p class=\"abc cde\">text</p>" );
+	}
 }
 
 TEST_CASE( "Error checking", "[t2]" )

@@ -639,13 +639,13 @@ Httag::openTag()
 		if( p_getOpenedTags().size() )
 		{
 			if( p_getOpenedTags().current() == _tag_en )
-				HTTAG_ERROR( std::string("attempt to open tag '") + getString(_tag_en) + "' but currently opened tag is identical" );
+				HTTAG_ERROR( std::string("attempt to open tag <") + getString(_tag_en) + "> but currently opened tag is identical" );
 
 			if( !tagIsAllowed( _tag_en, p_getOpenedTags(), p_getAllowedContentMap() ) )
 			{
 //				std::cerr << "TAG NOT ALLOWED !!!\n";
 
-				HTTAG_ERROR( std::string("attempt to open tag '") + getString(_tag_en) + "' but is not allowed in current context:" + p_getOpenedTags().str() );
+				HTTAG_ERROR( std::string("attempt to open tag <") + getString(_tag_en) + "> but is not allowed in current context:" + p_getOpenedTags().str() );
 			}
 		}
 		switch( _tag_en )
@@ -674,10 +674,10 @@ Httag::closeTag( bool linefeed )
 	p_checkValidFileType( "close" );
 
 	if( priv::isVoidElement( _tag_en ) )
-		HTTAG_ERROR( std::string( "asked to close tag '" ) + getString(_tag_en) + "' but is void-element" );
+		HTTAG_ERROR( std::string( "asked to close tag <" ) + getString(_tag_en) + "> but is void-element" );
 
 	if( !_tagIsOpen )
-		HTTAG_ERROR( std::string( "tag '" ) + getString(_tag_en) + "': asked to close but was already closed." );
+		HTTAG_ERROR( std::string( "tag <" ) + getString(_tag_en) + ">: asked to close but was already closed." );
 
 	if( _tag_en == HT_COMMENT )
 		*_file << "-->\n";

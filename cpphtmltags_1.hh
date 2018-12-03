@@ -80,48 +80,34 @@ Refs:
 		}
 #endif
 
-/// Private macro
-#define HTTAG_P_TRY_OPEN( t, tag ) \
+/// Open tag \c t
+#define HTTAG_OPENTAG( t ) \
+	{ \
 		try { \
 			t.openTag(); \
 		} \
 		catch( const std::runtime_error& err ) \
 		{ \
-			std:: cerr << "\nError: cannot open tag <" << getString(tag) \
+			std:: cerr << "\nError: cannot open tag <" << getString(t.getTag()) \
 				<< ">\n -file: " << __FILE__ \
 				<< "\n -line: " << __LINE__ \
 				<< "\n -message: " << err.what() << '\n'; \
-		}
-
-/// Open tag \c tag for file \c f, with name \c t
-#define HTTAG_OPENTAG( f, t, tag ) \
-	Httag t( f, tag ); \
-	{ \
-		HTTAG_P_TRY_OPEN(t, tag) \
+		} \
 	}
 
-/// Close tag
-#define HTTAG_CLOSETAG(t) t.closeTag()
-
-/// Open tag \c tag for file \c f, with name \c t, holding \c content
-#define HTTAG_OPENTAG_C( f, t, tag, content ) \
-	Httag t( f, tag, content ); \
+/// Close tag \c t
+#define HTTAG_CLOSETAG( t ) \
 	{ \
-		HTTAG_P_TRY_OPEN(t, tag) \
-	}
-
-/// Open tag \c tag for file \c f, with attribute type \c at and value \c val
-#define HTTAG_OPENTAG_AT( f, t, tag, at, val ) \
-	Httag t( f, tag, at, val ); \
-	{ \
-		HTTAG_P_TRY_OPEN(t, tag) \
-	}
-
-/// Open tag \c tag for file \c f, with content \c c and attribute type \c at and value \c val
-#define HTTAG_OPENTAG_C_AT( f, t, tag, c, at, val ) \
-	Httag t( f, tag, c, at, val ); \
-	{ \
-		HTTAG_P_TRY_OPEN(t, tag) \
+		try { \
+			t.closeTag(); \
+		} \
+		catch( const std::runtime_error& err ) \
+		{ \
+			std:: cerr << "\nError: cannot close tag <" << getString(t.getTag()) \
+				<< ">\n -file: " << __FILE__ \
+				<< "\n -line: " << __LINE__ \
+				<< "\n -message: " << err.what() << '\n'; \
+		} \
 	}
 
 
