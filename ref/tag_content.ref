@@ -13,6 +13,8 @@
 # syntax 3: for elements that can only hold text
 # tag:E_TEXT
 
+# syntax 4: for empty element (!= void elements)
+# tag: E_EMPTY
 
 # PRELIMINAR !!!
 
@@ -34,7 +36,7 @@ big
 blockquote:C_flow
 body
 br:E_VOID
-button
+button:C_phrasing,!C_interactive
 canvas
 caption:C_flow
 center
@@ -43,11 +45,10 @@ code:C_phrasing
 col:E_VOID
 colgroup:col,template
 comment
-data
 data:C_phrasing
 datalist
 dd
-del
+del:E_TRANSP
 details:summary,C_flow
 dfn:C_phrasing,!dfn
 dialog
@@ -57,14 +58,11 @@ doctype:E_VOID
 dt:C_flow,!C_sectioning,!C_heading,!header,!footer
 embed:E_VOID
 em:C_phrasing
-fieldset
-figcaption
-figure
-font
-footer
+fieldset:C_flow,legend
+figcaption:C_flow
+figure:figcaption,C_flow
+footer:C_flow,!footer,!header
 form:C_flow,!form
-frame
-frameset
 h1:C_phrasing
 h2:C_phrasing
 h3:C_phrasing
@@ -72,15 +70,14 @@ h4:C_phrasing
 h5:C_phrasing
 h6:C_phrasing
 head:title,meta,script,base
-header:C_flow
+header:C_flow,!footer,!header
 hr:E_VOID
 html:head,body
 i:C_phrasing
-iframe
+iframe:E_EMPTY
 img:E_VOID
 input:E_VOID
 ins
-kbd
 kbd:C_phrasing
 label:C_phrasing,!label
 legend
@@ -93,7 +90,6 @@ menu:li,C_flow
 meta:E_VOID
 meter
 nav:C_flow
-noframes
 noscript
 object
 ol:li
@@ -135,9 +131,8 @@ time:C_phrasing
 title:E_TEXT
 track:E_VOID
 tr:td,th,C_script
-tt
 u:C_phrasing
 ul:li
 var:C_phrasing
-video
+video:!audio,!video,track,source
 wbr:E_VOID
