@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "/home/sk/dev/cpphtmltags"
+		}
+	],
+	"settings": {
+		"files.exclude": {
+			"build": true,
+			"tmp": true,
+			"cpphtmltags.hpp":true
+		}
+	}
+}

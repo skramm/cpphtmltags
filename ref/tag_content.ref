@@ -1,7 +1,7 @@
 # This file holds the list of all html elements
 # AND the allowed content for each tag
 
-# syntax: one of these 3:
+# syntax: one of these 4
 
 # syntax 1:
 # tag:a,b,c,d,C_c1,!e

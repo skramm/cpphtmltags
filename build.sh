@@ -64,6 +64,7 @@ sort <tmp/attribs_2.ref >tmp/attribs.ref
 
 
 # STEP 1: generate enum and getString() functions, for tags and attributes
+# 1.1 - for tags
 file_input=ref/tags.ref
 file_e=tmp/tags_enum.src
 file_s=tmp/tags_switch.src
@@ -71,6 +72,7 @@ pre=HT
 name=En_Httag
 generate
 
+# 1.2 - for attributes
 file_input=tmp/attribs.ref
 file_e=tmp/attribs_enum.src
 file_s=tmp/attribs_switch.src
@@ -147,7 +149,7 @@ done < $file_input
 echo -e "\t}\n};" >>$file_out
 #echo -e "\n} // namespace priv\n">> $file_out
 
-# STEP 3 : generate header file
+# STEP 3 : generate final header file
 
 echo "// THIS IS A GENERATED FILE, DO NOT EDIT !">cpphtmltags.hpp
 cat \

@@ -54,6 +54,8 @@ int main()
 		f1.openTag();
 		cout << "para";
 
+		Httag::printOpenedTags( cout );
+
 		Httag f2( cout, HT_LI );
 		f2.openTag();
 		cout << "li-content";

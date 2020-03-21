@@ -206,11 +206,12 @@ AllowedContentMap::print( std::ostream& f ) const
 {
 	f << "* List of allowed content in a tag:\n";
 
+	size_t c = 0;
 	size_t nbEmpty = 0;
 	for( const auto& elem: _map_AllowedContent )
 	{
 		const auto& s = elem.second;
-		f << "tag <" << getString(elem.first) << '>';
+		f << ++c << ": tag <" << getString(elem.first) << '>';
 		if( s.isEmpty() )
 		{
 			nbEmpty++;
