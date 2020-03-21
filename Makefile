@@ -5,7 +5,7 @@ SRC_FILE=cpphtmltags.hpp
 TEMPLATE_FILES := $(wildcard *.hh)
 REF_FILES      := $(wildcard ref/*.ref)
 SRC_DEMO_FILES := $(wildcard demo/*.cpp)
-EXE_DEMO_FILES := $(patsubst demo/%.cpp, %, $(SRC_DEMO_FILES))
+EXE_DEMO_FILES := $(patsubst demo/%.cpp, build/%, $(SRC_DEMO_FILES))
 TEST_FILE      :=tests/test_A.cpp
 
 CFLAGS := -std=c++11
@@ -26,7 +26,7 @@ $(SRC_FILE): $(TEMPLATE_FILES) $(REF_FILES) build.sh
 demo: $(EXE_DEMO_FILES) Makefile
 	@echo done
 
-%:demo/%.cpp $(SRC_FILE)
+build/%:demo/%.cpp $(SRC_FILE)
 	$(CXX) -o $@ $(CFLAGS) $<
 
 # builds the sample programs
@@ -34,8 +34,8 @@ demo: $(EXE_DEMO_FILES) Makefile
 
 # builds doxygen documentation
 doc:
-	doxygen Doxyfile
-	xdg-open html/index.html
+	doxygen misc/Doxyfile
+	xdg-open build/html/index.html
 
 show:
 	@echo $(REF_FILES)

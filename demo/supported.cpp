@@ -1,8 +1,8 @@
 // This file is part of cpphtmltags
 
 /**
-\file supported.cpp
-\brief prints out the supported tags and attributes
+\file
+\brief Prints out the supported tags and attributes
 */
 
 #include "../cpphtmltags.hpp"

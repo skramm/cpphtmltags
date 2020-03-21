@@ -61,6 +61,7 @@
 		<Unit filename="build.sh">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
+		<Unit filename="code.css" />
 		<Unit filename="cpphtmltags.hpp" />
 		<Unit filename="cpphtmltags_1.hh">
 			<Option target="&lt;{~None~}&gt;" />
@@ -69,6 +70,7 @@
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="cpphtmltags_3.hh" />
+		<Unit filename="customdoxygen.css" />
 		<Unit filename="demo/demo0.cpp" />
 		<Unit filename="demo/demo1.cpp">
 			<Option target="main1" />

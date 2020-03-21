@@ -7,7 +7,7 @@
 # tag:a,b,c,d,C_c1,!e
 # means that inside that tag <tag> are allowed the tags <a>,<b> and <c> and all the tags belonging to category "c1" EXCEPT the tag <e>
 
-# syntax 2: for void elements
+# syntax 2: for void elements (for example <br>)
 # tag:E_VOID
 
 # syntax 3: for elements that can only hold text

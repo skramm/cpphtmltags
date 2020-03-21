@@ -9,3 +9,12 @@ code
 	color:#448;
 	font-weight:bold;
 }
+
+div.fragment div.line
+{
+	font-family:courier;
+	font-size:110%;
+	background-color:#ddd;
+	color:#448;
+	font-weight:bold;
+}

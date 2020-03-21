@@ -1,4 +1,5 @@
 // THIS IS A GENERATED FILE, DO NOT EDIT !
+//--- START: TEMPLATE FILE cpphtmltags_1.hh
 /*
     Copyright (C) 2018 Sebastien Kramm
 
@@ -49,7 +50,7 @@ Refs:
 #include <algorithm>
 
 #define HTTAG_PRINT_INFO( msg ) \
-		std::cerr << "httag: fatal error: " \
+		std::cerr << "\nhttag: fatal error: " \
 			<< "\n - file: " << __FILE__ \
 			<< "\n - line: " << __LINE__ \
 			<< "\n - message: " << msg \
@@ -64,27 +65,59 @@ Refs:
 #ifdef HTTAG_SILENT_WARNINGS
 	#define HTTAG_WARNING if(0) std::cerr
 #else
-	#define HTTAG_WARNING if(1) std::cerr << "httag: Warning: "
+	#define HTTAG_WARNING if(1) std::cerr << "\nhttag: Warning: "
 #endif
 
 #ifdef HTTAG_SILENT_ERRORS
 	#define HTTAG_ERROR( msg ) \
 		{ \
-			throw std::runtime_error( "httag: fatal error" ); \
+			throw std::runtime_error( std::string("httag: fatal error: ") + msg ); \
 		}
 #else
 	#define HTTAG_ERROR( msg ) \
 		{ \
 			HTTAG_PRINT_INFO( msg ); \
-			throw std::runtime_error( "httag: fatal error" ); \
+			throw std::runtime_error( std::string("httag: fatal error: ") + msg ); \
 		}
 #endif
+
+/// Open tag \c t
+#define HTTAG_OPENTAG( t ) \
+	{ \
+		try { \
+			t.openTag(); \
+		} \
+		catch( const std::runtime_error& err ) \
+		{ \
+			std:: cerr << "\nError: cannot open tag <" << getString(t.getTag()) \
+				<< ">\n -file: " << __FILE__ \
+				<< "\n -line: " << __LINE__ \
+				<< "\n -message: " << err.what() << '\n'; \
+		} \
+	}
+
+/// Close tag \c t
+#define HTTAG_CLOSETAG( t ) \
+	{ \
+		try { \
+			t.closeTag(); \
+		} \
+		catch( const std::runtime_error& err ) \
+		{ \
+			std:: cerr << "\nError: cannot close tag <" << getString(t.getTag()) \
+				<< ">\n -file: " << __FILE__ \
+				<< "\n -line: " << __LINE__ \
+				<< "\n -message: " << err.what() << '\n'; \
+		} \
+	}
+
 
 namespace httag {
 
 
+//--- END: TEMPLATE FILE cpphtmltags_1.hh
 // -------- GENERATED CODE ! --------
-// timestamp: 20181128-1359
+// timestamp: 20200321-0953
 
 enum En_Httag
 {
@@ -218,7 +251,7 @@ enum En_Httag
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181128-1359
+// timestamp: 20200321-0953
 
 enum En_Attrib
 {
@@ -361,7 +394,7 @@ enum En_Attrib
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181128-1359
+// timestamp: 20200321-0953
 
 const char*
 getString( En_Httag a )
@@ -501,7 +534,7 @@ getString( En_Httag a )
 }
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20181128-1359
+// timestamp: 20200321-0953
 
 const char*
 getString( En_Attrib a )
@@ -649,13 +682,109 @@ getString( En_Attrib a )
 	return n;
 }
 
-// -------- GENERATED CODE ! --------
-// timestamp: 20181128-1359
-
 namespace priv {
 
-/// Conveniency typedef
+/// Enum holding tag categories
+enum En_TagCat
+{
+	C_METADATA,
+	C_FLOW,
+	C_SECTIONING,
+	C_HEADING,
+	C_PHRASING,
+	C_EMBEDDED,
+	C_INTERACTIVE,
+	C_PALPABLE,
+	C_SCRIPT,
+
+	C_DUMMY
+};
+const char*
+getString( En_TagCat a )
+{
+	const char* n=0;
+	switch( a )
+	{
+		case C_METADATA:	n="C_metadata";	break;
+		case C_FLOW:	n="C_flow";	break;
+		case C_SECTIONING:	n="C_sectioning";	break;
+		case C_HEADING:	n="C_heading";	break;
+		case C_PHRASING:	n="C_phrasing";	break;
+		case C_EMBEDDED:	n="C_embedded";	break;
+		case C_INTERACTIVE:	n="C_interactive";	break;
+		case C_PALPABLE:	n="C_palpable";	break;
+		case C_SCRIPT:	n="C_script";	break;
+		default: assert(0);
+	}
+	return n;
+}
+//--- START: TEMPLATE FILE cpphtmltags_2.hh
+
 typedef std::map<En_Attrib,std::vector<En_Httag>> MapAttribs_t;
+typedef std::map<En_TagCat,std::vector<En_Httag>> TagCat_t;
+
+typedef std::pair<En_Attrib,std::string>       PairAttribString_t;
+typedef std::map<En_Httag, PairAttribString_t> GlobAttribMap_t;
+
+
+/// holds for a given tag what content is allowed inside
+struct AllowedContent
+{
+	std::vector<En_Httag>  v_allowedTags;
+	std::vector<En_Httag>  v_forbiddenTags;
+	std::vector<En_TagCat> _v_allowedCats;
+	std::vector<En_TagCat> v_forbiddenCats;
+	bool _isVoid = false;
+	bool _isText = false;
+
+/// type of tag
+	enum En_TagType{ TT_NEITHER, TT_VOID, TT_TEXT };
+
+	/// Constructor
+	AllowedContent( En_TagType tt=TT_NEITHER )
+	{
+		if( tt == TT_VOID )
+			_isVoid = true;
+		if( tt == TT_TEXT )
+			_isText = true;
+	}
+	void addForbiddenTag( En_Httag en )
+	{
+		v_forbiddenTags.push_back( en );
+	}
+	void addForbiddenCat( En_TagCat en )
+	{
+		v_forbiddenCats.push_back( en );
+	}
+	void addTag( En_Httag en )
+	{
+		v_allowedTags.push_back( en );
+	}
+	void addCat( En_TagCat en )
+	{
+		_v_allowedCats.push_back( en );
+	}
+	bool isEmpty() const
+	{
+		if( _isVoid == true )
+			return false;
+		if( _isText == true )
+			return false;
+		if( v_allowedTags.size() )
+			return false;
+		if( _v_allowedCats.size() )
+			return false;
+		if( v_forbiddenTags.size() )
+			return false;
+		if( v_forbiddenCats.size() )
+			return false;
+		return true;
+	}
+};
+
+//--- END: TEMPLATE FILE cpphtmltags_2.hh
+// -------- GENERATED CODE ! --------
+// timestamp: 20200321-0953
 
 /// Private class, holds map of allowed attributes
 struct MapAttribs
@@ -787,27 +916,6 @@ struct MapAttribs
 		_map[AT_WRAP]	=	 { HT_TEXTAREA };
 	}
 };
-
-} // namespace priv
-
-namespace priv {
-
-/// Enum holding tag categories
-enum En_TagCat
-{
-	C_METADATA,
-	C_FLOW,
-	C_SECTIONING,
-	C_HEADING,
-	C_PHRASING,
-	C_EMBEDDED,
-	C_INTERACTIVE,
-
-	C_DUMMY
-};
-/// Conveniency typedef
-typedef std::map<En_TagCat,std::vector<En_Httag>> TagCat_t;
-
 /// Private class, holds map of categories of tags
 struct TagCat
 {
@@ -823,36 +931,683 @@ struct TagCat
 		_map_cat[C_HEADING]	=	 { HT_H1, HT_H2, HT_H3, HT_H4, HT_H5, HT_H6 };
 		_map_cat[C_PHRASING]	=	 { HT_A, HT_ABBR, HT_AREA, HT_AUDIO, HT_B, HT_BDI, HT_BDO, HT_BR, HT_BUTTON, HT_CANVAS, HT_CITE, HT_CODE, HT_DATA, HT_DATALIST, HT_DEL, HT_DFN, HT_EM, HT_EMBED, HT_I, HT_IFRAME, HT_IMG, HT_INPUT, HT_INS, HT_KBD, HT_LABEL, HT_LINK, HT_MAP, HT_MARK, HT_METER, HT_NOSCRIPT, HT_OBJECT, HT_OUTPUT, HT_PICTURE, HT_PROGRESS, HT_Q, HT_RUBY, HT_S, HT_SAMP, HT_SCRIPT, HT_SELECT, HT_SMALL, HT_SPAN, HT_STRONG, HT_SUB, HT_SUP, HT_SVG, HT_TEMPLATE, HT_TEXTAREA, HT_TIME, HT_U, HT_VAR, HT_VIDEO, HT_WBR };
 		_map_cat[C_EMBEDDED]	=	 { HT_AUDIO, HT_CANVAS, HT_EMBED, HT_IFRAME, HT_IMG, HT_OBJECT, HT_PICTURE, HT_SVG, HT_VIDEO };
-		_map_cat[C_INTERACTIVE]	=	 {  };
+		_map_cat[C_INTERACTIVE]	=	 { HT_A, HT_AUDIO, HT_BUTTON, HT_DETAILS, HT_EMBED, HT_IFRAME, HT_IMG, HT_INPUT, HT_LABEL, HT_SELECT, HT_TEXTAREA, HT_VIDEO };
+		_map_cat[C_PALPABLE]	=	 {  };
+		_map_cat[C_SCRIPT]	=	 { HT_SCRIPT, HT_TEMPLATE };
 	}
 };
-} // namespace priv
+// -------- GENERATED CODE ! --------
+// timestamp: 20200321-0953
 
+/// Returns true if the tag is a void-element
+inline
+bool
+isVoidElement( En_Httag tag )
+{
+	switch( tag )
+	{
+		case HT_DOCTYPE:
+		case HT_AREA:
+		case HT_BASE:
+		case HT_BR:
+		case HT_COL:
+		case HT_EMBED:
+		case HT_HR:
+		case HT_IMG:
+		case HT_INPUT:
+		case HT_LINK:
+		case HT_META:
+		case HT_PARAM:
+		case HT_SOURCE:
+		case HT_TRACK:
+		case HT_WBR:
+			return true;
+		default: break;
+	}
+	return false;
+}
 
-namespace priv {
+/// Holds for each tag its allowed content
+struct AllowedContentMap
+{
+	std::map<En_Httag,AllowedContent> _map_AllowedContent;
+	AllowedContent& get( En_Httag tag )
+	{
+		assert( _map_AllowedContent.count(tag) );
+		return _map_AllowedContent[tag];
+	}
+	const AllowedContent& getC( En_Httag tag ) const
+	{
+		assert( _map_AllowedContent.count(tag) );
+		return _map_AllowedContent.at(tag);
+	}
+
+	void print( std::ostream& ) const;
+
+	AllowedContentMap()
+	{
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_ABBR] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addForbiddenCat(C_INTERACTIVE);
+			ac.addForbiddenTag(HT_A);
+			_map_AllowedContent[HT_A] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_ACRONYM] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_ADDRESS] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_APPLET] = ac;
+		}
+		{
+			AllowedContent ac(AllowedContent::TT_VOID);
+			_map_AllowedContent[HT_AREA] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_FLOW);
+			_map_AllowedContent[HT_ARTICLE] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_ASIDE] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_AUDIO] = ac;
+		}
+		{
+			AllowedContent ac(AllowedContent::TT_VOID);
+			_map_AllowedContent[HT_BASE] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_BASEFONT] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_B] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_BDI] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_BDO] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_BIG] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_FLOW);
+			_map_AllowedContent[HT_BLOCKQUOTE] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_BODY] = ac;
+		}
+		{
+			AllowedContent ac(AllowedContent::TT_VOID);
+			_map_AllowedContent[HT_BR] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_BUTTON] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_CANVAS] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_FLOW);
+			_map_AllowedContent[HT_CAPTION] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_CENTER] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_CITE] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_CODE] = ac;
+		}
+		{
+			AllowedContent ac(AllowedContent::TT_VOID);
+			_map_AllowedContent[HT_COL] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addTag(HT_COL);
+			ac.addTag(HT_TEMPLATE);
+			_map_AllowedContent[HT_COLGROUP] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_COMMENT] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_DATA] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_DATA] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_DATALIST] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_DD] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_DEL] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addTag(HT_SUMMARY);
+			ac.addCat(C_FLOW);
+			_map_AllowedContent[HT_DETAILS] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			ac.addForbiddenTag(HT_DFN);
+			_map_AllowedContent[HT_DFN] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_DIALOG] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_FLOW);
+			_map_AllowedContent[HT_DIV] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addTag(HT_DIV);
+			ac.addTag(HT_DT);
+			_map_AllowedContent[HT_DL] = ac;
+		}
+		{
+			AllowedContent ac(AllowedContent::TT_VOID);
+			_map_AllowedContent[HT_DOCTYPE] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_FLOW);
+			ac.addForbiddenCat(C_SECTIONING);
+			ac.addForbiddenCat(C_HEADING);
+			ac.addForbiddenTag(HT_HEADER);
+			ac.addForbiddenTag(HT_FOOTER);
+			_map_AllowedContent[HT_DT] = ac;
+		}
+		{
+			AllowedContent ac(AllowedContent::TT_VOID);
+			_map_AllowedContent[HT_EMBED] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_EM] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_FIELDSET] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_FIGCAPTION] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_FIGURE] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_FONT] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_FOOTER] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_FLOW);
+			ac.addForbiddenTag(HT_FORM);
+			_map_AllowedContent[HT_FORM] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_FRAME] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_FRAMESET] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_H1] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_H2] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_H3] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_H4] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_H5] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_H6] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addTag(HT_TITLE);
+			ac.addTag(HT_META);
+			ac.addTag(HT_SCRIPT);
+			ac.addTag(HT_BASE);
+			_map_AllowedContent[HT_HEAD] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_FLOW);
+			_map_AllowedContent[HT_HEADER] = ac;
+		}
+		{
+			AllowedContent ac(AllowedContent::TT_VOID);
+			_map_AllowedContent[HT_HR] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addTag(HT_HEAD);
+			ac.addTag(HT_BODY);
+			_map_AllowedContent[HT_HTML] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_I] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_IFRAME] = ac;
+		}
+		{
+			AllowedContent ac(AllowedContent::TT_VOID);
+			_map_AllowedContent[HT_IMG] = ac;
+		}
+		{
+			AllowedContent ac(AllowedContent::TT_VOID);
+			_map_AllowedContent[HT_INPUT] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_INS] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_KBD] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_KBD] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			ac.addForbiddenTag(HT_LABEL);
+			_map_AllowedContent[HT_LABEL] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_LEGEND] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_FLOW);
+			_map_AllowedContent[HT_LI] = ac;
+		}
+		{
+			AllowedContent ac(AllowedContent::TT_VOID);
+			_map_AllowedContent[HT_LINK] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_FLOW);
+			_map_AllowedContent[HT_MAIN] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_MAP] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_MARK] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addTag(HT_LI);
+			ac.addCat(C_FLOW);
+			_map_AllowedContent[HT_MENU] = ac;
+		}
+		{
+			AllowedContent ac(AllowedContent::TT_VOID);
+			_map_AllowedContent[HT_META] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_METER] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_FLOW);
+			_map_AllowedContent[HT_NAV] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_NOFRAMES] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_NOSCRIPT] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_OBJECT] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addTag(HT_LI);
+			_map_AllowedContent[HT_OL] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_OPTGROUP] = ac;
+		}
+		{
+			AllowedContent ac(AllowedContent::TT_TEXT);
+			_map_AllowedContent[HT_OPTION] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_OUTPUT] = ac;
+		}
+		{
+			AllowedContent ac(AllowedContent::TT_VOID);
+			_map_AllowedContent[HT_PARAM] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_P] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addTag(HT_SOURCE);
+			ac.addTag(HT_IMG);
+			_map_AllowedContent[HT_PICTURE] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_PRE] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_PROGRESS] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_Q] = ac;
+		}
+		{
+			AllowedContent ac(AllowedContent::TT_TEXT);
+			_map_AllowedContent[HT_RP] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_RT] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			ac.addForbiddenTag(HT_RUBY);
+			_map_AllowedContent[HT_RUBY] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_SAMP] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_S] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_SCRIPT] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_FLOW);
+			_map_AllowedContent[HT_SECTION] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addTag(HT_OPTION);
+			ac.addTag(HT_OPTGROUP);
+			ac.addCat(C_SCRIPT);
+			_map_AllowedContent[HT_SELECT] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_SMALL] = ac;
+		}
+		{
+			AllowedContent ac(AllowedContent::TT_VOID);
+			_map_AllowedContent[HT_SOURCE] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_SPAN] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_STRONG] = ac;
+		}
+		{
+			AllowedContent ac(AllowedContent::TT_TEXT);
+			_map_AllowedContent[HT_STYLE] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_SUB] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			ac.addCat(C_HEADING);
+			_map_AllowedContent[HT_SUMMARY] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_SUP] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_SVG] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addTag(HT_CAPTION);
+			ac.addTag(HT_COLGROUP);
+			ac.addTag(HT_THEAD);
+			ac.addTag(HT_TBODY);
+			ac.addTag(HT_TR);
+			ac.addTag(HT_TFOOT);
+			_map_AllowedContent[HT_TABLE] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addTag(HT_TR);
+			_map_AllowedContent[HT_TBODY] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_FLOW);
+			_map_AllowedContent[HT_TD] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_TEMPLATE] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_TEXTAREA] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addTag(HT_TR);
+			ac.addCat(C_SCRIPT);
+			_map_AllowedContent[HT_TFOOT] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_FLOW);
+			ac.addForbiddenTag(HT_HEADER);
+			ac.addForbiddenTag(HT_FOOTER);
+			ac.addForbiddenCat(C_SECTIONING);
+			ac.addForbiddenCat(C_HEADING);
+			_map_AllowedContent[HT_TH] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addTag(HT_TR);
+			ac.addCat(C_SCRIPT);
+			_map_AllowedContent[HT_THEAD] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_TIME] = ac;
+		}
+		{
+			AllowedContent ac(AllowedContent::TT_TEXT);
+			_map_AllowedContent[HT_TITLE] = ac;
+		}
+		{
+			AllowedContent ac(AllowedContent::TT_VOID);
+			_map_AllowedContent[HT_TRACK] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addTag(HT_TD);
+			ac.addTag(HT_TH);
+			ac.addCat(C_SCRIPT);
+			_map_AllowedContent[HT_TR] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_TT] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_U] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addTag(HT_LI);
+			_map_AllowedContent[HT_UL] = ac;
+		}
+		{
+			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			_map_AllowedContent[HT_VAR] = ac;
+		}
+		{
+			AllowedContent ac;
+			_map_AllowedContent[HT_VIDEO] = ac;
+		}
+		{
+			AllowedContent ac(AllowedContent::TT_VOID);
+			_map_AllowedContent[HT_WBR] = ac;
+		}
+	}
+};
+//--- START: TEMPLATE FILE cpphtmltags_3.hh
 
 //-----------------------------------------------------------------------------------
-/// Returns the category for a given tag
-/// \todo PROBLEM HERE: a tag can be member of more than one category !!!
-En_TagCat
-getTagCat( En_Httag tag )
+/// Returns true if \c tag belong to category \c cat
+bool
+tagBelongsToCat( En_Httag tag, En_TagCat cat )
 {
+	assert( cat != C_DUMMY );
+	assert( tag != HT_DUMMY );
+
 	static TagCat tagcat;
-	for( auto v_cat: tagcat.get() )
-	{
-		auto it = std::find(
-				std::begin(v_cat.second),
-				std::end(v_cat.second),
+	const auto& v_cat = tagcat.get().at(cat);
+
+	auto it = std::find(
+				std::begin(v_cat),
+				std::end(v_cat),
 				tag
 			);
-		if( it == std::end(v_cat.second) )
-		{
-			HTTAG_ERROR( "cannot find tag" );
-		}
-		else
-			return v_cat.first;
-	}
-	assert(0); // shouldn't be there
+	if( it == std::end(v_cat) )
+		return false;
+	return true;
 }
 
 //-----------------------------------------------------------------------------------
@@ -865,6 +1620,8 @@ inline
 bool
 isGlobalAttr( En_Attrib attr )
 {
+	assert( attr != AT_DUMMY );
+
 	switch( attr )
 	{
 		case AT_CLASS:
@@ -882,13 +1639,13 @@ isGlobalAttr( En_Attrib attr )
 
 //-----------------------------------------------------------------------------------
 /// Returns true if attribute \c attr is allowed for \c tag
-/**
-Refs:
-*/
 inline
 bool
 attribIsAllowed( En_Attrib attr, En_Httag tag )
 {
+	assert( tag  != HT_DUMMY );
+	assert( attr != AT_DUMMY );
+
 	static MapAttribs mapAllowedAttribs;
 	if( mapAllowedAttribs.get().count(attr) ) // if it is there
 	{
@@ -899,34 +1656,14 @@ attribIsAllowed( En_Attrib attr, En_Httag tag )
 	}
 	return true;
 }
-//-----------------------------------------------------------------------------------
-/// Returns true if the tag must be closed (i.e. is not a void-elements)
-/**
-Example: \c <br>: no need to close, vs \c <p>, that need to be closed)
-*/
-inline
-bool
-isVoidElement( En_Httag tag )
-{
-	switch( tag )
-	{
-		case HT_DOCTYPE:
-		case HT_INPUT:
-		case HT_IMG:
-		case HT_HR:
-		case HT_BR:
-			return true;
-		default:
-			return false;
-	}
-	return false; // to avoid a compiler warning
-}
 
 //-----------------------------------------------------------------------------------
 /// Returns true if the default behavior for \c tag is to have a line feed after opening
 bool
 hasDefaultLF_Open( En_Httag tag )
 {
+	assert( tag != HT_DUMMY );
+
 	switch( tag )
 	{
 		case HT_HTML:
@@ -947,6 +1684,8 @@ hasDefaultLF_Open( En_Httag tag )
 bool
 hasDefaultLF_Close( En_Httag tag )
 {
+	assert( tag != HT_DUMMY );
+
 	switch( tag )
 	{
 		case HT_HTML:
@@ -971,11 +1710,118 @@ hasDefaultLF_Close( En_Httag tag )
 	return false;
 }
 
-typedef std::pair<En_Attrib,std::string>      PairAttribString_t;
-typedef std::map<En_Httag, PairAttribString_t> GlobAttribMap_t;
+//-----------------------------------------------------------------------------------
+/// holds the list of currently opened tags
+class OpenedTags
+{
+	private:
+		std::vector<En_Httag> _v_ot;
+	public:
+		size_t size() const { return _v_ot.size();  }
+		void printOT( std::ostream& f ) const
+		{
+			for( const auto& e: _v_ot )
+				f << e << '-';
+		}
+		void pushTag( En_Httag tag )
+		{
+			_v_ot.push_back( tag );
+		}
+		void pullTag( En_Httag tag )
+		{
+			assert( _v_ot.size() > 0 );
+			if( _v_ot.back() != tag )
+				HTTAG_ERROR( std::string( "asking to close tag '") + getString(tag) + "' but tag '" +  getString(_v_ot.back()) + "' still open" );
+			_v_ot.pop_back();
+		}
+//		void print( std::ostream& ) const;
+		std::string str() const
+		{
+			std::ostringstream oss;
+			for( const auto t: _v_ot )
+				oss << '<' << getString( t ) << '>';
+			return oss.str();
+		}
+
+		En_Httag current() const
+		{
+			assert( _v_ot.size() );
+			return _v_ot.back();
+		}
+};
+//-----------------------------------------------------------------------------------
+/// Returns true if tag is allowed inside tag chain
+inline
+bool
+tagIsAllowed( En_Httag tag, const OpenedTags& ot, const AllowedContentMap& acm )
+{
+	const auto& ac = acm.getC( ot.current() ); // allowed content of currently (latest) opened tag
+
+	for( auto e: ac.v_forbiddenTags )
+		if( e == tag )
+			return false;
+
+	for( auto cat: ac.v_forbiddenCats )
+		if( tagBelongsToCat( tag, cat ) )
+			return false;
+
+	for( auto cat: ac._v_allowedCats )
+		if( tagBelongsToCat( tag, cat ) )
+			return true;
+
+	for( auto e: ac.v_allowedTags )
+		if( e == tag )
+			return true;
+
+	return false;
+}
+//-----------------------------------------------------------------------------------
+template<typename T>
+void
+printAllowedContent( std::ostream& f, std::string af, std::string type, std::vector<T> vec )
+{
+	if( vec.size() )
+	{
+		f << "\n -" << af << ' ' << vec.size() << ' ' << type << "(s): ";
+		for( const auto& e: vec )
+			f << getString(e) << ' ';
+	}
+}
+//-----------------------------------------------------------------------------------
+/// Prints some details about allowed tags content
+inline
+void
+AllowedContentMap::print( std::ostream& f ) const
+{
+	f << "* List of allowed content in a tag:\n";
+
+	size_t nbEmpty = 0;
+	for( const auto& elem: _map_AllowedContent )
+	{
+		const auto& s = elem.second;
+		f << "tag <" << getString(elem.first) << '>';
+		if( s.isEmpty() )
+		{
+			nbEmpty++;
+			f << " : EMPTY !!!";
+		}
+		else
+		{
+			printAllowedContent( f, "allows",  "categorie", s._v_allowedCats );
+			printAllowedContent( f, "allows",  "tag",       s.v_allowedTags );
+			printAllowedContent( f, "forbids", "categorie", s.v_forbiddenCats );
+			printAllowedContent( f, "forbids", "tag",       s.v_forbiddenTags );
+		}
+		f << '\n';
+	}
+	f << "\n -Nb empty tags: = " << nbEmpty;
+	f << "\n -Nb tags = " << _map_AllowedContent.size() << '\n';
+}
+//-----------------------------------------------------------------------------------
 
 } // namespace priv
 
+//-----------------------------------------------------------------------------------
 /// Line Feed Mode (see manual)
 enum En_LineFeedMode
 {
@@ -989,7 +1835,6 @@ Main class, see homepage for details
 */
 class Httag
 {
-//	friend class MapAttribs;
 	template<typename T>
 	friend Httag&         operator << ( Httag&         tag,    const T& );
 	friend std::ostream& operator << ( std::ostream& stream, const Httag& );
@@ -1060,7 +1905,7 @@ class Httag
 			lf_mode() = mode;
 		}
 		static void printSupported(  std::ostream& );
-		static void printOpenedTags( std::ostream& );
+		static size_t printOpenedTags( std::ostream&, const char* msg=0 );
 
 	private:
 		void doLineFeed( bool linefeed=false ) const;
@@ -1068,12 +1913,16 @@ class Httag
 		void p_checkValidFileType( std::string action );
 		std::string p_getAttribs() const;
 
-		static std::vector<En_Httag>& openedTags()
+		static priv::OpenedTags& p_getOpenedTags()
 		{
-			static std::vector<En_Httag> s_opened_tags;
-			return s_opened_tags;
+			static priv::OpenedTags s_ot;
+			return s_ot;
 		}
-
+		static priv::AllowedContentMap p_getAllowedContentMap()
+		{
+			static priv::AllowedContentMap s_allowed_tags;
+			return s_allowed_tags;
+		}
 		static priv::GlobAttribMap_t& globalAttrib()
 		{
 			static priv::GlobAttribMap_t s_global_attrib;
@@ -1095,42 +1944,60 @@ class Httag
 };
 
 //-----------------------------------------------------------------------------------
-/// helper function, prints the tags and attributes currently supported
+/// Helper function, prints the tags and attributes currently supported
 inline
 void
 Httag::printSupported( std::ostream& f )
 {
-	f << "* Supported tags: " << HT_DUMMY;
+	f << "* Supported tags: " << HT_DUMMY << '\n';
 	for( size_t i=0; i<HT_DUMMY; i++ )
-		f <<  "\n - " << getString( static_cast<En_Httag>(i) );
+		f << getString( static_cast<En_Httag>(i) ) << '-';
 	f << '\n';
 
-	f << "* Supported attributes: " << AT_DUMMY;
+	f << "* Supported attributes: " << AT_DUMMY << '\n';
 	for( size_t i=0; i<AT_DUMMY; i++ )
-		f <<  "\n - " << getString( static_cast<En_Attrib>(i) );
+		f << getString( static_cast<En_Attrib>(i) ) << '-';
 	f << '\n';
-}
 
-//-----------------------------------------------------------------------------------
-inline
-void
-Httag::printOpenedTags( std::ostream& f )
-{
-	f << "Currently opened tags: ";
-	const auto& v= openedTags();
-	for( const auto t: v )
-	{
-		f << '<' << getString( t ) << '>';
-	}
-	f << '\n';
-}
 
+	auto ac = p_getAllowedContentMap();
+	ac.print( f );
+
+#if 0
+	auto acC = ac._map_content_C;
+	auto nb1 = std::count_if(
+		std::begin( acC ), std::end( acC ),
+		[]
+		( const priv::TagAllowedCat_t& p )
+		{
+			return static_cast<bool>( p.second.size() );
+		}
+	);
+    f << "* Nb of tags holding an allowed tag category=" << nb1 << "\n";
+//	for( const auto& elem: acC )
+//		std::cout << getString( elem.first ) << "\n";
+
+
+	auto acT = ac._map_content_T;
+	auto nb2 = std::count_if(
+		std::begin( acT ), std::end( acT ),
+		[]
+		( const priv::TagAllowedTag_t& p )
+		{
+			return static_cast<bool>( p.second.size() );
+		}
+	);
+
+    f << "* Nb of tags holding an allowed tag list=" << nb2 << "\n";
+#endif
+}
 //-----------------------------------------------------------------------------------
 /// constructor 1
 inline
 Httag::Httag( En_Httag tag )
 	: _tag_en( tag ), _file(0), _isFileType(false)
 {
+	assert( tag != HT_DUMMY );
 }
 
 //-----------------------------------------------------------------------------------
@@ -1170,7 +2037,6 @@ Httag::Httag(
 
 	if( attr != AT_DUMMY )
 		_attr_map[attr] = attribvalue;
-//		addAttrib( att, attribvalue );
 }
 //-----------------------------------------------------------------------------------
 /// generic constructor 3b
@@ -1183,7 +2049,6 @@ Httag::Httag(
 {
 	if( attr != AT_DUMMY )
 		_attr_map[attr] = attribvalue;
-//		addAttrib( att, attribvalue );
 }
 //-----------------------------------------------------------------------------------
 #if 1
@@ -1196,7 +2061,9 @@ Httag::Httag(
 	std::ostream& f,           ///< the file into where it will be written
 	En_Httag       tag          ///< the html tag id
 	) : _tag_en( tag ), _file(&f), _isFileType(true)
-{}
+{
+	assert( tag != HT_DUMMY );
+}
 #endif
 //-----------------------------------------------------------------------------------
 /// generic constructor B2 (for file output)
@@ -1207,6 +2074,7 @@ Httag::Httag(
 	T             content
 	) : _tag_en( tag ), _file(&f), _isFileType(true)
 {
+	assert( tag != HT_DUMMY );
 	setContent( content );
 }
 
@@ -1220,6 +2088,7 @@ Httag::Httag(
 	T              attribvalue   ///< (opt.) the attribute value
 	) : _tag_en( tag ), _file(&f), _isFileType(true)
 {
+	assert( tag != HT_DUMMY );
 	if( att != AT_DUMMY )
 		addAttrib( att, attribvalue );
 }
@@ -1234,6 +2103,7 @@ Httag::Httag(
 	T2             attribvalue   ///< (opt.) the attribute value
 	) : _tag_en( tag ), _file(&f), _isFileType(true)
 {
+	assert( tag != HT_DUMMY );
 	if( att != AT_DUMMY )
 		addAttrib( att, attribvalue );
 	setContent( content );
@@ -1303,7 +2173,9 @@ void Httag::printWithContent( T c )
 		*_file << _content;
 	*_file << c;
 //	_printAttribs = false;
-	closeTag();
+
+	if( !priv::isVoidElement( _tag_en ) )
+		closeTag();
 }
 
 //-----------------------------------------------------------------------------------
@@ -1311,10 +2183,20 @@ void Httag::printWithContent( T c )
 inline
 Httag::~Httag()
 {
-	if( _tagIsOpen && _isFileType )
+	if( _tagIsOpen && _isFileType && !priv::isVoidElement( _tag_en ) )
 		closeTag();
 }
-
+//-----------------------------------------------------------------------------------
+inline
+size_t
+Httag::printOpenedTags( std::ostream& f, const char* msg )
+{
+	f << "httag: opened tags (#=" << p_getOpenedTags().size() << "):";
+	if( msg )
+		f << "msg='" << msg << "' ";
+	f << p_getOpenedTags().str() << '\n';
+	return p_getOpenedTags().size();
+}
 //-----------------------------------------------------------------------------------
 void
 Httag::p_checkValidFileType( std::string action )
@@ -1343,6 +2225,18 @@ Httag::openTag()
 	}
 	else
 	{
+		if( p_getOpenedTags().size() )
+		{
+			if( p_getOpenedTags().current() == _tag_en )
+				HTTAG_ERROR( std::string("attempt to open tag <") + getString(_tag_en) + "> but currently opened tag is identical" );
+
+			if( !tagIsAllowed( _tag_en, p_getOpenedTags(), p_getAllowedContentMap() ) )
+			{
+//				std::cerr << "TAG NOT ALLOWED !!!\n";
+
+				HTTAG_ERROR( std::string("attempt to open tag <") + getString(_tag_en) + "> but is not allowed in current context:" + p_getOpenedTags().str() );
+			}
+		}
 		switch( _tag_en )
 		{
 			case HT_COMMENT:  *_file << "<!-- "; break;
@@ -1350,13 +2244,15 @@ Httag::openTag()
 			default:
 				*_file << '<' << getString(_tag_en) << p_getAttribs() << '>';
 		}
-	}
+
 	_tagIsOpen = true;
 //	_printAttribs = false;
-	openedTags().push_back( _tag_en );
+
+	p_getOpenedTags().pushTag( _tag_en );
 
 	if( priv::hasDefaultLF_Open( _tag_en ) )
 		*_file << '\n';
+	}
 }
 //-----------------------------------------------------------------------------------
 /// Close the tag (this function needs to be called ONLY for "file" object types
@@ -1367,21 +2263,17 @@ Httag::closeTag( bool linefeed )
 	p_checkValidFileType( "close" );
 
 	if( priv::isVoidElement( _tag_en ) )
-		HTTAG_ERROR( std::string( "asked to close tag '" ) + getString(_tag_en) + "' but is void-element" );
+		HTTAG_ERROR( std::string( "asked to close tag <" ) + getString(_tag_en) + "> but is void-element" );
 
 	if( !_tagIsOpen )
-		HTTAG_ERROR( std::string( "tag '" ) + getString(_tag_en) + "': asked to close but was already closed." );
+		HTTAG_ERROR( std::string( "tag <" ) + getString(_tag_en) + ">: asked to close but was already closed." );
 
 	if( _tag_en == HT_COMMENT )
 		*_file << "-->\n";
 	else
 		*_file << "</" << getString(_tag_en) << '>';
 
-	assert( openedTags().size() > 0 );
-	if( openedTags().back() != _tag_en )
-		HTTAG_ERROR( std::string( "asking to close tag '") + getString(_tag_en) + "' but tag '" +  getString(openedTags().back()) + "' still open" );
-
-	openedTags().pop_back();
+	p_getOpenedTags().pullTag( _tag_en );
 
 	_tagIsOpen = false;
 	doLineFeed( linefeed );
@@ -1404,6 +2296,9 @@ inline
 void
 Httag::setGlobalAttrib( En_Httag tag, En_Attrib att, const std::string& value )
 {
+	assert( tag != HT_DUMMY );
+	assert( att != AT_DUMMY );
+
 	globalAttrib()[tag] = std::make_pair( att, value );
 }
 
@@ -1413,6 +2308,8 @@ inline
 std::string
 Httag::getGlobalAttrib( En_Httag tag )
 {
+	assert( tag != HT_DUMMY );
+
 	if( globalAttrib().count(tag) )
 		return std::string( getString( globalAttrib()[tag].first )) + '=' + globalAttrib()[tag].second;
 	return std::string();
@@ -1459,8 +2356,10 @@ inline
 void
 Httag::p_addAttrib( En_Attrib attr, std::string value )
 {
+	assert( attr != AT_DUMMY );
+
 	if( _tagIsOpen ) // because if it is already opened, then we can't add an attribute !
-		HTTAG_ERROR( std::string("unable to add attribute '") + getString(attr) + "' with value '" << value << "', tag is already opened." );
+		HTTAG_ERROR( std::string("unable to add attribute '") + getString(attr) + "' with value '" + value + "', tag is already opened." );
 
 	if( value.empty() ) // empty string => nothing to add
 	{
@@ -1502,6 +2401,8 @@ inline
 void
 Httag::removeAttrib( En_Attrib attr )
 {
+	assert( attr != AT_DUMMY );
+
 //	if( _tagIsOpen ); // because if it is open, then we can't remove it!
 //		HTTAG_ERROR( "asking to remove attribute on open tag" );
 
@@ -1612,3 +2513,4 @@ operator << ( std::ostream& s, const Httag& h )
 
 #endif // HG_CPPHTMLTAGS_HPP
 
+//--- END: TEMPLATE FILE cpphtmltags_3.hh

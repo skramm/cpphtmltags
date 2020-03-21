@@ -19,8 +19,8 @@ The idea is:
 - to avoid some basic errors that can happen if you directly generate the html code with hardcoded strings,
 - to avoid generating invalid HTML 5 code.
 
-For example, if you generate tags by some direct string output,
-some errors may go unnoticed. Say you forget the 'p' in "script":<br>
+For example, if you generate tags by some direct string output, some errors may go unnoticed.
+Say you forget the 'p' in "<script>":<br>
 `file << "<scrit>"`<br>
 Well then the error won't get noticed until you carefully check the generated code.
 
@@ -35,7 +35,7 @@ For example, something like this:<br>
 `<h2>title<p></h2>paragraph</p>`<br>
 may not happen.
 
-This library also enforces the html5 standard.
+This library also enforces the Html5 standard.
 For example, some attributes are only allowed on certain tags.
 This is enforced here, and if you attempt to use an illegal attribute, an error will be thrown at runtime.
 
@@ -74,7 +74,7 @@ int main()
 ```
 will produce:
 ```
-<p class="abc">paragraph</p>`
+<p class="abc">paragraph</p>
 ```
 
 For more details, see [manual](manual.md).
@@ -85,7 +85,7 @@ For more details, see [manual](manual.md).
 - at present, the different tag categories are not considered, this is to be considered in future releases.
 
 ## Build and install
-- build: no build, header-only
+- build: no build, header-only (for details on how the code is generated [see here](dev_info.md)).
 - install: just fetch the single file [`cpphtmltags.hpp`](cpphtmltags.hpp), put it somewhere (`/usr/include` should be fine) and include it in your code.
 
 ## Related software
