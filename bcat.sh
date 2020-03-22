@@ -67,7 +67,7 @@ echo -e "\t}\n};" >>$file_out2
 
 
 
-echo -e "const char*\ngetString( En_TagCat a )"> $file_out3
+echo -e "std::string\ngetString( En_TagCat a )"> $file_out3
 
 echo -e "{\n\tconst char* n=0;">> $file_out3
 echo -e "\tswitch( a )">> $file_out3

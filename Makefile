@@ -2,7 +2,7 @@
 
 
 SRC_FILE=cpphtmltags.hpp
-TEMPLATE_FILES := $(wildcard *.hh)
+TEMPLATE_FILES := $(wildcard src/*.hh)
 REF_FILES      := $(wildcard ref/*.ref)
 SRC_DEMO_FILES := $(wildcard demo/*.cpp)
 EXE_DEMO_FILES := $(patsubst demo/%.cpp, build/%, $(SRC_DEMO_FILES))
@@ -33,7 +33,7 @@ build/%:demo/%.cpp $(SRC_FILE)
 
 
 # builds doxygen documentation
-doc:
+doc:$(SRC_FILE)
 	doxygen misc/Doxyfile
 	xdg-open build/html/index.html
 
@@ -44,6 +44,6 @@ show:
 	@echo $(TEST_FILE)
 
 diff:
-	git diff | colordiff | aha>/tmp/diff.html
+	git diff ':!$(SRC_FILE)' | colordiff | aha>/tmp/diff.html
 	xdg-open /tmp/diff.html
 	

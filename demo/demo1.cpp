@@ -9,6 +9,7 @@ using namespace httag;
 
 int main()
 {
+	Httag::setLineFeedMode( LF_Always );
 	Httag t1( HT_BR );
 	cout << t1;
 
@@ -28,12 +29,11 @@ int main()
 
 	t2.addAttrib( AT_CLASS, "bbb" );
 	t2.setContent( "t2: Hello World" );
-	cout << t2 << '\n';
+	cout << t2;
 	Httag::setGlobalAttrib( HT_P, AT_STYLE, "globalstyle" );
 
 	Httag t3( HT_P, "t3" );
-	cout << t2 << '\n';
-	cout << t3 << '\n';
+	cout << t2 << t3;
 
 	cout << "FILE-TYPE TAGS:\n";
 	{
@@ -52,19 +52,9 @@ int main()
 	{
 		Httag f1( cout, HT_P, AT_CLASS, "cde" );
 		f1.openTag();
-		cout << "para";
+		cout << "para\n";
 
 		Httag::printOpenedTags( cout );
-
-		Httag f2( cout, HT_LI );
-		f2.openTag();
-		cout << "li-content";
-
-		Httag::printOpenedTags( cout );
-
-		f2.closeTag();
-		f1.closeTag();
-
 	}
 
 	Httag::printOpenedTags( cout, "before TEST" );
@@ -91,6 +81,4 @@ cout << "\nTEST\n";
 			Httag::printOpenedTags( cout, "D" );
 			cout << oss.str() << "\n";
 		}
-
-
 }

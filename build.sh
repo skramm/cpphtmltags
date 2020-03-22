@@ -18,7 +18,7 @@ function generate()
 	print_header $file_s
 	print_header $file_e
 
-	echo -e "const char*\ngetString( $name a )">> $file_s
+	echo -e "std::string\ngetString( $name a )">> $file_s
 	echo -e "enum $name\n{">> $file_e
 
 	echo -e "{\n\tconst char* n=0;">> $file_s

@@ -115,6 +115,7 @@ hasDefaultLF_Close( En_Httag tag )
 		case HT_H2:
 		case HT_H3:
 		case HT_H4:
+		case HT_COMMENT:
 			return true;
 		default: break;
 	}
@@ -248,11 +249,11 @@ Main class, see homepage for details
 class Httag
 {
 	template<typename T>
-	friend Httag&         operator << ( Httag&         tag,    const T& );
+	friend Httag&        operator << ( Httag&        tag,    const T& );
 	friend std::ostream& operator << ( std::ostream& stream, const Httag& );
 
 	public:
-/// \name Constructors & destructor
+/// \name Constructors & destructors
 ///@{
 		Httag( std::ostream& f, En_Httag );
 
@@ -320,7 +321,7 @@ class Httag
 		static size_t printOpenedTags( std::ostream&, const char* msg=0 );
 
 	private:
-		void doLineFeed( bool linefeed=false ) const;
+		bool p_doLineFeed( bool linefeed=false ) const;
 		void p_addAttrib( En_Attrib, std::string );
 		void p_checkValidFileType( std::string action );
 		std::string p_getAttribs() const;
@@ -342,8 +343,8 @@ class Httag
 		}
 		static En_LineFeedMode& lf_mode()
 		{
-			static En_LineFeedMode _lf_mode = LF_Default;
-			return _lf_mode;
+			static En_LineFeedMode s_lfMode = LF_Default;
+			return s_lfMode;
 		}
 	private:
 		En_Httag        _tag_en;
@@ -513,7 +514,7 @@ Httag::Httag(
 template<typename T1, typename T2>
 Httag::Httag(
 	std::ostream&  f,            ///< the file into where it will be written
-	En_Httag        tag,          ///< the html tag id
+	En_Httag       tag,          ///< the html tag id
 	T1             content,      ///< tag content
 	En_Attrib      att,          ///< (opt.) the tag's attribute id
 	T2             attribvalue   ///< (opt.) the attribute value
@@ -637,25 +638,26 @@ Httag::openTag()
 	p_checkValidFileType( "open" );
 	if( _tagIsOpen )
 	{
-		HTTAG_WARNING << "tag '" << getString(_tag_en) << "': asked to open but was already open.\n";
-	}
+		HTTAG_WARNING( std::string( "tag '" ) + getString(_tag_en) + std::string( "': asked to open but was already open." ) );
+	}	
 	else
 	{
 		if( p_getOpenedTags().size() )
 		{
 			if( p_getOpenedTags().current() == _tag_en )
+			{
 				HTTAG_ERROR( std::string("attempt to open tag <") + getString(_tag_en) + "> but currently opened tag is identical" );
-
+//				HTTAG_WARNING( std::string("attempt to open tag <") + getString(_tag_en) + "> but currently opened tag is identical" );
+			}
 			if( !tagIsAllowed( _tag_en, p_getOpenedTags(), p_getAllowedContentMap() ) )
 			{
-//				std::cerr << "TAG NOT ALLOWED !!!\n";
-
 				HTTAG_ERROR( std::string("attempt to open tag <") + getString(_tag_en) + "> but is not allowed in current context:" + p_getOpenedTags().str() );
+//				HTTAG_WARNING( std::string("attempt to open tag <") + getString(_tag_en) + "> but is not allowed in current context:" + p_getOpenedTags().str() );
 			}
 		}
 		switch( _tag_en )
 		{
-			case HT_COMMENT:  *_file << "<!-- "; break;
+			case HT_COMMENT: *_file << "<!-- "; break;
 			case HT_DOCTYPE: *_file << "<!DOCTYPE html>\n"; break;
 			default:
 				*_file << '<' << getString(_tag_en) << p_getAttribs() << '>';
@@ -685,14 +687,16 @@ Httag::closeTag( bool linefeed )
 		HTTAG_ERROR( std::string( "tag <" ) + getString(_tag_en) + ">: asked to close but was already closed." );
 
 	if( _tag_en == HT_COMMENT )
-		*_file << "-->\n";
+		*_file << "-->";
 	else
 		*_file << "</" << getString(_tag_en) << '>';
 
 	p_getOpenedTags().pullTag( _tag_en );
 
 	_tagIsOpen = false;
-	doLineFeed( linefeed );
+	if( p_doLineFeed( linefeed ) )
+		*_file << '\n';
+
 }
 //-----------------------------------------------------------------------------------
 /// Insert some content into the tag, that will get printed later
@@ -779,7 +783,7 @@ Httag::p_addAttrib( En_Attrib attr, std::string value )
 
 	if( value.empty() ) // empty string => nothing to add
 	{
-		HTTAG_WARNING << "warning: asking to add tag attribute '" << getString(attr) << "' but string is empty\n";
+		HTTAG_WARNING( std::string( "warning: asking to add tag attribute '" ) + getString(attr) + std::string( "' but string is empty." ) );
 		return;
 	}
 #ifndef HTTAG_NO_CHECK
@@ -790,12 +794,12 @@ Httag::p_addAttrib( En_Attrib attr, std::string value )
 // check for unneeded pairs attribute/value
 		if( attr == AT_COLSPAN && value == "1" )
 		{
-			HTTAG_WARNING << "asking to add unnecessary attribute/value: '" << getString(attr) << "'=" << value << '\n';
+			HTTAG_WARNING( std::string( "asking to add unnecessary attribute/value: '" ) + getString(attr) + std::string( "'=" ) + value );
 			return;
 		}
 		if( attr == AT_ROWSPAN && value == "1" )
 		{
-			HTTAG_WARNING << "asking to add unnecessary attribute/value: '" << getString(attr) << "'=" << value << '\n';
+			HTTAG_WARNING( std::string( "asking to add unnecessary attribute/value: '" ) + getString(attr) + std::string( "'=" ) + value );
 			return;
 		}
 
@@ -811,7 +815,9 @@ Httag::p_addAttrib( En_Attrib attr, std::string value )
 //-----------------------------------------------------------------------------------
 /// Remove attribute
 /**
-\todo instead of storing an empty string, remove the element (see map ref)
+\todo instead of storing an empty string, remove the element (see map ref).<br>
+Comment on this (20200322): NO: erasing in a map requires to first search for that element, then remove it.
+It is probably more efficient to just store an empty string (as we do at present)
 */
 inline
 void
@@ -819,15 +825,19 @@ Httag::removeAttrib( En_Attrib attr )
 {
 	assert( attr != AT_DUMMY );
 
+/// \todo (20200322): why are these 2 lines commented ? They make sense...
 //	if( _tagIsOpen ); // because if it is open, then we can't remove it!
 //		HTTAG_ERROR( "asking to remove attribute on open tag" );
 
 	if( _attr_map.find(attr) == _attr_map.end() )   // check if element is already present or not
 	{
-		HTTAG_WARNING << "asked to remove attribute "
-			<< getString( attr )
-			<< " to tag " << getString( _tag_en )
-			<< " but attribute no present.\n";
+		HTTAG_WARNING(
+			std::string( "asked to remove attribute " )
+			+ getString( attr )
+			+ std::string( " to tag ") 
+			+ getString( _tag_en )
+			+ std::string( " but attribute not present." )
+		);
 	}
 	else
 		_attr_map.at(attr) = std::string();
@@ -881,8 +891,8 @@ Httag::p_getAttribs() const
 //-----------------------------------------------------------------------------------
 /// Add a linefeed, either if requested (argument), either if default behaviour
 inline
-void
-Httag::doLineFeed( bool linefeed ) const
+bool
+Httag::p_doLineFeed( bool linefeed ) const
 {
 	bool doIt = false;
 	switch( lf_mode() )
@@ -892,9 +902,9 @@ Httag::doLineFeed( bool linefeed ) const
 		case LF_Default: doIt = priv::hasDefaultLF_Close( _tag_en ) | linefeed; break;
 		default: assert(0);
 	}
-
-	if( doIt )
-		*_file << '\n';
+	return doIt;
+//	if( doIt )
+//		*_file << '\n';
 }
 //-----------------------------------------------------------------------------------
 /// Streams into \c s the opening tag (with attributes), the content, and the closing tag
@@ -919,8 +929,9 @@ operator << ( std::ostream& s, const Httag& h )
 			s << "</" << getString( h._tag_en ) << '>';
 	}
 
-    if( h._isFileType )
-		h.doLineFeed();
+//    if( h._isFileType )
+		if( h.p_doLineFeed() )
+			s << '\n';
 	return s;
 }
 //-----------------------------------------------------------------------------------

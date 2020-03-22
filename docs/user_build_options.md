@@ -16,3 +16,4 @@ To avoid naming collisions, all of these (and the internal ones) are prefixed wi
 
 - `HTTAG_SILENT_ERRORS`:
 
+- `HTTAG_NO_CHECK`:

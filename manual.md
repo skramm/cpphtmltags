@@ -114,18 +114,23 @@ td.openTag();
 td.addAttrib( AT_CLASS, "abc" );  // this will throw an error
 ```
 
+
 ####  Tag global attributes
 
 It is possible to add to a given tag a "global attribute", that is each time you will output that tag, this attribute-value pair will be automatically added.
 For example, at one point you want to add to all the tags `li` the attribute `class="my_class"`.
 This can be done with
-`Httag::addGlobalAttrib( HT_LI, AT_CLASS, "my_class" );`
+`Httag::setGlobalAttrib( HT_LI, AT_CLASS, "my_class" );`
 
 To remove, you can:
 - remove all global attributes:<br>
 `Httag::clearGlobalAttribs()`
 - remove the global attribute on a given tag:<br>
 `Httag::clearGlobalAttrib( <tag id> )`
+For example: 
+`Httag::clearGlobalAttrib( HT_LI )`
+
+These are static function, thus the `Httag::` prefix.
 
 #### Attributes uniqueness enforcement
 
@@ -162,6 +167,9 @@ For example:
 ```C++
 Httag::setLineFeedMode( LF_Always );
 ```
+However, this feature is only available for "file type" tags
+(the one you create by providing a stream, i.e.: `Httag p1( file, HT_P)`).
+For the others, it is impossible 
 
 
 ### A.5 - Error handling

@@ -83,3 +83,10 @@ We consider here these are the same.
 For a bit of context, see https://stackoverflow.com/a/25314415/193789
 
 See list here: https://developer.mozilla.org/en-US/docs/Glossary/Empty_element
+
+
+## Coding conventions
+
+- TABS for indentation, SPC for... spacing
+- private functions of public class are prefixed with `p_`
+- static variables are prefixed with `s_`

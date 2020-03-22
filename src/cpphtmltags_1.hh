@@ -48,37 +48,51 @@ Refs:
 #include <iostream>
 #include <algorithm>
 
-#define HTTAG_PRINT_INFO( msg ) \
-		std::cerr << "\nhttag: fatal error: " \
-			<< "\n - file: " << __FILE__ \
-			<< "\n - line: " << __LINE__ \
-			<< "\n - message: " << msg \
-			<< "\n";
-
+#define HTTAG_PRINT_ERROR_LOCATION( msg, f, l )\
+		std::cerr << "\nhttag: error: " \
+			<< "\n - file: " << f \
+			<< "\n - line: " << l \
+			<< "\n - message: " << (msg) \
+			<< "\n"
 
 #ifdef HTTAG_SILENT_MODE
 	#define HTTAG_SILENT_WARNINGS
 	#define HTTAG_SILENT_ERRORS
 #endif
 
-#ifdef HTTAG_SILENT_WARNINGS
-	#define HTTAG_WARNING if(0) std::cerr
-#else
-	#define HTTAG_WARNING if(1) std::cerr << "\nhttag: Warning: "
-#endif
+//#ifdef HTTAG_SILENT_WARNINGS
+//	#define HTTAG_WARNING if(0) std::cerr
+//#else
+	#define HTTAG_WARNING(msg) \
+	{ \
+		HTTAG_PRINT_ERROR_LOCATION( msg, __FILE__, __LINE__ ); \
+		std::cerr << "\nhttag: Warning: " << (msg) << '\n'; \
+	}
 
-#ifdef HTTAG_SILENT_ERRORS
+inline void printErrorLocation( std::string file, int line, std::string msg )
+{
+		std::cerr << "\nhttag: error : printErrorLocation()" \
+			<< "\n - file: " << file \
+			<< "\n - line: " << line \
+			<< "\n - message: " << msg \
+			<< "\n";
+}
+//#endif
+
+//#ifdef HTTAG_SILENT_ERRORS
+//	#define HTTAG_ERROR( msg ) \
+//		{ \
+//			throw std::runtime_error( std::string("httag: fatal error: ") + msg ); \
+//		}
+//#else
 	#define HTTAG_ERROR( msg ) \
 		{ \
-			throw std::runtime_error( std::string("httag: fatal error: ") + msg ); \
+			printErrorLocation( __FILE__, __LINE__, msg ); \
 		}
-#else
-	#define HTTAG_ERROR( msg ) \
-		{ \
-			HTTAG_PRINT_INFO( msg ); \
-			throw std::runtime_error( std::string("httag: fatal error: ") + msg ); \
-		}
-#endif
+//#endif
+
+//			HTTAG_PRINT_ERROR_LOCATION( msg, __FILE__, __LINE__ ); \
+//			throw std::runtime_error( std::string("httag: fatal error: ") + msg ); \
 
 /// Open tag \c t
 #define HTTAG_OPENTAG( t ) \
@@ -88,12 +102,12 @@ Refs:
 		} \
 		catch( const std::runtime_error& err ) \
 		{ \
-			std:: cerr << "\nError: cannot open tag <" << getString(t.getTag()) \
-				<< ">\n -file: " << __FILE__ \
-				<< "\n -line: " << __LINE__ \
-				<< "\n -message: " << err.what() << '\n'; \
+			std::cerr << "\nError: cannot open tag <" << getString(t.getTag()) << '\n'; \
+			printErrorLocation( __FILE__, __LINE__, err.what() ); \
 		} \
 	}
+
+//			HTTAG_PRINT_ERROR_LOCATION( err.what(), __FILE__, __LINE__ ); \
 
 /// Close tag \c t
 #define HTTAG_CLOSETAG( t ) \
@@ -103,10 +117,8 @@ Refs:
 		} \
 		catch( const std::runtime_error& err ) \
 		{ \
-			std:: cerr << "\nError: cannot close tag <" << getString(t.getTag()) \
-				<< ">\n -file: " << __FILE__ \
-				<< "\n -line: " << __LINE__ \
-				<< "\n -message: " << err.what() << '\n'; \
+			std::cerr << "\nError: cannot close tag <" << getString(t.getTag()) << '\n'; \
+			HTTAG_PRINT_ERROR_LOCATION( err.what(), __FILE__, __LINE__ ); \
 		} \
 	}
 
