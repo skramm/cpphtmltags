@@ -1,8 +1,11 @@
 #!/bin/bash
 
-# This file is part of cpphtmltags
-# it generates some C++ code that will get embedded in the library
-# it takes as input some reference html data, as raw text files in "ref" folder
+# file: build.sh
+# author: S. Kramm
+
+## This file is part of cpphtmltags
+## it generates some C++ code that will get embedded in the library
+## it takes as input some reference html data, as raw text files in "ref" folder
 
 function print_header()
 {

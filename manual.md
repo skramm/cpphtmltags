@@ -9,8 +9,8 @@ This class models an HTML tag (aka element), that can be streamed in file.
 
 Two types of tags can be created, but they are both handled trough the same class, for conveniency.
 They only differ in the way they are created, and how they generate some output.
-The first type is independent of any output device, it is up to the user to stream them in some output stream.
-With the second type, you assign an output stream at creation time.
+- The first type is independent of any output device, it is up to the user to stream them in some output stream.
+- With the second type, you assign an output stream at creation time.
 
 The library and the contained class can be used in two ways, either through classical object paradigm, either through a set of macros.
 These basically wrap the code, it ends up as the same thing.

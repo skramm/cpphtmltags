@@ -83,6 +83,11 @@ For more details, see [manual](manual.md).
 - covers 123 html tags ("elements", as they say at w3c) and 134 attributes
 - Comments (`<!-- ... -->`) and doctype are handled as special tags, see demo/demo0.cpp
 - at present, the different tag categories are not considered, this is to be considered in future releases.
+- GENERAL WARNING: while work was in progress, I discovered that the Html5 spec (see refs below) is a serious beast, in regard of its complexity.
+For example, things like *this tag belongs to this category, but only in certain circumstances, which are defined in prose*.
+These are numerous, making it hard to fetch a global picture.
+This code is an attempt to tackle this complexity but (as usual) no warranty is given!
+
 
 ## Build and install
 - build: no build, header-only (for details on how the code is generated [see here](dev_info.md)).

@@ -117,7 +117,7 @@ namespace httag {
 
 //--- END: TEMPLATE FILE cpphtmltags_1.hh
 // -------- GENERATED CODE ! --------
-// timestamp: 20200321-0953
+// timestamp: 20200322-1249
 
 enum En_Httag
 {
@@ -251,7 +251,7 @@ enum En_Httag
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200321-0953
+// timestamp: 20200322-1249
 
 enum En_Attrib
 {
@@ -394,7 +394,7 @@ enum En_Attrib
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200321-0953
+// timestamp: 20200322-1249
 
 const char*
 getString( En_Httag a )
@@ -534,7 +534,7 @@ getString( En_Httag a )
 }
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200321-0953
+// timestamp: 20200322-1249
 
 const char*
 getString( En_Attrib a )
@@ -784,7 +784,7 @@ struct AllowedContent
 
 //--- END: TEMPLATE FILE cpphtmltags_2.hh
 // -------- GENERATED CODE ! --------
-// timestamp: 20200321-0953
+// timestamp: 20200322-1249
 
 /// Private class, holds map of allowed attributes
 struct MapAttribs
@@ -937,7 +937,7 @@ struct TagCat
 	}
 };
 // -------- GENERATED CODE ! --------
-// timestamp: 20200321-0953
+// timestamp: 20200322-1249
 
 /// Returns true if the tag is a void-element
 inline
@@ -983,6 +983,9 @@ struct AllowedContentMap
 	}
 
 	void print( std::ostream& ) const;
+
+// Constructor
+
 
 	AllowedContentMap()
 	{
@@ -1068,6 +1071,8 @@ struct AllowedContentMap
 		}
 		{
 			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			ac.addForbiddenCat(C_INTERACTIVE);
 			_map_AllowedContent[HT_BUTTON] = ac;
 		}
 		{
@@ -1109,10 +1114,6 @@ struct AllowedContentMap
 		}
 		{
 			AllowedContent ac;
-			_map_AllowedContent[HT_DATA] = ac;
-		}
-		{
-			AllowedContent ac;
 			ac.addCat(C_PHRASING);
 			_map_AllowedContent[HT_DATA] = ac;
 		}
@@ -1124,8 +1125,6 @@ struct AllowedContentMap
 			AllowedContent ac;
 			_map_AllowedContent[HT_DD] = ac;
 		}
-		{
-			AllowedContent ac;
 			_map_AllowedContent[HT_DEL] = ac;
 		}
 		{
@@ -1179,22 +1178,26 @@ struct AllowedContentMap
 		}
 		{
 			AllowedContent ac;
+			ac.addCat(C_FLOW);
+			ac.addTag(HT_LEGEND);
 			_map_AllowedContent[HT_FIELDSET] = ac;
 		}
 		{
 			AllowedContent ac;
+			ac.addCat(C_FLOW);
 			_map_AllowedContent[HT_FIGCAPTION] = ac;
 		}
 		{
 			AllowedContent ac;
+			ac.addTag(HT_FIGCAPTION);
+			ac.addCat(C_FLOW);
 			_map_AllowedContent[HT_FIGURE] = ac;
 		}
 		{
 			AllowedContent ac;
-			_map_AllowedContent[HT_FONT] = ac;
-		}
-		{
-			AllowedContent ac;
+			ac.addCat(C_FLOW);
+			ac.addForbiddenTag(HT_FOOTER);
+			ac.addForbiddenTag(HT_HEADER);
 			_map_AllowedContent[HT_FOOTER] = ac;
 		}
 		{
@@ -1202,14 +1205,6 @@ struct AllowedContentMap
 			ac.addCat(C_FLOW);
 			ac.addForbiddenTag(HT_FORM);
 			_map_AllowedContent[HT_FORM] = ac;
-		}
-		{
-			AllowedContent ac;
-			_map_AllowedContent[HT_FRAME] = ac;
-		}
-		{
-			AllowedContent ac;
-			_map_AllowedContent[HT_FRAMESET] = ac;
 		}
 		{
 			AllowedContent ac;
@@ -1252,6 +1247,8 @@ struct AllowedContentMap
 		{
 			AllowedContent ac;
 			ac.addCat(C_FLOW);
+			ac.addForbiddenTag(HT_FOOTER);
+			ac.addForbiddenTag(HT_HEADER);
 			_map_AllowedContent[HT_HEADER] = ac;
 		}
 		{
@@ -1269,8 +1266,6 @@ struct AllowedContentMap
 			ac.addCat(C_PHRASING);
 			_map_AllowedContent[HT_I] = ac;
 		}
-		{
-			AllowedContent ac;
 			_map_AllowedContent[HT_IFRAME] = ac;
 		}
 		{
@@ -1284,10 +1279,6 @@ struct AllowedContentMap
 		{
 			AllowedContent ac;
 			_map_AllowedContent[HT_INS] = ac;
-		}
-		{
-			AllowedContent ac;
-			_map_AllowedContent[HT_KBD] = ac;
 		}
 		{
 			AllowedContent ac;
@@ -1345,10 +1336,6 @@ struct AllowedContentMap
 			AllowedContent ac;
 			ac.addCat(C_FLOW);
 			_map_AllowedContent[HT_NAV] = ac;
-		}
-		{
-			AllowedContent ac;
-			_map_AllowedContent[HT_NOFRAMES] = ac;
 		}
 		{
 			AllowedContent ac;
@@ -1560,10 +1547,6 @@ struct AllowedContentMap
 		}
 		{
 			AllowedContent ac;
-			_map_AllowedContent[HT_TT] = ac;
-		}
-		{
-			AllowedContent ac;
 			ac.addCat(C_PHRASING);
 			_map_AllowedContent[HT_U] = ac;
 		}
@@ -1579,6 +1562,10 @@ struct AllowedContentMap
 		}
 		{
 			AllowedContent ac;
+			ac.addForbiddenTag(HT_AUDIO);
+			ac.addForbiddenTag(HT_VIDEO);
+			ac.addTag(HT_TRACK);
+			ac.addTag(HT_SOURCE);
 			_map_AllowedContent[HT_VIDEO] = ac;
 		}
 		{
@@ -1795,11 +1782,12 @@ AllowedContentMap::print( std::ostream& f ) const
 {
 	f << "* List of allowed content in a tag:\n";
 
+	size_t c = 0;
 	size_t nbEmpty = 0;
 	for( const auto& elem: _map_AllowedContent )
 	{
 		const auto& s = elem.second;
-		f << "tag <" << getString(elem.first) << '>';
+		f << ++c << ": tag <" << getString(elem.first) << '>';
 		if( s.isEmpty() )
 		{
 			nbEmpty++;

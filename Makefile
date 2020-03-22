@@ -10,13 +10,13 @@ TEST_FILE      :=tests/test_A.cpp
 
 CFLAGS := -std=c++11
 
-test: a.out
+test: build/a.out
 	@echo "-Start test"
 	@./a.out
 #	@./a.out -s
 
 # for unit testing
-a.out: $(SRC_FILE) $(TEST_FILE) Makefile
+build/a.out: $(SRC_FILE) $(TEST_FILE) Makefile
 	@echo "-Start compiling $(TEST_FILE)"
 	@$(CXX) $(CFLAGS) $(TEST_FILE)
 
@@ -42,3 +42,8 @@ show:
 	@echo $(SRC_DEMO_FILES)
 	@echo $(EXE_DEMO_FILES)
 	@echo $(TEST_FILE)
+
+diff:
+	git diff | colordiff | aha>/tmp/diff.html
+	xdg-open /tmp/diff.html
+	

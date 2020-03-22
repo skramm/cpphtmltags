@@ -1,16 +1,26 @@
 #!/bin/bash
 
+# file: bcat.sh
+# author: S. Kramm
+
 # generation of C++ code
 # builds map of categories of tags
+# this script takes as input one file and generates three files
 
-set +x
-
+# Input 
 file_input=ref/element_cat.ref
+
+# output 1: holds the enum declaration httag::priv::En_TagCat
 file_out1=tmp/cat_enum.src
+
+# output 2: holds the declaration of class httag::priv::TagCat that holds a map of categories of tags
 file_out2=tmp/element_cat.src
+
+# output 3: holds the getString( En_TagCat ) function
 file_out3=tmp/cat_switch.src
 
 # START
+set +x
 
 echo -e "namespace priv {\n"> $file_out1
 

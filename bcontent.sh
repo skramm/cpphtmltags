@@ -1,11 +1,19 @@
 #!/bin/bash
 
+# file: bcontent.sh
+# author: S. Kramm
+
 # generation of C++ code
 # builds map of categories of tags
+# build class httag::priv::AllowedContentMap
 
 
 file_input=ref/tag_content.ref
 file_out=tmp/tag_content.src
+
+# START
+set +x
+mkdir -p tmp
 
 echo "/// Holds for each tag its allowed content"> $file_out
 echo -e "struct AllowedContentMap\n{">> $file_out
