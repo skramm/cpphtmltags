@@ -1,5 +1,6 @@
 # makefile for cpphtmltags
 
+.PHONY = clean demo test doc show
 
 SRC_FILE=cpphtmltags.hpp
 TEMPLATE_FILES := $(wildcard src/*.hh)
@@ -8,7 +9,8 @@ SRC_DEMO_FILES := $(wildcard demo/*.cpp)
 EXE_DEMO_FILES := $(patsubst demo/%.cpp, build/%, $(SRC_DEMO_FILES))
 TEST_FILE      :=test_A.cpp
 
-CFLAGS := -std=c++11
+CFLAGS := -std=c++11 -g
+
 
 test: build/a.out
 	@echo "-Start test"
@@ -23,13 +25,16 @@ build/a.out: $(SRC_FILE) $(TEST_FILE) Makefile
 $(SRC_FILE): $(TEMPLATE_FILES) $(REF_FILES) build.sh
 	./build.sh
 
+# builds the sample programs
 demo: $(EXE_DEMO_FILES) Makefile
 	@echo done
 
 build/%:demo/%.cpp $(SRC_FILE)
 	$(CXX) -o $@ $(CFLAGS) $<
 
-# builds the sample programs
+
+clean:
+	-rm build/*
 
 
 # builds doxygen documentation

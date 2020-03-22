@@ -10,10 +10,10 @@ typedef std::map<En_Httag, PairAttribString_t> GlobAttribMap_t;
 /// holds for a given tag what content is allowed inside
 struct AllowedContent
 {
-	std::vector<En_Httag>  v_allowedTags;
-	std::vector<En_Httag>  v_forbiddenTags;
+	std::vector<En_Httag>  _v_allowedTags;
+	std::vector<En_Httag>  _v_forbiddenTags;
 	std::vector<En_TagCat> _v_allowedCats;
-	std::vector<En_TagCat> v_forbiddenCats;
+	std::vector<En_TagCat> _v_forbiddenCats;
 	bool _isVoid = false;
 	bool _isText = false;
 
@@ -30,15 +30,15 @@ struct AllowedContent
 	}
 	void addForbiddenTag( En_Httag en )
 	{
-		v_forbiddenTags.push_back( en );
+		_v_forbiddenTags.push_back( en );
 	}
 	void addForbiddenCat( En_TagCat en )
 	{
-		v_forbiddenCats.push_back( en );
+		_v_forbiddenCats.push_back( en );
 	}
 	void addTag( En_Httag en )
 	{
-		v_allowedTags.push_back( en );
+		_v_allowedTags.push_back( en );
 	}
 	void addCat( En_TagCat en )
 	{
@@ -50,13 +50,13 @@ struct AllowedContent
 			return false;
 		if( _isText == true )
 			return false;
-		if( v_allowedTags.size() )
+		if( _v_allowedTags.size() )
 			return false;
 		if( _v_allowedCats.size() )
 			return false;
-		if( v_forbiddenTags.size() )
+		if( _v_forbiddenTags.size() )
 			return false;
-		if( v_forbiddenCats.size() )
+		if( _v_forbiddenCats.size() )
 			return false;
 		return true;
 	}

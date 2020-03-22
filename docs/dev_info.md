@@ -8,19 +8,27 @@ Starting from release 1.0, the actual library file (`cpphtmltags.hpp`) is actual
 The main c++ code is in 3 source files: `cpphtmltags_1.hh`, `cpphtmltags_2.hh` and `cpphtmltags_3.hh`
 The final file is build according to this diagram:
 
+```
 |-------------------|
-| cpphtmltags_1.hh  |
-|-------------------|
-| generated content |
 |                   |
-|-------------------|
-| cpphtmltags_2.hh  |
+| cpphtmltags_1.hh  |
+|                   |
 |-------------------|
 |    generated      |
 |     content       |
 |-------------------|
-| cpphtmltags_3.hh  |
+|                   |
+| cpphtmltags_2.hh  |
+|                   |
 |-------------------|
+|    generated      |
+|     content       |
+|-------------------|
+|                   |
+| cpphtmltags_3.hh  |
+|                   |
+|-------------------|
+```
 
 All the html reference material is located in the files located in the `ref` subfolder:
 - `tags.ref` holds the list of tags

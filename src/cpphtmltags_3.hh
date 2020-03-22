@@ -143,7 +143,7 @@ class OpenedTags
 		{
 			assert( _v_ot.size() > 0 );
 			if( _v_ot.back() != tag )
-				HTTAG_ERROR( std::string( "asking to close tag '") + getString(tag) + "' but tag '" +  getString(_v_ot.back()) + "' still open" );
+				HTTAG_FATAL_ERROR( std::string( "asking to close tag '") + getString(tag) + "' but tag '" +  getString(_v_ot.back()) + "' still open" );
 			_v_ot.pop_back();
 		}
 //		void print( std::ostream& ) const;
@@ -169,11 +169,11 @@ tagIsAllowed( En_Httag tag, const OpenedTags& ot, const AllowedContentMap& acm )
 {
 	const auto& ac = acm.getC( ot.current() ); // allowed content of currently (latest) opened tag
 
-	for( auto e: ac.v_forbiddenTags )
+	for( auto e: ac._v_forbiddenTags )
 		if( e == tag )
 			return false;
 
-	for( auto cat: ac.v_forbiddenCats )
+	for( auto cat: ac._v_forbiddenCats )
 		if( tagBelongsToCat( tag, cat ) )
 			return false;
 
@@ -181,7 +181,7 @@ tagIsAllowed( En_Httag tag, const OpenedTags& ot, const AllowedContentMap& acm )
 		if( tagBelongsToCat( tag, cat ) )
 			return true;
 
-	for( auto e: ac.v_allowedTags )
+	for( auto e: ac._v_allowedTags )
 		if( e == tag )
 			return true;
 
@@ -221,9 +221,9 @@ AllowedContentMap::print( std::ostream& f ) const
 		else
 		{
 			printAllowedContent( f, "allows",  "categorie", s._v_allowedCats );
-			printAllowedContent( f, "allows",  "tag",       s.v_allowedTags );
-			printAllowedContent( f, "forbids", "categorie", s.v_forbiddenCats );
-			printAllowedContent( f, "forbids", "tag",       s.v_forbiddenTags );
+			printAllowedContent( f, "allows",  "tag",       s._v_allowedTags );
+			printAllowedContent( f, "forbids", "categorie", s._v_forbiddenCats );
+			printAllowedContent( f, "forbids", "tag",       s._v_forbiddenTags );
 		}
 		f << '\n';
 	}
@@ -620,10 +620,10 @@ void
 Httag::p_checkValidFileType( std::string action )
 {
 	if( !_isFileType )
-		HTTAG_ERROR( std::string("object tag '") + getString(_tag_en) + "' is not a \"file type\" object." );
+		HTTAG_FATAL_ERROR( std::string("object tag '") + getString(_tag_en) + "' is not a \"file type\" object." );
 
 	if( !_file )
-		HTTAG_ERROR( std::string("object tag '") + getString(_tag_en) + "': asked to " + action + " but file not available" );
+		HTTAG_FATAL_ERROR( std::string("object tag '") + getString(_tag_en) + "': asked to " + action + " but file not available" );
 
 #if 0
 	if( !_file->is_open() )
@@ -700,7 +700,8 @@ Httag::closeTag( std::string __file, int __line, bool linefeed )
 	else
 		*_file << "</" << getString(_tag_en) << '>';
 
-	p_getOpenedTags().pullTag( _tag_en );
+	if( _tagIsOpen )
+		p_getOpenedTags().pullTag( _tag_en );
 
 	_tagIsOpen = false;
 	if( p_doLineFeed( linefeed ) )

@@ -85,19 +85,22 @@ inline void printErrorLocation( std::string file, int line, std::string msg )
 //			throw std::runtime_error( std::string("httag: fatal error: ") + msg ); \
 //		}
 //#else
+
+#define HTTAG_FATAL_ERROR( msg ) throw msg
+
+
 	#define HTTAG_ERROR( msg ) \
 		{ \
-			printErrorLocation( __FILE__, __LINE__, msg ); \
+			std::cerr << "\nhttag error: "<< msg << "\n"; \
 		}
-//#endif
+
 
 	#define HTTAG_ERROR_FL( msg ) \
 		{ \
-			std::cerr << "\nhttag error:" \
-				<< "\n - file: " << __file \
-				<< "\n - line: " << __line \
-				<< "\n - message: " << msg \
-				<< "\n"; \
+			std::cerr << "\nhttag error: "; \
+			if( __line != 0 ) \
+				std::cerr << "\n - file: " << __file << "\n - line: " << __line << "\n - message:"; \
+			std::cerr << msg << "\n"; \
 		}
 
 
