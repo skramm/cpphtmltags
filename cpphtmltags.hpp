@@ -92,18 +92,32 @@ inline void printErrorLocation( std::string file, int line, std::string msg )
 		}
 //#endif
 
+	#define HTTAG_ERROR_FL( msg ) \
+		{ \
+			std::cerr << "\nhttag: error : ()" \
+				<< "\n - file: " << __file \
+				<< "\n - line: " << __line \
+				<< "\n - message: " << msg \
+				<< "\n"; \
+		}
+
 //			HTTAG_PRINT_ERROR_LOCATION( msg, __FILE__, __LINE__ ); \
 //			throw std::runtime_error( std::string("httag: fatal error: ") + msg ); \
 
 /// Open tag \c t
+#define HTTAG_OPENTAG( t )         t.openTag(  __FILE__, __LINE__ )
+#define HTTAG_CLOSETAG( t )        t.closeTag( __FILE__, __LINE__ )
+//#define HTTAG_CLOSETAG( lfeed, t ) t.closeTag( __FILE__, __LINE__, lfeed )
+
+/*
 #define HTTAG_OPENTAG( t ) \
 	{ \
 		try { \
-			t.openTag(); \
+			t.openTag( __FILE__, __LINE__ ); \
 		} \
 		catch( const std::runtime_error& err ) \
 		{ \
-			std::cerr << "\nError: cannot open tag <" << getString(t.getTag()) << '\n'; \
+			std::cerr << "\nErroraaaaa: cannot open tag <" << getString(t.getTag()) << '\n'; \
 			printErrorLocation( __FILE__, __LINE__, err.what() ); \
 		} \
 	}
@@ -123,13 +137,13 @@ inline void printErrorLocation( std::string file, int line, std::string msg )
 		} \
 	}
 
-
+*/
 namespace httag {
 
 
 //--- END: TEMPLATE FILE cpphtmltags_1.hh
 // -------- GENERATED CODE ! --------
-// timestamp: 20200322-1936
+// timestamp: 20200322-2031
 
 enum En_Httag
 {
@@ -263,7 +277,7 @@ enum En_Httag
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200322-1936
+// timestamp: 20200322-2031
 
 enum En_Attrib
 {
@@ -406,7 +420,7 @@ enum En_Attrib
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200322-1936
+// timestamp: 20200322-2031
 
 std::string
 getString( En_Httag a )
@@ -546,7 +560,7 @@ getString( En_Httag a )
 }
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200322-1936
+// timestamp: 20200322-2031
 
 std::string
 getString( En_Attrib a )
@@ -800,7 +814,7 @@ struct AllowedContent
 
 //--- END: TEMPLATE FILE cpphtmltags_2.hh
 // -------- GENERATED CODE ! --------
-// timestamp: 20200322-1936
+// timestamp: 20200322-2031
 
 /// Private class, holds map of allowed attributes
 struct MapAttribs
@@ -955,7 +969,7 @@ struct TagCat
 	}
 };
 // -------- GENERATED CODE ! --------
-// timestamp: 20200322-1936
+// timestamp: 20200322-2031
 
 /// Returns true if the tag is a void-element
 inline
@@ -1874,8 +1888,9 @@ class Httag
 		Httag( En_Httag, En_Attrib, T attribvalue );
 		~Httag();
 ///@}
-		void openTag();
-		void closeTag( bool linefeed=false );
+		void openTag(  std::string file=std::string(), int line=0 );
+		void closeTag( std::string file=std::string(), int line=0, bool linefeed=false );
+		void closeTag( bool linefeed );
 		template<typename T> void addAttrib( En_Attrib, T );
 		void removeAttrib( En_Attrib );
 //		void PrintAttributes( bool b ) { _printAttribs = b; }
@@ -2229,14 +2244,17 @@ Httag::p_checkValidFileType( std::string action )
 }
 //-----------------------------------------------------------------------------------
 /// Open the tag (this function needs to be called ONLY for "file" object types
+/*
+The (default) arguments are there to be handled by macro HTTAG_OPENTAG(t)
+*/
 inline
 void
-Httag::openTag()
+Httag::openTag( std::string __file, int __line )
 {
 	p_checkValidFileType( "open" );
 	if( _tagIsOpen )
 	{
-		HTTAG_WARNING( std::string( "tag '" ) + getString(_tag_en) + std::string( "': asked to open but was already open." ) );
+		HTTAG_ERROR_FL( std::string( "tag '" ) + getString(_tag_en) + std::string( "': asked to open but was already open." ) );
 	}	
 	else
 	{
@@ -2244,13 +2262,11 @@ Httag::openTag()
 		{
 			if( p_getOpenedTags().current() == _tag_en )
 			{
-				HTTAG_ERROR( std::string("attempt to open tag <") + getString(_tag_en) + "> but currently opened tag is identical" );
-//				HTTAG_WARNING( std::string("attempt to open tag <") + getString(_tag_en) + "> but currently opened tag is identical" );
+				HTTAG_ERROR_FL( std::string("attempt to open tag <") + getString(_tag_en) + "> but currently opened tag is identical" );
 			}
 			if( !tagIsAllowed( _tag_en, p_getOpenedTags(), p_getAllowedContentMap() ) )
 			{
-				HTTAG_ERROR( std::string("attempt to open tag <") + getString(_tag_en) + "> but is not allowed in current context:" + p_getOpenedTags().str() );
-//				HTTAG_WARNING( std::string("attempt to open tag <") + getString(_tag_en) + "> but is not allowed in current context:" + p_getOpenedTags().str() );
+				HTTAG_ERROR_FL( std::string("attempt to open tag <") + getString(_tag_en) + "> but is not allowed in current context:" + p_getOpenedTags().str() );
 			}
 		}
 		switch( _tag_en )
@@ -2274,15 +2290,22 @@ Httag::openTag()
 /// Close the tag (this function needs to be called ONLY for "file" object types
 inline
 void
-Httag::closeTag( bool linefeed )
+Httag::closeTag(bool linefeed )
+{
+	closeTag( std::string(), int(), linefeed );
+}
+
+inline
+void
+Httag::closeTag( std::string __file, int __line, bool linefeed )
 {
 	p_checkValidFileType( "close" );
 
 	if( priv::isVoidElement( _tag_en ) )
-		HTTAG_ERROR( std::string( "asked to close tag <" ) + getString(_tag_en) + "> but is void-element" );
+		HTTAG_ERROR_FL( std::string( "asked to close tag <" ) + getString(_tag_en) + "> but is void-element" );
 
 	if( !_tagIsOpen )
-		HTTAG_ERROR( std::string( "tag <" ) + getString(_tag_en) + ">: asked to close but was already closed." );
+		HTTAG_ERROR_FL( std::string( "tag <" ) + getString(_tag_en) + ">: asked to close but was already closed." );
 
 	if( _tag_en == HT_COMMENT )
 		*_file << "-->";

@@ -43,6 +43,7 @@ show:
 	@echo $(EXE_DEMO_FILES)
 	@echo $(TEST_FILE)
 
+# for dev purpose, shows differences in browser
 diff:
 	git diff ':!$(SRC_FILE)' | colordiff | aha>/tmp/diff.html
 	xdg-open /tmp/diff.html

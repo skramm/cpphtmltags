@@ -11,8 +11,8 @@ The final file is build according to this diagram:
 |-------------------|
 | cpphtmltags_1.hh  |
 |-------------------|
-|    generated      |
-|     content       |
+| generated content |
+|                   |
 |-------------------|
 | cpphtmltags_2.hh  |
 |-------------------|

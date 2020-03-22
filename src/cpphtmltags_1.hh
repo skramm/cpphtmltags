@@ -91,37 +91,21 @@ inline void printErrorLocation( std::string file, int line, std::string msg )
 		}
 //#endif
 
-//			HTTAG_PRINT_ERROR_LOCATION( msg, __FILE__, __LINE__ ); \
-//			throw std::runtime_error( std::string("httag: fatal error: ") + msg ); \
+	#define HTTAG_ERROR_FL( msg ) \
+		{ \
+			std::cerr << "\nhttag error:" \
+				<< "\n - file: " << __file \
+				<< "\n - line: " << __line \
+				<< "\n - message: " << msg \
+				<< "\n"; \
+		}
+
 
 /// Open tag \c t
-#define HTTAG_OPENTAG( t ) \
-	{ \
-		try { \
-			t.openTag(); \
-		} \
-		catch( const std::runtime_error& err ) \
-		{ \
-			std::cerr << "\nError: cannot open tag <" << getString(t.getTag()) << '\n'; \
-			printErrorLocation( __FILE__, __LINE__, err.what() ); \
-		} \
-	}
-
-//			HTTAG_PRINT_ERROR_LOCATION( err.what(), __FILE__, __LINE__ ); \
+#define HTTAG_OPENTAG( t )         t.openTag(  __FILE__, __LINE__ )
 
 /// Close tag \c t
-#define HTTAG_CLOSETAG( t ) \
-	{ \
-		try { \
-			t.closeTag(); \
-		} \
-		catch( const std::runtime_error& err ) \
-		{ \
-			std::cerr << "\nError: cannot close tag <" << getString(t.getTag()) << '\n'; \
-			HTTAG_PRINT_ERROR_LOCATION( err.what(), __FILE__, __LINE__ ); \
-		} \
-	}
-
+#define HTTAG_CLOSETAG( t )        t.closeTag( __FILE__, __LINE__ )
 
 namespace httag {
 

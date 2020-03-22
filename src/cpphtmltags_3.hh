@@ -276,8 +276,9 @@ class Httag
 		Httag( En_Httag, En_Attrib, T attribvalue );
 		~Httag();
 ///@}
-		void openTag();
-		void closeTag( bool linefeed=false );
+		void openTag(  std::string file=std::string(), int line=0 );
+		void closeTag( std::string file=std::string(), int line=0, bool linefeed=false );
+		void closeTag( bool linefeed );
 		template<typename T> void addAttrib( En_Attrib, T );
 		void removeAttrib( En_Attrib );
 //		void PrintAttributes( bool b ) { _printAttribs = b; }
@@ -631,14 +632,17 @@ Httag::p_checkValidFileType( std::string action )
 }
 //-----------------------------------------------------------------------------------
 /// Open the tag (this function needs to be called ONLY for "file" object types
+/*
+The (default) arguments are there to be handled by macro HTTAG_OPENTAG(t)
+*/
 inline
 void
-Httag::openTag()
+Httag::openTag( std::string __file, int __line )
 {
 	p_checkValidFileType( "open" );
 	if( _tagIsOpen )
 	{
-		HTTAG_WARNING( std::string( "tag '" ) + getString(_tag_en) + std::string( "': asked to open but was already open." ) );
+		HTTAG_ERROR_FL( std::string( "tag '" ) + getString(_tag_en) + std::string( "': asked to open but was already open." ) );
 	}	
 	else
 	{
@@ -646,13 +650,11 @@ Httag::openTag()
 		{
 			if( p_getOpenedTags().current() == _tag_en )
 			{
-				HTTAG_ERROR( std::string("attempt to open tag <") + getString(_tag_en) + "> but currently opened tag is identical" );
-//				HTTAG_WARNING( std::string("attempt to open tag <") + getString(_tag_en) + "> but currently opened tag is identical" );
+				HTTAG_ERROR_FL( std::string("attempt to open tag <") + getString(_tag_en) + "> but currently opened tag is identical" );
 			}
 			if( !tagIsAllowed( _tag_en, p_getOpenedTags(), p_getAllowedContentMap() ) )
 			{
-				HTTAG_ERROR( std::string("attempt to open tag <") + getString(_tag_en) + "> but is not allowed in current context:" + p_getOpenedTags().str() );
-//				HTTAG_WARNING( std::string("attempt to open tag <") + getString(_tag_en) + "> but is not allowed in current context:" + p_getOpenedTags().str() );
+				HTTAG_ERROR_FL( std::string("attempt to open tag <") + getString(_tag_en) + "> but is not allowed in current context:" + p_getOpenedTags().str() );
 			}
 		}
 		switch( _tag_en )
@@ -676,15 +678,22 @@ Httag::openTag()
 /// Close the tag (this function needs to be called ONLY for "file" object types
 inline
 void
-Httag::closeTag( bool linefeed )
+Httag::closeTag(bool linefeed )
+{
+	closeTag( std::string(), int(), linefeed );
+}
+
+inline
+void
+Httag::closeTag( std::string __file, int __line, bool linefeed )
 {
 	p_checkValidFileType( "close" );
 
 	if( priv::isVoidElement( _tag_en ) )
-		HTTAG_ERROR( std::string( "asked to close tag <" ) + getString(_tag_en) + "> but is void-element" );
+		HTTAG_ERROR_FL( std::string( "asked to close tag <" ) + getString(_tag_en) + "> but is void-element" );
 
 	if( !_tagIsOpen )
-		HTTAG_ERROR( std::string( "tag <" ) + getString(_tag_en) + ">: asked to close but was already closed." );
+		HTTAG_ERROR_FL( std::string( "tag <" ) + getString(_tag_en) + ">: asked to close but was already closed." );
 
 	if( _tag_en == HT_COMMENT )
 		*_file << "-->";
