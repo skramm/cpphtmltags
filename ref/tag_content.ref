@@ -1,20 +1,18 @@
 # This file holds the list of all html elements
-# AND the allowed content for each tag
+# AND the allowed content for each tag, as either a set of tags, or a category
 
 # syntax: one of these 4
 
 # syntax 1:
-# tag:a,b,c,d,C_c1,!e
+# tag:a,b,c,d,C_c1,!e,!C_c2
 # means that inside that tag <tag> are allowed the tags <a>,<b> and <c> and all the tags belonging to category "c1" EXCEPT the tag <e>
+# and EXCEPT tags belonging to the category "C_c2"
 
-# syntax 2: for void elements (for example <br>)
-# tag:E_VOID
+# syntax 2: for elements belonging to special category E_something
+# tag:E_something
+# The possible categories are:
+# E_VOID,E_TEXT
 
-# syntax 3: for elements that can only hold text
-# tag:E_TEXT
-
-# syntax 4: for empty element (!= void elements)
-# tag: E_EMPTY
 
 # PRELIMINAR !!!
 
@@ -46,9 +44,9 @@ col:E_VOID
 colgroup:col,template
 comment
 data:C_phrasing
-datalist
-dd
-del:E_TRANSP
+datalist:
+dd:
+del:C_TRANSP
 details:summary,C_flow
 dfn:C_phrasing,!dfn
 dialog
@@ -74,10 +72,10 @@ header:C_flow,!footer,!header
 hr:E_VOID
 html:head,body
 i:C_phrasing
-iframe:E_EMPTY
+iframe:E_VOID
 img:E_VOID
 input:E_VOID
-ins
+ins:C_TRANSP
 kbd:C_phrasing
 label:C_phrasing,!label
 legend

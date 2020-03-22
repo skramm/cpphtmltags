@@ -371,6 +371,10 @@ Httag::printSupported( std::ostream& f )
 		f << getString( static_cast<En_Attrib>(i) ) << '-';
 	f << '\n';
 
+	f << "* Tag categories: " << priv::C_DUMMY << '\n';
+	for( size_t i=0; i<priv::C_DUMMY; i++ )
+		f << getString( static_cast<priv::En_TagCat>(i) ) << '-';
+	f << '\n';
 
 	auto ac = p_getAllowedContentMap();
 	ac.print( f );

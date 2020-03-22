@@ -1,6 +1,8 @@
 # holds element categories
 # PRELIMINAR !
 # https://www.w3.org/TR/html5/dom.html#kinds-of-content
+# https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Content_categories
+
 
 # 7 main categories:
 
@@ -26,11 +28,14 @@ C_embedded:audio,canvas,embed,iframe,img,object,picture,svg,video
 C_interactive:a,audio,button,details,embed,iframe,img,input,label,select,textarea,video
 
 
-# other catergories: (?)
+# other categories: (?)
 
 C_palpable:
+
+# Form-associated content
+C_Form:button,fieldset,input,label,meter,object,output,progress,select,textarea
 
 
 C_script:script,template
 
-
+C_transp:del,ins

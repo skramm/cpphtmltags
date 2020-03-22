@@ -6,7 +6,7 @@ TEMPLATE_FILES := $(wildcard *.hh)
 REF_FILES      := $(wildcard ref/*.ref)
 SRC_DEMO_FILES := $(wildcard demo/*.cpp)
 EXE_DEMO_FILES := $(patsubst demo/%.cpp, build/%, $(SRC_DEMO_FILES))
-TEST_FILE      :=tests/test_A.cpp
+TEST_FILE      :=test_A.cpp
 
 CFLAGS := -std=c++11
 

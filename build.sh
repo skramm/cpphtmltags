@@ -156,18 +156,18 @@ echo -e "\t}\n};" >>$file_out
 
 echo "// THIS IS A GENERATED FILE, DO NOT EDIT !">cpphtmltags.hpp
 cat \
-	cpphtmltags_1.hh \
+	src/cpphtmltags_1.hh \
 	tmp/tags_enum.src \
 	tmp/attribs_enum.src \
 	tmp/tags_switch.src \
 	tmp/attribs_switch.src \
 	tmp/cat_enum.src \
 	tmp/cat_switch.src \
-	cpphtmltags_2.hh \
+	src/cpphtmltags_2.hh \
 	tmp/attrib_tags.src \
 	tmp/element_cat.src \
 	tmp/void_element.src \
 	tmp/tag_content.src \
-	cpphtmltags_3.hh \
+	src/cpphtmltags_3.hh \
 	>> cpphtmltags.hpp \
 

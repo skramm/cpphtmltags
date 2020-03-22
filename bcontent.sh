@@ -30,25 +30,26 @@ echo -e "\t\treturn _map_AllowedContent.at(tag);\n\t}">> $file_out
 
 echo -e "\n\tvoid print( std::ostream& ) const;">> $file_out
 
-echo -e "\n// Constructor\n">> $file_out
-echo -e "\n\tAllowedContentMap()\n\t{">> $file_out
+echo -e "\n// Constructor">> $file_out
+echo -e "\tAllowedContentMap()\n\t{">> $file_out
 
 
 while IFS=$':' read a b
 do
-	if [ "${a:0:1}" != "#" ]; then
-		if [ ${#a} -ne 0 ]; then
+	if [ "${a:0:1}" != "#" ]; then                         # if not a comment
+		if [ ${#a} -ne 0 ]; then                           # if not empty line
 			at=$(echo $a | tr '[:lower:]' '[:upper:]')
-			if [ "${b:0:2}" = "E_" ]; then
+			if [ "${b:0:2}" = "E_" ]; then                 # if either "void" or "text content" type
 				if [ "$b" = "E_VOID" ]; then
 					echo -e "\t\t{\n\t\t\tAllowedContent ac(AllowedContent::TT_VOID);">> $file_out
 				fi
 				if [ "$b" = "E_TEXT" ]; then
 					echo -e "\t\t{\n\t\t\tAllowedContent ac(AllowedContent::TT_TEXT);">> $file_out
 				fi
-			else
+			else                                          # if not, just default-instanciate
 				echo -e "\t\t{\n\t\t\tAllowedContent ac;">> $file_out
 				IFS=',' read -ra TAG <<< "$b"
+				echo "a=$a b=$b, processing $TAG"
 				for t in "${TAG[@]}";
 				do
 					t2=$(echo $t | tr '[:lower:]' '[:upper:]')
