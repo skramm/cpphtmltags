@@ -21,6 +21,7 @@ file_out3=tmp/cat_switch.src
 
 # START
 set +x
+mkdir -p tmp
 
 echo -e "namespace priv {\n"> $file_out1
 
