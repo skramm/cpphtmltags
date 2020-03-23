@@ -13,9 +13,11 @@ They only differ in the way they are created, and how they generate some output.
 - With the second type, you assign an output stream at creation time.
 
 The library and the contained class can be used in two ways, either through classical object paradigm, either through a set of macros.
-These basically wrap the code, it ends up as the same thing.
-The first method can be considered as a bit "cleaner", but the second method has a large advantage during development stage:
-it gives the location of your incorrect code in case of illegal usage. For more details, [see here](#macro).
+These basically wrap the code, it ends up as the same thing, with one notable exception:
+All the potential errors you might do while writing your code (say, trying to write something like `<p><p>abc</p></p>`, which is illegal) will throw an error.
+- With the classical API, your program will stop (unless you try to catch them, but that would be tedious).
+- With the macro-based API, your program will continue, and you will get in stderr a nice information log, with the location of the error in your code.
+For more details, [see here](#macro).
 
 But anyhow, you might want to check the classical API first.
 
@@ -201,7 +203,7 @@ Macro                      | Equivalent code
 -------------------------- | --------------
 `HTTAG_OPENTAG( t );`      | `t.openTag();`
 `HTTAG_CLOSETAG( t );`     | `t.closeTag();`
-
+`HTTAG_ADD_ATTRIB( t, AT_CLASS, "abc")` | `t.addAttrib( AT_CLASS, "abc"` )
 
 
 ## <a name="errors"></a>C - List of errors

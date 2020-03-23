@@ -119,7 +119,7 @@ Refs:
 	} \
 	catch( const std::runtime_error& err ) \
 	{ \
-		std::cerr << "\nhttag error: (opening tag)\n" << err.what(); \
+		std::cerr << "\nhttag error: (opening tag)" << err.what(); \
 	}
 
 /// Close tag \c t
@@ -129,7 +129,7 @@ Refs:
 	} \
 	catch( const std::runtime_error& err ) \
 	{ \
-		std::cerr << "\nhttag error: (closing tag)\n" << err.what(); \
+		std::cerr << "\nhttag error: (closing tag)" << err.what(); \
 	}
 
 #define HTTAG_ADD_ATTRIB( t, at, val ) \
@@ -138,10 +138,8 @@ Refs:
 	} \
 	catch( const std::runtime_error& err ) \
 	{ \
-		std::cerr << "\nhttag error: (adding attribute)\n" << err.what(); \
+		std::cerr << "\nhttag error: (adding attribute)" << err.what(); \
 	}
-
-
 
 
 namespace httag {

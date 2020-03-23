@@ -279,7 +279,8 @@ class Httag
 		void openTag(  std::string file=std::string(), int line=0 );
 		void closeTag( std::string file=std::string(), int line=0, bool linefeed=false );
 		void closeTag( bool linefeed );
-		template<typename T> void addAttrib( En_Attrib, T );
+		template<typename T>
+		void addAttrib( En_Attrib, T, std::string f=std::string(), int line=0 );
 		void removeAttrib( En_Attrib );
 //		void PrintAttributes( bool b ) { _printAttribs = b; }
 
@@ -325,7 +326,7 @@ class Httag
 
 	private:
 		bool p_doLineFeed( bool linefeed=false ) const;
-		void p_addAttrib( En_Attrib, std::string );
+		void p_addAttrib( En_Attrib, std::string, std::string __file=std::string(), int __line=0 );
 		void p_checkValidFileType( std::string action );
 		std::string p_getAttribs() const;
 
@@ -657,7 +658,7 @@ Httag::openTag( std::string __file, int __line )
 			}
 			if( !tagIsAllowed( _tag_en, p_getOpenedTags(), p_getAllowedContentMap() ) )
 			{
-				HTTAG_FATAL_ERROR_FL( std::string("attempt to open tag <") + getString(_tag_en) + "> but is not allowed in current context:" + p_getOpenedTags().str() );
+				HTTAG_FATAL_ERROR_FL( std::string("attempt to open tag <") + getString(_tag_en) + "> but is not allowed in current context:" + p_getOpenedTags().str() + std::string("\n") );
 			}
 		}
 		switch( _tag_en )
@@ -754,9 +755,9 @@ If the attribute is already present, then the value will be concatenated to the 
 */
 template<typename T>
 void
-Httag::addAttrib( En_Attrib attr, T value )
+Httag::addAttrib( En_Attrib attr, T value, std::string __file, int __line )
 {
-	p_addAttrib( attr, std::to_string(value) );
+	p_addAttrib( attr, std::to_string(value), __file, __line );
 }
 //-----------------------------------------------------------------------------------
 /// Add an HTML attribute to the tag (specialized templated version for \c std::string)
@@ -765,9 +766,9 @@ If the attribute is already present, then the value will be concatenated to the 
 */
 template<>
 void
-Httag::addAttrib<std::string>( En_Attrib attr, std::string value )
+Httag::addAttrib<std::string>( En_Attrib attr, std::string value, std::string __file, int __line )
 {
-	p_addAttrib( attr, value );
+	p_addAttrib( attr, value, __file, __line );
 }
 //-----------------------------------------------------------------------------------
 /// Add an HTML attribute to the tag (specialized templated version for <tt>const char*</tt>)
@@ -776,9 +777,9 @@ If the attribute is already present, then the value will be concatenated to the 
 */
 template<>
 void
-Httag::addAttrib<const char*>( En_Attrib attr, const char* value )
+Httag::addAttrib<const char*>( En_Attrib attr, const char* value, std::string __file, int __line )
 {
-	p_addAttrib( attr, value );
+	p_addAttrib( attr, value, __file, __line );
 }
 //-----------------------------------------------------------------------------------
 /// Add an HTML attribute to the tag
@@ -787,12 +788,12 @@ If the attribute is already present, then the value will be concatenated to the 
 */
 inline
 void
-Httag::p_addAttrib( En_Attrib attr, std::string value )
+Httag::p_addAttrib( En_Attrib attr, std::string value, std::string __file, int __line )
 {
 	assert( attr != AT_DUMMY );
 
 	if( _tagIsOpen ) // because if it is already opened, then we can't add an attribute !
-		HTTAG_FATAL_ERROR( std::string("unable to add attribute '") + getString(attr) + "' with value '" + value + "', tag is already opened." );
+		HTTAG_FATAL_ERROR_FL( std::string("unable to add attribute '") + getString(attr) + "' with value '" + value + "', tag is already opened." );
 
 	if( value.empty() ) // empty string => nothing to add
 	{
@@ -801,7 +802,7 @@ Httag::p_addAttrib( En_Attrib attr, std::string value )
 	}
 #ifndef HTTAG_NO_CHECK
 	if( !priv::attribIsAllowed( attr, _tag_en ) )
-		HTTAG_FATAL_ERROR( std::string( "attempt to assign attribute '") + getString(attr) + "' to tag '" + getString( _tag_en )+  "': invalid with html5" );
+		HTTAG_FATAL_ERROR_FL( std::string( "attempt to assign attribute '") + getString(attr) + "' to tag '" + getString( _tag_en )+  "': invalid with html5" );
 #endif
 
 // check for unneeded pairs attribute/value

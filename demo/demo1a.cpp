@@ -59,5 +59,6 @@ int main()
 		Httag f2( cout, HT_LI );           // this triggers an error, you cannot embbed a <li> inside a <p>
 		f2.openTag();
 		cout << "li-content";
+		f2.closeTag();
 	}
 }
