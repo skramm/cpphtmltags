@@ -101,17 +101,6 @@ Refs:
 		throw std::runtime_error(err_msg); \
 	}
 
-
-/*
-	#define HTTAG_ERROR_FL( msg ) \
-		{ \
-			std::cerr << "\nhttag error: "; \
-			if( __line != 0 ) \
-				std::cerr << "\n - file: " << __file << "\n - line: " << __line << "\n - message:"; \
-			std::cerr << msg << "\n"; \
-		}
-*/
-
 /// Open tag \c t
 #define HTTAG_OPENTAG( t ) \
 	try { \

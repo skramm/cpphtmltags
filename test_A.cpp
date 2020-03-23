@@ -136,6 +136,17 @@ TEST_CASE( "test1", "[t1]" )
 		p.printTag();
 		CHECK( oss.str() == "<p class=\"abc cde\">text</p>" );
 	}
+#if 0
+	SECTION( "numerical attributes worls too" )
+	{
+		std::ostringstream oss;
+		Httag t( oss, HT_INPUT );
+		t.addAttrib( AT_MIN, 3 );
+		t.addAttrib( AT_MAX, 10 );
+		t.printTag();
+		CHECK( oss.str() == "<p min=\"3\" max=\"10\">text</p>" );
+	}
+#endif	
 }
 
 TEST_CASE( "Error checking", "[t2]" )
@@ -154,7 +165,8 @@ TEST_CASE( "Error checking", "[t2]" )
 		CHECK_THROWS( t1.closeTag() ); // cannot close before opening tag
 
 		Httag t2( HT_BR );
-		CHECK_THROWS( t2.addContent( "tag cannot have content" ) );
+		CHECK_THROWS( t2.addContent( "tag cannot have content" ) ); // void elements cannot have content
+		CHECK_THROWS( Httag( HT_BR, "content" ) );  // same with constructor
 
 		std::ostringstream oss;
 		Httag t3a( oss, HT_H2 );       // checking for
@@ -182,6 +194,18 @@ TEST_CASE( "Error checking", "[t2]" )
 			Httag t4( oss, HT_H2 );       // cannot add attributes to an already opened tag
 			t4.openTag();
 			CHECK_THROWS( t4.addAttrib( AT_CLASS, "abc" ) );
+		}
+		{
+			Httag t( HT_TD );
+			CHECK_THROWS( t.addAttrib( AT_DATA, "abc" ) ); // illegal attribute "data" for tag <td>
+			CHECK_THROWS( Httag( HT_TD, AT_DATA, "abc" ) ); // same thing with constructor
+		}
+
+		{
+			Httag p( oss, HT_P );
+			p.openTag();
+			Httag li( oss, HT_LI );
+			CHECK_THROWS( li.openTag() ); // <p><li> is illegal
 		}
 	}
 }

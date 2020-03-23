@@ -98,3 +98,4 @@ See list here: https://developer.mozilla.org/en-US/docs/Glossary/Empty_element
 - TABS for indentation, SPC for... spacing
 - private functions of public class are prefixed with `p_`
 - static variables are prefixed with `s_`
+- all enums are prefixed with `En_`

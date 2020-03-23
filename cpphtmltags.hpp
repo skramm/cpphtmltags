@@ -1,5 +1,5 @@
 // -------- GENERATED CODE ! --------
-// timestamp: 20200323-1221
+// timestamp: 20200323-1627
 
 //--- START: TEMPLATE FILE cpphtmltags_1.hh
 /*
@@ -104,43 +104,42 @@ Refs:
 		throw std::runtime_error(err_msg); \
 	}
 
-
-/*
-	#define HTTAG_ERROR_FL( msg ) \
-		{ \
-			std::cerr << "\nhttag error: "; \
-			if( __line != 0 ) \
-				std::cerr << "\n - file: " << __file << "\n - line: " << __line << "\n - message:"; \
-			std::cerr << msg << "\n"; \
-		}
-*/
-
 /// Open tag \c t
 #define HTTAG_OPENTAG( t ) \
 	try { \
-         t.openTag(  __FILE__, __LINE__ ); \
+        t.openTag(  __FILE__, __LINE__ ); \
 	} \
 	catch( const std::runtime_error& err ) \
 	{ \
-		std::cerr << "\nhttag error: (opening tag)\n" << err.what(); \
+		std::cerr << "\nhttag error: (opening tag)" << err.what(); \
 	}
 
 /// Close tag \c t
 #define HTTAG_CLOSETAG( t ) \
 	try { \
-         t.closeTag(  __FILE__, __LINE__ ); \
+        t.closeTag(  __FILE__, __LINE__ ); \
 	} \
 	catch( const std::runtime_error& err ) \
 	{ \
-		std::cerr << "\nhttag error: (closing tag)\n" << err.what(); \
+		std::cerr << "\nhttag error: (closing tag)" << err.what(); \
 	}
+
+#define HTTAG_ADD_ATTRIB( t, at, val ) \
+	try { \
+		t.addAttrib( at, val, __FILE__, __LINE__ ); \
+	} \
+	catch( const std::runtime_error& err ) \
+	{ \
+		std::cerr << "\nhttag error: (adding attribute)" << err.what(); \
+	}
+
 
 namespace httag {
 
 
 //--- END: TEMPLATE FILE cpphtmltags_1.hh
 // -------- GENERATED CODE ! --------
-// timestamp: 20200323-1221
+// timestamp: 20200323-1627
 
 enum En_Httag
 {
@@ -274,7 +273,7 @@ enum En_Httag
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200323-1221
+// timestamp: 20200323-1627
 
 enum En_Attrib
 {
@@ -417,7 +416,7 @@ enum En_Attrib
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200323-1221
+// timestamp: 20200323-1627
 
 std::string
 getString( En_Httag a )
@@ -557,7 +556,7 @@ getString( En_Httag a )
 }
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200323-1221
+// timestamp: 20200323-1627
 
 std::string
 getString( En_Attrib a )
@@ -811,7 +810,7 @@ struct AllowedContent
 
 //--- END: TEMPLATE FILE cpphtmltags_2.hh
 // -------- GENERATED CODE ! --------
-// timestamp: 20200323-1221
+// timestamp: 20200323-1627
 
 /// Private class, holds map of allowed attributes
 struct MapAttribs
@@ -966,7 +965,7 @@ struct TagCat
 	}
 };
 // -------- GENERATED CODE ! --------
-// timestamp: 20200323-1221
+// timestamp: 20200323-1627
 
 /// Returns true if the tag is a void-element
 inline
@@ -1888,7 +1887,8 @@ class Httag
 		void openTag(  std::string file=std::string(), int line=0 );
 		void closeTag( std::string file=std::string(), int line=0, bool linefeed=false );
 		void closeTag( bool linefeed );
-		template<typename T> void addAttrib( En_Attrib, T );
+		template<typename T>
+		void addAttrib( En_Attrib, T, std::string f=std::string(), int line=0 );
 		void removeAttrib( En_Attrib );
 //		void PrintAttributes( bool b ) { _printAttribs = b; }
 
@@ -1921,7 +1921,11 @@ class Httag
 /// \name Tag content related functions
 ///@{
 		template<typename T> void addContent( T content );
-		template<typename T> void setContent( T content );
+		template<typename T> void setContent( T content )
+		{
+			clearContent();
+			addContent( content );
+		}	
 		void clearContent() { _content.clear(); }
 ///@}
 
@@ -1934,7 +1938,7 @@ class Httag
 
 	private:
 		bool p_doLineFeed( bool linefeed=false ) const;
-		void p_addAttrib( En_Attrib, std::string );
+		void p_addAttrib( En_Attrib, std::string, std::string __file=std::string(), int __line=0 );
 		void p_checkValidFileType( std::string action );
 		std::string p_getAttribs() const;
 
@@ -2034,9 +2038,11 @@ Httag::Httag( En_Httag tag )
 template<typename T>
 Httag::Httag( En_Httag tag, T content ) : Httag( tag )
 {
-	_content = std::to_string( content );
+//	_content = std::to_string( content );
+	setContent( content );
 }
 
+#if 0
 /// constructor 2: specialization for string
 template<>
 inline
@@ -2052,6 +2058,7 @@ Httag::Httag( En_Httag tag, const char* content ) : Httag( tag )
 {
 	_content = content;
 }
+#endif
 //-----------------------------------------------------------------------------------
 /// generic constructor 3a
 template<typename T1, typename T2>
@@ -2065,7 +2072,8 @@ Httag::Httag(
 	setContent( content );
 
 	if( attr != AT_DUMMY )
-		_attr_map[attr] = attribvalue;
+//		_attr_map[attr] = attribvalue;
+		p_addAttrib( attr, attribvalue );
 }
 //-----------------------------------------------------------------------------------
 /// generic constructor 3b
@@ -2077,7 +2085,8 @@ Httag::Httag(
 	) : Httag( tag )
 {
 	if( attr != AT_DUMMY )
-		_attr_map[attr] = attribvalue;
+//		_attr_map[attr] = attribvalue;
+		p_addAttrib( attr, attribvalue );
 }
 //-----------------------------------------------------------------------------------
 #if 1
@@ -2165,6 +2174,7 @@ Httag::addContent( T content )
 }
 //-----------------------------------------------------------------------------------
 /// specialization for const char*
+#if 0
 template<>
 void
 Httag::setContent<const char*>( const char* content )
@@ -2188,6 +2198,15 @@ Httag::setContent( T content )
 	clearContent();
 	addContent<std::string>( std::to_string(content) );
 }
+#else
+/*template<typename T>
+void
+Httag::setContent( T content )
+{
+	clearContent();
+	addContent( content );
+}*/
+#endif
 //-----------------------------------------------------------------------------------
 void Httag::printTag()
 {
@@ -2266,7 +2285,7 @@ Httag::openTag( std::string __file, int __line )
 			}
 			if( !tagIsAllowed( _tag_en, p_getOpenedTags(), p_getAllowedContentMap() ) )
 			{
-				HTTAG_FATAL_ERROR_FL( std::string("attempt to open tag <") + getString(_tag_en) + "> but is not allowed in current context:" + p_getOpenedTags().str() );
+				HTTAG_FATAL_ERROR_FL( std::string("attempt to open tag <") + getString(_tag_en) + "> but is not allowed in current context:" + p_getOpenedTags().str() + std::string("\n") );
 			}
 		}
 		switch( _tag_en )
@@ -2363,9 +2382,9 @@ If the attribute is already present, then the value will be concatenated to the 
 */
 template<typename T>
 void
-Httag::addAttrib( En_Attrib attr, T value )
+Httag::addAttrib( En_Attrib attr, T value, std::string __file, int __line )
 {
-	p_addAttrib( attr, std::to_string(value) );
+	p_addAttrib( attr, std::to_string(value), __file, __line );
 }
 //-----------------------------------------------------------------------------------
 /// Add an HTML attribute to the tag (specialized templated version for \c std::string)
@@ -2374,9 +2393,9 @@ If the attribute is already present, then the value will be concatenated to the 
 */
 template<>
 void
-Httag::addAttrib<std::string>( En_Attrib attr, std::string value )
+Httag::addAttrib<std::string>( En_Attrib attr, std::string value, std::string __file, int __line )
 {
-	p_addAttrib( attr, value );
+	p_addAttrib( attr, value, __file, __line );
 }
 //-----------------------------------------------------------------------------------
 /// Add an HTML attribute to the tag (specialized templated version for <tt>const char*</tt>)
@@ -2385,9 +2404,9 @@ If the attribute is already present, then the value will be concatenated to the 
 */
 template<>
 void
-Httag::addAttrib<const char*>( En_Attrib attr, const char* value )
+Httag::addAttrib<const char*>( En_Attrib attr, const char* value, std::string __file, int __line )
 {
-	p_addAttrib( attr, value );
+	p_addAttrib( attr, value, __file, __line );
 }
 //-----------------------------------------------------------------------------------
 /// Add an HTML attribute to the tag
@@ -2396,12 +2415,12 @@ If the attribute is already present, then the value will be concatenated to the 
 */
 inline
 void
-Httag::p_addAttrib( En_Attrib attr, std::string value )
+Httag::p_addAttrib( En_Attrib attr, std::string value, std::string __file, int __line )
 {
 	assert( attr != AT_DUMMY );
 
 	if( _tagIsOpen ) // because if it is already opened, then we can't add an attribute !
-		HTTAG_FATAL_ERROR( std::string("unable to add attribute '") + getString(attr) + "' with value '" + value + "', tag is already opened." );
+		HTTAG_FATAL_ERROR_FL( std::string("unable to add attribute '") + getString(attr) + "' with value '" + value + "', tag is already opened." );
 
 	if( value.empty() ) // empty string => nothing to add
 	{
@@ -2410,16 +2429,11 @@ Httag::p_addAttrib( En_Attrib attr, std::string value )
 	}
 #ifndef HTTAG_NO_CHECK
 	if( !priv::attribIsAllowed( attr, _tag_en ) )
-		HTTAG_FATAL_ERROR( std::string( "attempt to assign attribute '") + getString(attr) + "' to tag '" + getString( _tag_en )+  "': invalid with html5" );
+		HTTAG_FATAL_ERROR_FL( std::string( "attempt to assign attribute '") + getString(attr) + "' to tag '" + getString( _tag_en )+  "': invalid with html5" );
 #endif
 
 // check for unneeded pairs attribute/value
-		if( attr == AT_COLSPAN && value == "1" )
-		{
-			HTTAG_WARNING( std::string( "asking to add unnecessary attribute/value: '" ) + getString(attr) + std::string( "'=" ) + value );
-			return;
-		}
-		if( attr == AT_ROWSPAN && value == "1" )
+		if( ( attr == AT_COLSPAN && value == "1" ) || ( attr == AT_ROWSPAN && value == "1" ) )
 		{
 			HTTAG_WARNING( std::string( "asking to add unnecessary attribute/value: '" ) + getString(attr) + std::string( "'=" ) + value );
 			return;

@@ -313,7 +313,11 @@ class Httag
 /// \name Tag content related functions
 ///@{
 		template<typename T> void addContent( T content );
-		template<typename T> void setContent( T content );
+		template<typename T> void setContent( T content )
+		{
+			clearContent();
+			addContent( content );
+		}	
 		void clearContent() { _content.clear(); }
 ///@}
 
@@ -426,9 +430,11 @@ Httag::Httag( En_Httag tag )
 template<typename T>
 Httag::Httag( En_Httag tag, T content ) : Httag( tag )
 {
-	_content = std::to_string( content );
+//	_content = std::to_string( content );
+	setContent( content );
 }
 
+#if 0
 /// constructor 2: specialization for string
 template<>
 inline
@@ -444,6 +450,7 @@ Httag::Httag( En_Httag tag, const char* content ) : Httag( tag )
 {
 	_content = content;
 }
+#endif
 //-----------------------------------------------------------------------------------
 /// generic constructor 3a
 template<typename T1, typename T2>
@@ -457,7 +464,8 @@ Httag::Httag(
 	setContent( content );
 
 	if( attr != AT_DUMMY )
-		_attr_map[attr] = attribvalue;
+//		_attr_map[attr] = attribvalue;
+		p_addAttrib( attr, attribvalue );
 }
 //-----------------------------------------------------------------------------------
 /// generic constructor 3b
@@ -469,7 +477,8 @@ Httag::Httag(
 	) : Httag( tag )
 {
 	if( attr != AT_DUMMY )
-		_attr_map[attr] = attribvalue;
+//		_attr_map[attr] = attribvalue;
+		p_addAttrib( attr, attribvalue );
 }
 //-----------------------------------------------------------------------------------
 #if 1
@@ -556,31 +565,6 @@ Httag::addContent( T content )
 	addContent<std::string>( std::to_string(content) );
 }
 //-----------------------------------------------------------------------------------
-/// specialization for const char*
-template<>
-void
-Httag::setContent<const char*>( const char* content )
-{
-	clearContent();
-	addContent<std::string>( std::string(content) );
-}
-/// specialization for std::string
-template<>
-void
-Httag::setContent<std::string>( std::string content )
-{
-	clearContent();
-	addContent<std::string>( content );
-}
-/// default implementation
-template<typename T>
-void
-Httag::setContent( T content )
-{
-	clearContent();
-	addContent<std::string>( std::to_string(content) );
-}
-//-----------------------------------------------------------------------------------
 void Httag::printTag()
 {
 	printWithContent( "" );
@@ -599,7 +583,6 @@ void Httag::printWithContent( T c )
 	if( !priv::isVoidElement( _tag_en ) )
 		closeTag();
 }
-
 //-----------------------------------------------------------------------------------
 /// Destructor, automatically closes tag if needed
 inline
@@ -806,12 +789,7 @@ Httag::p_addAttrib( En_Attrib attr, std::string value, std::string __file, int _
 #endif
 
 // check for unneeded pairs attribute/value
-		if( attr == AT_COLSPAN && value == "1" )
-		{
-			HTTAG_WARNING( std::string( "asking to add unnecessary attribute/value: '" ) + getString(attr) + std::string( "'=" ) + value );
-			return;
-		}
-		if( attr == AT_ROWSPAN && value == "1" )
+		if( ( attr == AT_COLSPAN && value == "1" ) || ( attr == AT_ROWSPAN && value == "1" ) )
 		{
 			HTTAG_WARNING( std::string( "asking to add unnecessary attribute/value: '" ) + getString(attr) + std::string( "'=" ) + value );
 			return;

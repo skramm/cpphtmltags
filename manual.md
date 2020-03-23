@@ -203,7 +203,7 @@ Macro                      | Equivalent code
 -------------------------- | --------------
 `HTTAG_OPENTAG( t );`      | `t.openTag();`
 `HTTAG_CLOSETAG( t );`     | `t.closeTag();`
-`HTTAG_ADD_ATTRIB( t, AT_CLASS, "abc")` | `t.addAttrib( AT_CLASS, "abc"` )
+`HTTAG_ADD_ATTRIB( t, AT_CLASS, "abc")` | `t.addAttrib( AT_CLASS, "abc" )`
 
 
 ## <a name="errors"></a>C - List of errors
@@ -211,10 +211,16 @@ Macro                      | Equivalent code
 This code enforce several rules to avoid producing invalid HTML code.
 This is done by throwing an error in case of incorrect usage by the client code.
 
-- asking to open a tag `<x>` inside an identical tag.
-Sample: whatever the tag, this: `<x><x>content</x></x>` is invalid html
-- asking to add an attribute to a tag where that attribute is not allowed.
 
+Error  | Outcome  |  Example
+-------|---------------------------------------|----------------
+Open a tag that is not a file-type tag | fatal | `Httag t( HT_P );`<br>`t.openTag();`
+Open a tag that is already open  | fatal | `Httag t( f, HT_P );`<br>`t.openTag();`<br>`t.openTag();`
+Open a tag `<x>` inside an identical tag.<br>(whatever the tag, this: `<x><x>content</x></x>` is invalid) | fatal | TODO
+Add an attribute to a tag where that attribute is not allowed | fatal | `Httag t( HT_TD );`<br>`t.addAttrib( AT_DATA, "abc" );`<br>or<br>`Httag t( HT_TD, AT_DATA, "abc" );`
+Add content to a void tag | fatal | `Httag t( HT_BR );`<br>`t.addContent( "abc" );`
+Add an attribute to a file-type tag already opened | fatal | `Httag t( f, HT_H2 );`<br>`t.openTag();`<br>`t.addAttrib( AT_CLASS, "abc" )`
+Open a tag inside a context where it is not allowed | fatal | `Httag p( f, HT_P ); p.openTag();`<br>`Httag li( f, HT_LI ); li.openTag() );`
 
 TO BE CONTINUED !
 
