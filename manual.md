@@ -25,7 +25,7 @@ But anyhow, you might want to check the classical API first.
 
 ### A.1 - Instanciation
 
-Two types of constructors are available, the second one offering a mean to store the output stream in the object.
+Two types of constructors are available, corresponding to the two types of objects.
 
 #### Type 1 constructor
 Just a regular object:
@@ -60,7 +60,7 @@ Httag p3( file, HT_P, "a paragraph", AT_CLASS, "abc" );
 Please note that when a tag is created that way, nothing is printed in the stream.
 This will only happen when you call either:
 - `openTag()` : only prints the opening tag
-- `printTag()`: prints the whole thing, opening tag, text content, and closing tag
+- `printTag()`: prints the whole thing, opening tag, content, and closing tag
 - `printWithContent( "something" )`
 
 ### A.2 - Adding text content to a tag
@@ -167,10 +167,6 @@ For example:
 ```C++
 Httag::setLineFeedMode( LF_Always );
 ```
-However, this feature is only available for "file type" tags
-(the one you create by providing a stream, i.e.: `Httag p1( file, HT_P)`).
-For the others, it is impossible 
-
 
 ### A.5 - Error handling
 
@@ -201,10 +197,10 @@ The advantage is that in case of illegal HTML code, instead of throwing an error
 
 To provide a protection against side effects (possible with macros), they are all prefixed with `HTTAG_`.
 
-Macro                      | code equivalent
+Macro                      | Equivalent code
 -------------------------- | --------------
-`HTTAG_OPENTAG( t );`               | `t.openTag();`
-`HTTAG_CLOSETAG( t );`               | `t.closeTag();`
+`HTTAG_OPENTAG( t );`      | `t.openTag();`
+`HTTAG_CLOSETAG( t );`     | `t.closeTag();`
 
 
 

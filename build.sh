@@ -7,6 +7,8 @@
 ## it generates some C++ code that will get embedded in the library
 ## it takes as input some reference html data, as raw text files in "ref" folder
 
+OUT_FILE=cpphtmltags.hpp
+
 function print_header()
 {
 	echo "// -------- GENERATED CODE ! --------"> $1
@@ -154,7 +156,9 @@ echo -e "\t}\n};" >>$file_out
 
 # STEP 3 : generate final header file
 
-echo "// THIS IS A GENERATED FILE, DO NOT EDIT !">cpphtmltags.hpp
+print_header $OUT_FILE
+#echo "// THIS IS A GENERATED FILE, DO NOT EDIT !">$OUT_FILE
+
 cat \
 	src/cpphtmltags_1.hh \
 	tmp/tags_enum.src \
@@ -169,5 +173,5 @@ cat \
 	tmp/void_element.src \
 	tmp/tag_content.src \
 	src/cpphtmltags_3.hh \
-	>> cpphtmltags.hpp \
+	>> $OUT_FILE
 

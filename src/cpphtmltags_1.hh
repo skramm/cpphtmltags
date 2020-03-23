@@ -48,13 +48,13 @@ Refs:
 #include <iostream>
 #include <algorithm>
 
-#define HTTAG_PRINT_ERROR_LOCATION( msg, f, l )\
+/*#define HTTAG_PRINT_ERROR_LOCATION( msg, f, l )\
 		std::cerr << "\nhttag: error: " \
 			<< "\n - file: " << f \
 			<< "\n - line: " << l \
 			<< "\n - message: " << (msg) \
 			<< "\n"
-
+*/
 #ifdef HTTAG_SILENT_MODE
 	#define HTTAG_SILENT_WARNINGS
 	#define HTTAG_SILENT_ERRORS
@@ -63,13 +63,16 @@ Refs:
 //#ifdef HTTAG_SILENT_WARNINGS
 //	#define HTTAG_WARNING if(0) std::cerr
 //#else
+
 	#define HTTAG_WARNING(msg) \
 	{ \
-		HTTAG_PRINT_ERROR_LOCATION( msg, __FILE__, __LINE__ ); \
-		std::cerr << "\nhttag: Warning: " << (msg) << '\n'; \
+		std::cerr << "\nhttag: Warning: " << (msg) \
+			<< "\n - file: " << __FILE__ \
+			<< "\n - line: " << __LINE__ \
+			<< '\n'; \
 	}
 
-inline void printErrorLocation( std::string file, int line, std::string msg )
+/*inline void printErrorLocation( std::string file, int line, std::string msg )
 {
 		std::cerr << "\nhttag: error : printErrorLocation()" \
 			<< "\n - file: " << file \
@@ -78,7 +81,7 @@ inline void printErrorLocation( std::string file, int line, std::string msg )
 			<< "\n";
 }
 //#endif
-
+*/
 //#ifdef HTTAG_SILENT_ERRORS
 //	#define HTTAG_ERROR( msg ) \
 //		{ \
@@ -86,15 +89,20 @@ inline void printErrorLocation( std::string file, int line, std::string msg )
 //		}
 //#else
 
-#define HTTAG_FATAL_ERROR( msg ) throw msg
+#define HTTAG_FATAL_ERROR( msg ) throw std::runtime_error(msg)
+
+/// Version with available File and Line location
+#define HTTAG_FATAL_ERROR_FL( msg ) \
+	{ \
+		std::string err_msg; \
+		if( __line != 0 ) \
+			err_msg = "\n -file: " + __file + "\n -line: " + std::to_string( __line ) + "\n -"; \
+		err_msg += msg; \
+		throw std::runtime_error(err_msg); \
+	}
 
 
-	#define HTTAG_ERROR( msg ) \
-		{ \
-			std::cerr << "\nhttag error: "<< msg << "\n"; \
-		}
-
-
+/*
 	#define HTTAG_ERROR_FL( msg ) \
 		{ \
 			std::cerr << "\nhttag error: "; \
@@ -102,13 +110,39 @@ inline void printErrorLocation( std::string file, int line, std::string msg )
 				std::cerr << "\n - file: " << __file << "\n - line: " << __line << "\n - message:"; \
 			std::cerr << msg << "\n"; \
 		}
-
+*/
 
 /// Open tag \c t
-#define HTTAG_OPENTAG( t )         t.openTag(  __FILE__, __LINE__ )
+#define HTTAG_OPENTAG( t ) \
+	try { \
+        t.openTag(  __FILE__, __LINE__ ); \
+	} \
+	catch( const std::runtime_error& err ) \
+	{ \
+		std::cerr << "\nhttag error: (opening tag)\n" << err.what(); \
+	}
 
 /// Close tag \c t
-#define HTTAG_CLOSETAG( t )        t.closeTag( __FILE__, __LINE__ )
+#define HTTAG_CLOSETAG( t ) \
+	try { \
+        t.closeTag(  __FILE__, __LINE__ ); \
+	} \
+	catch( const std::runtime_error& err ) \
+	{ \
+		std::cerr << "\nhttag error: (closing tag)\n" << err.what(); \
+	}
+
+#define HTTAG_ADD_ATTRIB( t, at, val ) \
+	try { \
+		t.addAttrib( at, val, __FILE__, __LINE__ ); \
+	} \
+	catch( const std::runtime_error& err ) \
+	{ \
+		std::cerr << "\nhttag error: (adding attribute)\n" << err.what(); \
+	}
+
+
+
 
 namespace httag {
 

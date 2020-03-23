@@ -9,18 +9,21 @@ SRC_DEMO_FILES := $(wildcard demo/*.cpp)
 EXE_DEMO_FILES := $(patsubst demo/%.cpp, build/%, $(SRC_DEMO_FILES))
 TEST_FILE      :=test_A.cpp
 
-CFLAGS := -std=c++11 -g
+# -g: for debut, if needed
+# -s: strip unnecessary strings
+#CFLAGS := -std=c++11 -g
+CFLAGS := -std=c++11 -s
 
 
 test: build/a.out
 	@echo "-Start test"
-	@./a.out
+	@build/a.out
 #	@./a.out -s
 
 # for unit testing
 build/a.out: $(SRC_FILE) $(TEST_FILE) Makefile
 	@echo "-Start compiling $(TEST_FILE)"
-	@$(CXX) $(CFLAGS) $(TEST_FILE)
+	$(CXX) $(CFLAGS) $(TEST_FILE) -o build/a.out
 
 $(SRC_FILE): $(TEMPLATE_FILES) $(REF_FILES) build.sh
 	./build.sh

@@ -123,7 +123,7 @@ hasDefaultLF_Close( En_Httag tag )
 }
 
 //-----------------------------------------------------------------------------------
-/// holds the list of currently opened tags
+/// Holds the list of currently opened tags
 class OpenedTags
 {
 	private:
@@ -287,6 +287,8 @@ class Httag
 		template<typename T> void printWithContent( T );
 
 		En_Httag getTag() const { return _tag_en; }
+		bool isOpen() const { return _tagIsOpen; }
+
 /// \name Global attributes handling
 ///@{
 		static void setGlobalAttrib( En_Httag tag, En_Attrib att, const std::string& value );
@@ -533,7 +535,7 @@ void
 Httag::addContent<std::string>( std::string content )
 {
 	if( priv::isVoidElement( _tag_en ) )
-		HTTAG_ERROR( std::string("attempting to store content '") + content + "' into a void-element tag '" + getString( _tag_en ) + '\'' );
+		HTTAG_FATAL_ERROR( std::string("attempting to store content '") + content + "' into a void-element tag '" + getString( _tag_en ) + '\'' );
 	_content += content;
 }
 #if 1
@@ -586,7 +588,8 @@ void Httag::printTag()
 template<typename T>
 void Httag::printWithContent( T c )
 {
-	openTag();
+	if( !isOpen() )
+		openTag();
 	if( !_content.empty() )
 		*_file << _content;
 	*_file << c;
@@ -623,7 +626,7 @@ Httag::p_checkValidFileType( std::string action )
 		HTTAG_FATAL_ERROR( std::string("object tag '") + getString(_tag_en) + "' is not a \"file type\" object." );
 
 	if( !_file )
-		HTTAG_FATAL_ERROR( std::string("object tag '") + getString(_tag_en) + "': asked to " + action + " but file not available" );
+		HTTAG_FATAL_ERROR( std::string("object tag '") + getString(_tag_en) + "': asked to " + action + " but file not available." );
 
 #if 0
 	if( !_file->is_open() )
@@ -642,7 +645,7 @@ Httag::openTag( std::string __file, int __line )
 	p_checkValidFileType( "open" );
 	if( _tagIsOpen )
 	{
-		HTTAG_ERROR_FL( std::string( "tag '" ) + getString(_tag_en) + std::string( "': asked to open but was already open." ) );
+		HTTAG_FATAL_ERROR_FL( std::string( "tag '" ) + getString(_tag_en) + std::string( "': asked to open but was already open." ) );
 	}	
 	else
 	{
@@ -650,11 +653,11 @@ Httag::openTag( std::string __file, int __line )
 		{
 			if( p_getOpenedTags().current() == _tag_en )
 			{
-				HTTAG_ERROR_FL( std::string("attempt to open tag <") + getString(_tag_en) + "> but currently opened tag is identical" );
+				HTTAG_FATAL_ERROR_FL( std::string("attempt to open tag <") + getString(_tag_en) + "> but currently opened tag is identical" );
 			}
 			if( !tagIsAllowed( _tag_en, p_getOpenedTags(), p_getAllowedContentMap() ) )
 			{
-				HTTAG_ERROR_FL( std::string("attempt to open tag <") + getString(_tag_en) + "> but is not allowed in current context:" + p_getOpenedTags().str() );
+				HTTAG_FATAL_ERROR_FL( std::string("attempt to open tag <") + getString(_tag_en) + "> but is not allowed in current context:" + p_getOpenedTags().str() );
 			}
 		}
 		switch( _tag_en )
@@ -690,10 +693,10 @@ Httag::closeTag( std::string __file, int __line, bool linefeed )
 	p_checkValidFileType( "close" );
 
 	if( priv::isVoidElement( _tag_en ) )
-		HTTAG_ERROR_FL( std::string( "asked to close tag <" ) + getString(_tag_en) + "> but is void-element" );
+		HTTAG_FATAL_ERROR_FL( std::string( "asked to close tag <" ) + getString(_tag_en) + "> but is void-element" );
 
 	if( !_tagIsOpen )
-		HTTAG_ERROR_FL( std::string( "tag <" ) + getString(_tag_en) + ">: asked to close but was already closed." );
+		HTTAG_FATAL_ERROR_FL( std::string( "tag <" ) + getString(_tag_en) + ">: asked to close but was already closed." );
 
 	if( _tag_en == HT_COMMENT )
 		*_file << "-->";
@@ -789,7 +792,7 @@ Httag::p_addAttrib( En_Attrib attr, std::string value )
 	assert( attr != AT_DUMMY );
 
 	if( _tagIsOpen ) // because if it is already opened, then we can't add an attribute !
-		HTTAG_ERROR( std::string("unable to add attribute '") + getString(attr) + "' with value '" + value + "', tag is already opened." );
+		HTTAG_FATAL_ERROR( std::string("unable to add attribute '") + getString(attr) + "' with value '" + value + "', tag is already opened." );
 
 	if( value.empty() ) // empty string => nothing to add
 	{
@@ -798,7 +801,7 @@ Httag::p_addAttrib( En_Attrib attr, std::string value )
 	}
 #ifndef HTTAG_NO_CHECK
 	if( !priv::attribIsAllowed( attr, _tag_en ) )
-		HTTAG_ERROR( std::string( "attempt to assign attribute '") + getString(attr) + "' to tag '" + getString( _tag_en )+  "': invalid with html5" );
+		HTTAG_FATAL_ERROR( std::string( "attempt to assign attribute '") + getString(attr) + "' to tag '" + getString( _tag_en )+  "': invalid with html5" );
 #endif
 
 // check for unneeded pairs attribute/value
@@ -837,7 +840,7 @@ Httag::removeAttrib( En_Attrib attr )
 
 /// \todo (20200322): why are these 2 lines commented ? They make sense...
 //	if( _tagIsOpen ); // because if it is open, then we can't remove it!
-//		HTTAG_ERROR( "asking to remove attribute on open tag" );
+//		HTTAG_FATAL_ERROR( "asking to remove attribute on open tag" );
 
 	if( _attr_map.find(attr) == _attr_map.end() )   // check if element is already present or not
 	{

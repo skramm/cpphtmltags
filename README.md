@@ -2,7 +2,7 @@
 Generation of HTML content from C++ code
 
 - Author: Sebastien Kramm (contact: firstname.lastname@univ-rouen.fr)
-- Status: beta
+- Status: beta !!
 - Language: C++11
 - Dependencies: none
 - Homepage: https://github.com/skramm/cpphtmltags/
