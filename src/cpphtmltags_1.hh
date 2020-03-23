@@ -72,14 +72,7 @@ Refs:
 			<< '\n'; \
 	}
 
-/*inline void printErrorLocation( std::string file, int line, std::string msg )
-{
-		std::cerr << "\nhttag: error : printErrorLocation()" \
-			<< "\n - file: " << file \
-			<< "\n - line: " << line \
-			<< "\n - message: " << msg \
-			<< "\n";
-}
+/*
 //#endif
 */
 //#ifdef HTTAG_SILENT_ERRORS

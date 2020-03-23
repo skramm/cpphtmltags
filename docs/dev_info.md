@@ -1,11 +1,12 @@
 # Developper information
 
 Here, some details about the project for the ones that may be interested in contributing.
+For more details, also run `make doc` in the root folder (needs Doxygen).
 
 ## Generation of library file
 
 Starting from release 1.0, the actual library file (`cpphtmltags.hpp`) is actually generated from several files.
-The main c++ code is in 3 source files: `cpphtmltags_1.hh`, `cpphtmltags_2.hh` and `cpphtmltags_3.hh`
+The main C++ code is in 3 source files: `cpphtmltags_1.hh`, `cpphtmltags_2.hh` and `cpphtmltags_3.hh`
 The final file is build according to this diagram:
 
 ```

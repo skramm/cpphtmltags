@@ -424,38 +424,18 @@ Httag::Httag( En_Httag tag )
 {
 	assert( tag != HT_DUMMY );
 }
-
 //-----------------------------------------------------------------------------------
-/// generic constructor 2 (used for string data type)
+/// generic constructor 2
 template<typename T>
 Httag::Httag( En_Httag tag, T content ) : Httag( tag )
 {
-//	_content = std::to_string( content );
 	setContent( content );
 }
-
-#if 0
-/// constructor 2: specialization for string
-template<>
-inline
-Httag::Httag( En_Httag tag, std::string content ) : Httag( tag )
-{
-	_content = content;
-}
-
-/// constructor 2: specialization for string
-template<>
-inline
-Httag::Httag( En_Httag tag, const char* content ) : Httag( tag )
-{
-	_content = content;
-}
-#endif
 //-----------------------------------------------------------------------------------
 /// generic constructor 3a
 template<typename T1, typename T2>
 Httag::Httag(
-	En_Httag    tag,
+	En_Httag   tag,
 	T1         content,
 	En_Attrib  attr,
 	T2         attribvalue
@@ -464,20 +444,18 @@ Httag::Httag(
 	setContent( content );
 
 	if( attr != AT_DUMMY )
-//		_attr_map[attr] = attribvalue;
 		p_addAttrib( attr, attribvalue );
 }
 //-----------------------------------------------------------------------------------
 /// generic constructor 3b
 template<typename T>
 Httag::Httag(
-	En_Httag    tag,
+	En_Httag   tag,
 	En_Attrib  attr,
 	T          attribvalue
 	) : Httag( tag )
 {
 	if( attr != AT_DUMMY )
-//		_attr_map[attr] = attribvalue;
 		p_addAttrib( attr, attribvalue );
 }
 //-----------------------------------------------------------------------------------
