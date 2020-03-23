@@ -1,5 +1,5 @@
 // -------- GENERATED CODE ! --------
-// timestamp: 20200323-1627
+// timestamp: 20200323-1854
 
 //--- START: TEMPLATE FILE cpphtmltags_1.hh
 /*
@@ -75,14 +75,7 @@ Refs:
 			<< '\n'; \
 	}
 
-/*inline void printErrorLocation( std::string file, int line, std::string msg )
-{
-		std::cerr << "\nhttag: error : printErrorLocation()" \
-			<< "\n - file: " << file \
-			<< "\n - line: " << line \
-			<< "\n - message: " << msg \
-			<< "\n";
-}
+/*
 //#endif
 */
 //#ifdef HTTAG_SILENT_ERRORS
@@ -139,7 +132,7 @@ namespace httag {
 
 //--- END: TEMPLATE FILE cpphtmltags_1.hh
 // -------- GENERATED CODE ! --------
-// timestamp: 20200323-1627
+// timestamp: 20200323-1854
 
 enum En_Httag
 {
@@ -273,7 +266,7 @@ enum En_Httag
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200323-1627
+// timestamp: 20200323-1854
 
 enum En_Attrib
 {
@@ -416,7 +409,7 @@ enum En_Attrib
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200323-1627
+// timestamp: 20200323-1854
 
 std::string
 getString( En_Httag a )
@@ -556,7 +549,7 @@ getString( En_Httag a )
 }
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200323-1627
+// timestamp: 20200323-1854
 
 std::string
 getString( En_Attrib a )
@@ -810,7 +803,7 @@ struct AllowedContent
 
 //--- END: TEMPLATE FILE cpphtmltags_2.hh
 // -------- GENERATED CODE ! --------
-// timestamp: 20200323-1627
+// timestamp: 20200323-1854
 
 /// Private class, holds map of allowed attributes
 struct MapAttribs
@@ -965,7 +958,7 @@ struct TagCat
 	}
 };
 // -------- GENERATED CODE ! --------
-// timestamp: 20200323-1627
+// timestamp: 20200323-1854
 
 /// Returns true if the tag is a void-element
 inline
@@ -2032,38 +2025,18 @@ Httag::Httag( En_Httag tag )
 {
 	assert( tag != HT_DUMMY );
 }
-
 //-----------------------------------------------------------------------------------
-/// generic constructor 2 (used for string data type)
+/// generic constructor 2
 template<typename T>
 Httag::Httag( En_Httag tag, T content ) : Httag( tag )
 {
-//	_content = std::to_string( content );
 	setContent( content );
 }
-
-#if 0
-/// constructor 2: specialization for string
-template<>
-inline
-Httag::Httag( En_Httag tag, std::string content ) : Httag( tag )
-{
-	_content = content;
-}
-
-/// constructor 2: specialization for string
-template<>
-inline
-Httag::Httag( En_Httag tag, const char* content ) : Httag( tag )
-{
-	_content = content;
-}
-#endif
 //-----------------------------------------------------------------------------------
 /// generic constructor 3a
 template<typename T1, typename T2>
 Httag::Httag(
-	En_Httag    tag,
+	En_Httag   tag,
 	T1         content,
 	En_Attrib  attr,
 	T2         attribvalue
@@ -2072,20 +2045,18 @@ Httag::Httag(
 	setContent( content );
 
 	if( attr != AT_DUMMY )
-//		_attr_map[attr] = attribvalue;
 		p_addAttrib( attr, attribvalue );
 }
 //-----------------------------------------------------------------------------------
 /// generic constructor 3b
 template<typename T>
 Httag::Httag(
-	En_Httag    tag,
+	En_Httag   tag,
 	En_Attrib  attr,
 	T          attribvalue
 	) : Httag( tag )
 {
 	if( attr != AT_DUMMY )
-//		_attr_map[attr] = attribvalue;
 		p_addAttrib( attr, attribvalue );
 }
 //-----------------------------------------------------------------------------------
@@ -2173,41 +2144,6 @@ Httag::addContent( T content )
 	addContent<std::string>( std::to_string(content) );
 }
 //-----------------------------------------------------------------------------------
-/// specialization for const char*
-#if 0
-template<>
-void
-Httag::setContent<const char*>( const char* content )
-{
-	clearContent();
-	addContent<std::string>( std::string(content) );
-}
-/// specialization for std::string
-template<>
-void
-Httag::setContent<std::string>( std::string content )
-{
-	clearContent();
-	addContent<std::string>( content );
-}
-/// default implementation
-template<typename T>
-void
-Httag::setContent( T content )
-{
-	clearContent();
-	addContent<std::string>( std::to_string(content) );
-}
-#else
-/*template<typename T>
-void
-Httag::setContent( T content )
-{
-	clearContent();
-	addContent( content );
-}*/
-#endif
-//-----------------------------------------------------------------------------------
 void Httag::printTag()
 {
 	printWithContent( "" );
@@ -2226,7 +2162,6 @@ void Httag::printWithContent( T c )
 	if( !priv::isVoidElement( _tag_en ) )
 		closeTag();
 }
-
 //-----------------------------------------------------------------------------------
 /// Destructor, automatically closes tag if needed
 inline

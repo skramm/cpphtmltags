@@ -39,6 +39,9 @@ This library also enforces the Html5 standard.
 For example, some attributes are only allowed on certain tags.
 This is enforced here, and if you attempt to use an illegal attribute, an error will be thrown at runtime.
 
+The repo also holds several demo programs and a unit-test file.
+Build and check these out with `make demo` (output programs are in `build/`) or `make test`.
+
 ## Usage
 
 ### Sample snippet 1:
@@ -80,7 +83,7 @@ will produce:
 For more details, see [manual](manual.md).
 
 ## HTML 5 coverage
-- covers 123 html tags ("elements", as they say at w3c) and 134 attributes
+- covers 123 html tags ("elements") and 134 attributes
 - Comments (`<!-- ... -->`) and doctype are handled as special tags, see demo/demo0.cpp
 - at present, the different tag categories are not considered, this is to be considered in future releases.
 - GENERAL WARNING: while work was in progress, I discovered that the Html5 spec (see refs below) is a serious beast, in regard of its complexity.
@@ -123,4 +126,4 @@ All the HTML 5 standard material has been fetched from these sources:
  - https://www.w3.org/TR/html52/dom.html#kinds-of-content
 
 
-Copyright Sebastien Kramm - 2018
+Copyright Sebastien Kramm - 2018-2020

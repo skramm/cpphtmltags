@@ -29,7 +29,7 @@ But anyhow, you might want to check the classical API first.
 
 Two types of constructors are available, corresponding to the two types of objects.
 
-#### Type 1 constructor
+#### A.1.a - Type 1 constructor
 Just a regular object:
 ```C++
 Httag mytag( HT_P );
@@ -44,11 +44,13 @@ Httag mytag( HT_P, AT_CLASS, "abc" );
 ```
 Or both, at creation time:
 ```C++
-Httag mytag( HT_P, "a paragraph", AT_CLASS, "abc" );
+Httag mytag( HT_TD, "my cell", AT_COLSPAN, 2 );
 ```
-#### Type 2 constructor
+#### A.1.b - Type 2 constructor ("file-type" object)
+
 You can specify the stream where the html code must be generated.
-It can be of type `std::ostream`, or `std::ofstream`, or even `std::ostringstream`. `std::cout` works fine too:
+It can be of type `std::ostream`, or `std::ofstream`, or even `std::ostringstream`.
+`std::cout` works fine too:
 ```C++
 Httag mytag( file, HT_P );
 ```
@@ -60,10 +62,38 @@ Httag p2( file, HT_P, "a paragraph" );
 Httag p3( file, HT_P, "a paragraph", AT_CLASS, "abc" );
 ```
 Please note that when a tag is created that way, nothing is printed in the stream.
-This will only happen when you call either:
+This will only happen when you call either one of these on the variable:
 - `openTag()` : only prints the opening tag
 - `printTag()`: prints the whole thing, opening tag, content, and closing tag
 - `printWithContent( "something" )`
+
+Once it is opened, you can explicitly close it with `closeTag()`.
+But this also called automatically by the destructor, that is called when the variable goes out of scope.
+
+#### A.1.c - Which one should I use ?
+
+Theorically, both could achieve the same html structure.
+
+The first type of tags (that has no associated stream/file) can be used in a hierarchical way:
+you can stream into it a `Httag` variable, either an explicit one, or an anonymous one, through a constructor call.
+For example, a minimal page holding 2 divs, one empty and the second one holding a paragraph could be written this way:
+```
+Httag html( HT_HTML );
+Httag head( HT_HEAD );
+Httag body( HT_BODY );
+head << Httag( HT_TITLE, "my title" );
+body << Httag( HT_DIV, AT_ID, "div1" );  // an empty div
+Httag div2( HT_DIV, AT_ID, "div2" );
+div2 << Httag( HT_P, "Some text" );
+body << div2;
+html << head << body;
+std::cout << html;
+```
+
+However, it is often easier to use the "file-type" tag so one can explicitly open it before adding the rest of the page.
+
+Shortly, it depends on the context, this library offers you maximum flexibility.
+
 
 ### A.2 - Adding text content to a tag
 
@@ -86,11 +116,13 @@ p.setContent( "a paragraph" );
 p.addContent( " of text" );
 std::cout << p;  // <p>a paragraph of text</p>
 ```
-- but you can also directly stream something **into** the tag:
+- But you can also directly stream something **into** the tag.
+This will produce the same as above:
 ```C++
 Httag p( HT_P );
-p << "a paragraph" );
-p << " of text" );
+p << "a paragraph";
+p << " of text";
+std::cout << p;
 ```
 
 ### A.3 - Attributes
@@ -99,7 +131,7 @@ p << " of text" );
 Tag attributes can be added to the tag at creation time (see above) or afterwards:
 ```C++
 Httag p( HT_P );
-p.addAttrib(  AT_CLASS, "abc" );
+p.addAttrib( AT_CLASS, "abc" );
 ```
 
 The API is templatized, so for some attributes, you can use integer values as well:
@@ -108,7 +140,7 @@ Httag td( HT_TD );
 td.addAttrib( AT_COLSPAN, 3 );
 ```
 
-Beware, for 'file-type' objects, you can add attributes but only before opening the tag:
+Beware, for 'file-type' tags, you can add attributes but only before opening the tag:
 ```C++
 Httag td( std::cout, HT_TD );
 td.addAttrib( AT_COLSPAN, 3 );  // fine
@@ -129,7 +161,7 @@ To remove, you can:
 `Httag::clearGlobalAttribs()`
 - remove the global attribute on a given tag:<br>
 `Httag::clearGlobalAttrib( <tag id> )`
-For example: 
+For example:
 `Httag::clearGlobalAttrib( HT_LI )`
 
 These are static function, thus the `Httag::` prefix.
@@ -193,11 +225,12 @@ This checking can be disabled by defining the symbol `HTTAG_NO_CHECK` before the
 ## <a name="macro"></a>B - Macro-based user interface
 
 Several macros are available to mimic the behavior of the classical API.
-The advantage is that in case of illegal HTML code, instead of throwing an error, using these macros will
--# print out a clear message on stderr and give the location of your faulty line,
--# continue to process you code.
+The advantage is that in case of illegal HTML code, instead of throwing an error, using these macros will:
 
-To provide a protection against side effects (possible with macros), they are all prefixed with `HTTAG_`.
+ 1. print out a clear message on stderr and give the location of your faulty line,
+ 2. continue to process you code.
+
+To avoid name collisions, they are prefixed with `HTTAG_`.
 
 Macro                      | Equivalent code
 -------------------------- | --------------
@@ -216,17 +249,16 @@ Error  | Outcome  |  Example
 -------|---------------------------------------|----------------
 Open a tag that is not a file-type tag | fatal | `Httag t( HT_P );`<br>`t.openTag();`
 Open a tag that is already open  | fatal | `Httag t( f, HT_P );`<br>`t.openTag();`<br>`t.openTag();`
-Open a tag `<x>` inside an identical tag.<br>(whatever the tag, this: `<x><x>content</x></x>` is invalid) | fatal | TODO
+Open a tag `<x>` inside an identical tag.<br>(whatever the tag, `<x><x>content</x></x>` is invalid) | fatal | `Httag ta( f, HT_P ), tb( f, HT_P );`<br>`ta.openTag(); tb.openTag();`
 Add an attribute to a tag where that attribute is not allowed | fatal | `Httag t( HT_TD );`<br>`t.addAttrib( AT_DATA, "abc" );`<br>or<br>`Httag t( HT_TD, AT_DATA, "abc" );`
 Add content to a void tag | fatal | `Httag t( HT_BR );`<br>`t.addContent( "abc" );`
 Add an attribute to a file-type tag already opened | fatal | `Httag t( f, HT_H2 );`<br>`t.openTag();`<br>`t.addAttrib( AT_CLASS, "abc" )`
 Open a tag inside a context where it is not allowed | fatal | `Httag p( f, HT_P ); p.openTag();`<br>`Httag li( f, HT_LI ); li.openTag() );`
 
-TO BE CONTINUED !
 
 <hr>
 ### Developer information
 
 Check out [Developer information](dev_info.md).
 
-Copyright Sebastien Kramm - 2018
+Copyright Sebastien Kramm - 2018-2020

@@ -1,6 +1,6 @@
 //--- START: TEMPLATE FILE cpphtmltags_1.hh
 /*
-    Copyright (C) 2018 Sebastien Kramm
+    Copyright (C) 2018-2020 Sebastien Kramm
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License v3 as published by

@@ -49,12 +49,18 @@ TEST_CASE( "test1", "[t1]" )
 		CHECK( oss.str() == "<p class=\"myclass\">content</p>" );
 	}
 	{
-		std::ostringstream oss;
+		std::ostringstream oss1, oss2;
 		Httag t1( HT_P );
 		t1 << "some";
 		t1 << " text";
-		oss << t1;
-		CHECK( oss.str() == "<p>some text</p>" );
+		oss1 << t1;
+		CHECK( oss1.str() == "<p>some text</p>" );
+
+		Httag t2( HT_P );
+		t2.setContent( "some " );
+		t2.addContent( "text" );
+		oss2 << t2;
+		CHECK( oss1.str() == oss2.str() );
 	}
 
 } // section end
@@ -200,7 +206,6 @@ TEST_CASE( "Error checking", "[t2]" )
 			CHECK_THROWS( t.addAttrib( AT_DATA, "abc" ) ); // illegal attribute "data" for tag <td>
 			CHECK_THROWS( Httag( HT_TD, AT_DATA, "abc" ) ); // same thing with constructor
 		}
-
 		{
 			Httag p( oss, HT_P );
 			p.openTag();

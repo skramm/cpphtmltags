@@ -45,5 +45,17 @@ int main()
 		body.openTag();
 		body.closeTag();
 	}
+// EXAMPLE 3
+	{
+		Httag html( HT_HTML );
+		Httag head( HT_HEAD );
+		Httag body( HT_BODY );
+		head << Httag( HT_TITLE, "my title" );
+		body << Httag( HT_DIV, AT_ID, "div1" );  // an empty div
+		Httag div2( HT_DIV, AT_ID, "div2" );
+		div2 << Httag( HT_P, "Some text" );
+		body << div2;
+		html << head << body;
+		std::cout << html;
+	}
 }
-
