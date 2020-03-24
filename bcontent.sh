@@ -8,6 +8,8 @@
 # build class httag::priv::AllowedContentMap
 
 
+echo "Running bcontent.sh"
+
 file_input=ref/tag_content.ref
 file_out=tmp/tag_content.src
 
@@ -49,7 +51,7 @@ do
 			else                                          # if not, just default-instanciate
 				echo -e "\t\t{\n\t\t\tAllowedContent ac;">> $file_out
 				IFS=',' read -ra TAG <<< "$b"
-				echo "a=$a b=$b, processing $TAG"
+#				echo "a=$a b=$b, processing $TAG"
 				for t in "${TAG[@]}";
 				do
 					t2=$(echo $t | tr '[:lower:]' '[:upper:]')

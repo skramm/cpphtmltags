@@ -1,9 +1,9 @@
 // -------- GENERATED CODE ! --------
-// timestamp: 20200323-1854
+// timestamp: 20200324-1847
 
 //--- START: TEMPLATE FILE cpphtmltags_1.hh
 /*
-    Copyright (C) 2018 Sebastien Kramm
+    Copyright (C) 2018-2020 Sebastien Kramm
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License v3 as published by
@@ -132,7 +132,7 @@ namespace httag {
 
 //--- END: TEMPLATE FILE cpphtmltags_1.hh
 // -------- GENERATED CODE ! --------
-// timestamp: 20200323-1854
+// timestamp: 20200324-1847
 
 enum En_Httag
 {
@@ -266,7 +266,7 @@ enum En_Httag
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200323-1854
+// timestamp: 20200324-1847
 
 enum En_Attrib
 {
@@ -409,7 +409,7 @@ enum En_Attrib
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200323-1854
+// timestamp: 20200324-1847
 
 std::string
 getString( En_Httag a )
@@ -549,7 +549,7 @@ getString( En_Httag a )
 }
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200323-1854
+// timestamp: 20200324-1847
 
 std::string
 getString( En_Attrib a )
@@ -716,7 +716,7 @@ enum En_TagCat
 
 	C_DUMMY
 };
-const char*
+std::string
 getString( En_TagCat a )
 {
 	const char* n=0;
@@ -803,7 +803,7 @@ struct AllowedContent
 
 //--- END: TEMPLATE FILE cpphtmltags_2.hh
 // -------- GENERATED CODE ! --------
-// timestamp: 20200323-1854
+// timestamp: 20200324-1847
 
 /// Private class, holds map of allowed attributes
 struct MapAttribs
@@ -958,7 +958,7 @@ struct TagCat
 	}
 };
 // -------- GENERATED CODE ! --------
-// timestamp: 20200323-1854
+// timestamp: 20200324-1847
 
 /// Returns true if the tag is a void-element
 inline

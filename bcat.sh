@@ -7,6 +7,8 @@
 # builds map of categories of tags
 # this script takes as input one file and generates three files
 
+echo "Running bcat.sh"
+
 # Input 
 file_input=ref/element_cat.ref
 

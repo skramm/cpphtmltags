@@ -9,6 +9,11 @@
 
 OUT_FILE=cpphtmltags.hpp
 
+./bcat.sh
+./bcontent.sh
+
+echo "Running build.sh"
+
 function print_header()
 {
 	echo "// -------- GENERATED CODE ! --------"> $1
