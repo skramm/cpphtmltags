@@ -2,7 +2,7 @@ dist: xenial
 language: cpp
 
 before_install:
-wget https://github.com/catchorg/Catch2/releases/download/v2.3.0/catch.hpp
+ - wget https://github.com/catchorg/Catch2/releases/download/v2.3.0/catch.hpp
 
 script:
  - make demo
