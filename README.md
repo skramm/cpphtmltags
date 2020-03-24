@@ -1,4 +1,8 @@
 # cpphtmltags
+
+[![Build Status](https://travis-ci.org/skramm/cpphtmltags.svg?branch=master)](https://travis-ci.org/skramm/cpphtmltags)
+
+
 Generation of HTML content from C++ code
 
 - Author: Sebastien Kramm (contact: firstname.lastname@univ-rouen.fr)
