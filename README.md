@@ -52,13 +52,11 @@ Build and check these out with `make demo` (output programs are in `build/`) or 
 
 ```C++
 #include "cpphtmltags.hpp"
-using namespace httags;
-
 int main()
 {
 	std::cout << Httag( HT_P ); // an empty paragraph
 
-	Httag t1( HT_P, AT_CLASS, "abc" );
+	httags::Httag t1( HT_P, AT_CLASS, "abc" );
 	t1.addAttrib( AT_STYLE, "color:red;" );
 	t1.setContent( "this is a paragraph" );
 	std::cout << t1;
@@ -74,7 +72,7 @@ will produce:
 ```C++
 int main()
 {
-	Httag t1( HT_P, std::cout, AT_CLASS, "abc" );
+	httags::Httag t1( HT_P, std::cout, AT_CLASS, "abc" );
 	t1.setContent( "paragraph" );
 	t1.printTag();
 }
