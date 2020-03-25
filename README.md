@@ -85,7 +85,7 @@ will produce:
 For more details, see [manual](manual.md).
 
 ## HTML 5 coverage
-- covers 123 html tags ("elements") and 134 attributes
+- covers all Html5 tags ("elements") and all attributes (see page build/supported.html, generated with `make doc`)
 - Comments (`<!-- ... -->`) and doctype are handled as special tags, see demo/demo0.cpp
 - at present, the different tag categories are not considered, this is to be considered in future releases.
 - GENERAL WARNING: while work was in progress, I discovered that the Html5 spec (see refs below) is a serious beast, in regard of its complexity.

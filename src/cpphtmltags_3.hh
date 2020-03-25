@@ -927,7 +927,7 @@ operator << ( std::ostream& s, const Httag& h )
 namespace priv {
 
 //-----------------------------------------------------------------------------------
-/// Helper function
+/// Helper function, called by Httag::printSupportedHtml()
 void
 p_printTable_1( std::ostream& f, std::string table_id )
 {
@@ -971,7 +971,7 @@ p_printTable_1( std::ostream& f, std::string table_id )
 	}
 }
 //-----------------------------------------------------------------------------------
-/// Helper function
+/// Helper function, called by Httag::printSupportedHtml()
 void
 p_printTable_2( std::ostream& f, std::string table_id )
 {
@@ -983,7 +983,7 @@ p_printTable_2( std::ostream& f, std::string table_id )
 			Httag tr( f, HT_TR );
 			tr << Httag( HT_TH )
 				<< Httag( HT_TH, "Attributes" )
-//				<< Httag( HT_TH, "Category" )
+				<< Httag( HT_TH, "Global" )
 				<< Httag( HT_TH, "Allowed tags" );
 			tr.printTag();			
 		}
@@ -997,13 +997,20 @@ p_printTable_2( std::ostream& f, std::string table_id )
 			f << Httag( HT_TD, i+1 ) << Httag( HT_TD, getString( attrib ) );
 
 			Httag td( f, HT_TD );
-			td.openTag();
-
-			for( size_t j=0; j<HT_DUMMY; j++ )
+			//td.openTag();
+			if( isGlobalAttr( attrib ) )				
+				f << Httag( f, HT_TD, "Y" ) << Httag( f, HT_TD);
+			else
 			{
-				auto tag = static_cast<En_Httag>(j);
-				if( priv::attribIsAllowed( attrib, tag ) )
-					f << getString( tag ) << ',';
+				f << Httag( f, HT_TD, "N" );
+				Httag td( f, HT_TD );
+				td.openTag();
+				for( size_t j=0; j<HT_DUMMY; j++ )
+				{
+					auto tag = static_cast<En_Httag>(j);
+					if( priv::attribIsAllowed( attrib, tag ) )
+						f << getString( tag ) << ',';
+				}
 			}
 		}
 	}
@@ -1035,7 +1042,7 @@ Httag::printSupportedHtml( std::ostream& f )
 
 	Httag t2( f, HT_BODY );
 	t2.openTag();
-	t2 << Httag( HT_P, "This list is automatically generated from reference data" );
+	f << Httag( HT_P, "This list is automatically generated from reference data" );
 
 	priv::p_printTable_1( f, "t1" );
 	priv::p_printTable_2( f, "t2" );

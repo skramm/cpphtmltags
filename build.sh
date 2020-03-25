@@ -14,12 +14,14 @@ OUT_FILE=cpphtmltags.hpp
 
 echo "Running build.sh"
 
+#**************************************************
 function print_header()
 {
 	echo "// -------- GENERATED CODE ! --------"> $1
 	echo -e "// timestamp: $(date +%Y%m%d-%H%M)\n">> $1
 }
 
+#**************************************************
 function generate()
 {
 	print_header $file_s
@@ -52,6 +54,20 @@ function generate()
 }
 
 #**************************************************
+function extract()
+{
+	rm $file_output
+	while IFS=$':' read a b
+	do
+		if [ "${a:0:1}" != "#" ]; then
+			if [ ${#a} -ne 0 ]; then
+				echo "$a" >> $file_output
+			fi
+		fi
+	done < $file_input
+}
+
+#**************************************************
 echo "-Start build script"
 mkdir -p tmp
 
@@ -59,18 +75,16 @@ mkdir -p tmp
 
 file_input=ref/valid_attribs.ref
 file_output=build/tmp/attribs_1.ref
+extract
 
-rm $file_output
-while IFS=$':' read a b
-do
-	if [ "${a:0:1}" != "#" ]; then
-		if [ ${#a} -ne 0 ]; then
-			echo "$a" >> $file_output
-		fi
-	fi
-done < $file_input
 cat build/tmp/attribs_1.ref ref/global_attribs.ref> build/tmp/attribs_2.ref
 sort <build/tmp/attribs_2.ref >build/tmp/attribs.ref
+
+
+file_input=ref/tag_content.ref
+file_output=build/tmp/tags.ref
+extract
+
 
 
 # STEP 0.1: generate isGlobalAttr()
@@ -108,7 +122,7 @@ echo -e "}">>$file_output
 
 # STEP 1: generate enum and getString() functions, for tags and attributes
 # 1.1 - for tags
-file_input=ref/tags.ref
+file_input=build/tmp/tags.ref
 file_e=build/tmp/tags_enum.src
 file_s=build/tmp/tags_switch.src
 pre=HT
@@ -147,7 +161,6 @@ echo -e "\t\t\treturn true;">> $file_out
 echo -e "\t\tdefault: break;\n\t}">> $file_out
 echo -e "\treturn false;\n}\n">> $file_out
 
-#echo -e "\n} // namespace priv\n">> $file_out
 
 # STEP 3: generate map of allowed tags for each attribute
 
@@ -155,8 +168,6 @@ file_input=ref/valid_attribs.ref
 file_out=build/tmp/attrib_tags.src
 
 print_header $file_out
-
-#echo -e "namespace priv {\n">> $file_out
 
 echo "/// Private class, holds map of allowed tags (value) for a given attribute (key)">> $file_out
 echo -e "struct MapAttribs\n{">> $file_out

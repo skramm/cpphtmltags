@@ -19,15 +19,12 @@ The final file is build according to this diagram:
 
 The generated content is build by the bash scripts `build.sh` (and 2 others).
 It takes as input the html reference material that is located in the files located in the `ref` subfolder:
-- `tags.ref` holds the list of tags
 - `global_attribs.ref` holds the list of global attributes (the one that can be used with any html element).
 - `valid_attribs.ref` holds the list of authorized tags for a given attribute, in the form `attrib:tag1,tag2,tag3`.
 It is used along with `global_attribs.ref` to generate a file holding all the attributes, that is used to generate the code.
 - `void_elements.ref` holds the list of void-elements (tags that don't get closed)
-
-NEW:
-- `tag_content.ref` : (WIP) processed by script `bcontent.sh`, will generated the class httag::priv::AllowedContentMap
-- `element_cat.ref` : (WIP) processed by script `bcat.sh`, will generated
+- `tag_content.ref` :processed by script `bcontent.sh`, will generate the class httag::priv::AllowedContentMap
+- `element_cat.ref` :processed by script `bcat.sh`, will generate
 
 See <a href="../supported.html">supported tags</a>
 
