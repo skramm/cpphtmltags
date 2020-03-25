@@ -22,33 +22,6 @@ tagBelongsToCat( En_Httag tag, En_TagCat cat )
 }
 
 //-----------------------------------------------------------------------------------
-/// A global attribute can be used in \b any html tag
-/**
-for a list, see: https://www.w3schools.com/tags/ref_standardattributes.asp
-\todo Is this function needed, really ? Deprecate it ? (anyhow, needs some updating)
-*/
-inline
-bool
-isGlobalAttr( En_Attrib attr )
-{
-	assert( attr != AT_DUMMY );
-
-	switch( attr )
-	{
-		case AT_CLASS:
-		case AT_STYLE:
-		case AT_LANG:
-		case AT_TITLE:
-		case AT_HIDDEN:
-		case AT_ID:
-			return true;
-		default:
-			return false;
-	}
-	return false;
-}
-
-//-----------------------------------------------------------------------------------
 /// Returns true if attribute \c attr is allowed for \c tag
 inline
 bool
@@ -973,7 +946,7 @@ Httag::printSupportedHtml( std::ostream& f )
 
 	Httag t2( f, HT_BODY );
 	t2.openTag();
-
+	t2 << Httag( HT_P, "This list is automatically generated from reference data" );
 	f << Httag( HT_H2, "Supported tags and categories" );
 	{
 		Httag table( f, HT_TABLE, AT_ID, "t1" );
@@ -1004,44 +977,14 @@ Httag::printSupportedHtml( std::ostream& f )
 			}
 			td.closeTag();
 			td.openTag();
+			for( size_t j=0; j<AT_DUMMY; j++)
 			{
-				
-			}
-
-		}
-	}
-
-	f << Httag( HT_H2, "allowed attributes" );
-	{
-		Httag table( f, HT_TABLE, AT_ID, "t2" );
-		table.openTag();
-		{
-			Httag tr( f, HT_TR );
-			tr << Httag( HT_TH ) << Httag( HT_TH, "Tag" ) << Httag( HT_TH, "Allowed attributes" );
-			tr.printTag();			
-		}
-
-		for( size_t i=0; i<HT_DUMMY; i++ )
-		{
-			Httag tr( f, HT_TR );
-			tr.openTag();
-			auto tag = static_cast<En_Httag>(i);
-
-			f << Httag( HT_TD, i+1 ) << Httag( HT_TD, getString( tag ) );
-			Httag td( f, HT_TD );
-			td.openTag();
-
-			for( size_t j=0; j<priv::C_DUMMY; j++)
-			{
-				auto cat = static_cast<priv::En_TagCat>(j);
-				if( tagBelongsToCat( tag, cat ) )
-					f << getString( cat ) << ',';
+				auto attrib = static_cast<En_Attrib>(j);
+				if( priv::attribIsAllowed( attrib, tag ) && !priv::isGlobalAttr( attrib ) )
+					f << getString( attrib ) << "<br>";
 			}
 		}
 	}
-
-	f << Httag( HT_H2, "Tag categories" );
-
 
 }
 

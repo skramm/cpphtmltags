@@ -73,6 +73,39 @@ cat tmp/attribs_1.ref ref/global_attribs.ref> tmp/attribs_2.ref
 sort <tmp/attribs_2.ref >tmp/attribs.ref
 
 
+# STEP 0.1: generate isGlobalAttr()
+
+file_input=ref/global_attribs.ref
+file_output=tmp/global_attribs.src
+
+echo "/// Returns true if \c attr if global">$file_output
+echo "/** For a list, see: https://www.w3schools.com/tags/ref_standardattributes.asp */">>$file_output
+echo "inline bool">>$file_output
+echo "isGlobalAttr( En_Attrib attr )">>$file_output
+echo -e "\t{">>$file_output
+echo -e "\tassert( attr != AT_DUMMY );">>$file_output
+echo -e "\tswitch( attr )">>$file_output
+echo -e "\t{">>$file_output
+
+while read elem
+do
+	if [ "${elem:0:1}" != "#" ]; then
+		if [ ${#elem} -ne 0 ]; then
+			e=$(echo $elem | tr '[:lower:]' '[:upper:]')
+			echo -e "\t\tcase AT_$e:">> $file_output
+		fi
+	fi
+done < $file_input
+
+echo -e "\t\treturn true;">>$file_output
+echo -e "\t\tdefault:">>$file_output
+echo -e "\t\t\treturn false;">>$file_output
+echo -e "\t}">>$file_output
+echo -e "\treturn false;">>$file_output
+echo -e "}">>$file_output
+
+
+
 # STEP 1: generate enum and getString() functions, for tags and attributes
 # 1.1 - for tags
 file_input=ref/tags.ref
@@ -125,7 +158,7 @@ print_header $file_out
 
 #echo -e "namespace priv {\n">> $file_out
 
-echo "/// Private class, holds map of allowed attributes">> $file_out
+echo "/// Private class, holds map of allowed tags (value) for a given attribute (key)">> $file_out
 echo -e "struct MapAttribs\n{">> $file_out
 echo -e "\tMapAttribs_t _map;">> $file_out
 echo -e "\tconst MapAttribs_t& get() {">> $file_out
@@ -177,6 +210,7 @@ cat \
 	tmp/element_cat.src \
 	tmp/void_element.src \
 	tmp/tag_content.src \
+	tmp/global_attribs.src \
 	src/cpphtmltags_3.hh \
 	>> $OUT_FILE
 
