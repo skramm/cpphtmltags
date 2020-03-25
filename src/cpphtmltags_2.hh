@@ -1,9 +1,16 @@
 //--- START: TEMPLATE FILE cpphtmltags_2.hh
 
+/// Maps attributes to tags that allow them
 typedef std::map<En_Attrib,std::vector<En_Httag>> MapAttribs_t;
-typedef std::map<En_TagCat,std::vector<En_Httag>> TagCat_t;
 
+/// Maps tag categories to tags that belong to it
+typedef std::map<En_TagCat,std::vector<En_Httag>> MapTagCat_t;
+
+/// See GlobAttribMap_t
 typedef std::pair<En_Attrib,std::string>       PairAttribString_t;
+
+/// Holds for some tags (that have a global attribute) the pair (attribute, string-value)
+/** See \link global_attribute */
 typedef std::map<En_Httag, PairAttribString_t> GlobAttribMap_t;
 
 
@@ -63,3 +70,4 @@ struct AllowedContent
 };
 
 //--- END: TEMPLATE FILE cpphtmltags_2.hh
+

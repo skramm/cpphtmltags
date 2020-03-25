@@ -165,20 +165,21 @@ class OpenedTags
 		}
 };
 
-enum En_UnallowedCause { UR_ForbiddenTag, UR_ForbiddenCat, UR_NotAllowedTag, UR_NotAllowedCat };
+enum En_UnallowedTag { UT_Undef, UT_ForbiddenTag, UT_ForbiddenCat, UT_NotAllowed };
 
 inline
 std::string
-getString( En_UnallowedCause cause )
+getString( En_UnallowedTag cause )
 {
 	switch( cause )
 	{
-		case UR_ForbiddenTag:  return "UR_ForbiddenTag";
-		case UR_ForbiddenCat:  return "UR_ForbiddenCat";
-		case UR_NotAllowedTag: return "UR_NotAllowedTag";
-		case UR_NotAllowedCat: return "UR_NotAllowedCat";
+		case UT_ForbiddenTag:  return "ForbiddenTag";
+		case UT_ForbiddenCat:  return "ForbiddenCat";
+		case UT_Undef:         return "Undefined";
+		case UT_NotAllowed:    return "NotAllowed";
 		default: assert(0);
 	}
+	return std::string(); // to avoid a build warning
 }
 
 //-----------------------------------------------------------------------------------
@@ -187,40 +188,35 @@ getString( En_UnallowedCause cause )
  * \todo 20200325 check that out, something fishy...
 */
 inline
-bool
-tagIsAllowed( En_Httag tag, const OpenedTags& ot, const AllowedContentMap& acm, En_UnallowedCause& cause )
+std::pair<bool,En_UnallowedTag>
+tagIsAllowed( En_Httag tag, const OpenedTags& ot, const AllowedContentMap& acm )
 {
-	const auto& ac = acm.getC( ot.current() ); // allowed content of currently (latest) opened tag
+	if( tag == HT_DOCTYPE )
+		return std::make_pair(true,UT_Undef);
+
+	const auto& ac = acm.get( ot.current() ); // allowed content of currently (latest) opened tag
 
 	for( auto e: ac._v_forbiddenTags )
 		if( e == tag )
-		{
-			cause = UR_ForbiddenTag;
-			return false;
-		}
+			return std::make_pair(false,UT_ForbiddenTag);
 
 	for( auto cat: ac._v_forbiddenCats )
 		if( tagBelongsToCat( tag, cat ) )
-		{
-			cause = UR_ForbiddenCat;
-			return false;
-		}
+			return std::make_pair(false,UT_ForbiddenCat);
 
-	for( auto cat: ac._v_allowedCats )
-		if( tagBelongsToCat( tag, cat ) )
-		{
-			cause = UR_ForbiddenCat;
-			return false;
-		}
+	if( ac._v_allowedCats.empty() && ac._v_allowedTags.empty() )
+		return std::make_pair(true,UT_Undef);
+	else
+	{
+		for( auto cat: ac._v_allowedCats )
+			if( tagBelongsToCat( tag, cat ) )
+				return std::make_pair(true,UT_Undef);
 
-	for( auto e: ac._v_allowedTags )
-		if( e == tag )
-		{
-			cause = UR_NotAllowedTag;
-			return false;
-		}
-
-	return false;
+		for( auto e: ac._v_allowedTags )
+			if( e == tag )
+				return std::make_pair(true,UT_Undef);
+	}
+	return std::make_pair(false,UT_NotAllowed);
 }
 //-----------------------------------------------------------------------------------
 template<typename T>
@@ -400,23 +396,6 @@ class Httag
 		bool            _tagIsOpen     = false;
 		std::map<En_Attrib,std::string> _attr_map;
 };
-
-
-//-----------------------------------------------------------------------------------
-/// Helper function, prints the tags and attributes currently supported, HTML version
-/* See related Httag::printSupported()
-**/
-inline
-void
-Httag::printSupportedHtml( std::ostream& f )
-{
-
-	Httag t1( f, HT_DOCTYPE );
-	t1.openTag();
-	Httag h( f, HT_HEAD);
-	h << Httag( HT_TITLE, "supported" );
-	h.printTag();
-}
 
 
 //-----------------------------------------------------------------------------------
@@ -674,8 +653,8 @@ Httag::openTag( std::string __file, int __line )
 			{
 				HTTAG_FATAL_ERROR_FL( std::string("attempt to open tag <") + getString(_tag_en) + "> but currently opened tag is identical" );
 			}
-			priv::En_UnallowedCause cause;
-			if( !tagIsAllowed( _tag_en, p_getOpenedTags(), p_getAllowedContentMap(), cause ) )
+			auto check = tagIsAllowed( _tag_en, p_getOpenedTags(), p_getAllowedContentMap() );
+			if( !check.first )
 			{
 				HTTAG_FATAL_ERROR_FL(
 					std::string("attempt to open tag <")
@@ -683,7 +662,7 @@ Httag::openTag( std::string __file, int __line )
 					+ "> but is not allowed in current context:\n"
 					+ p_getOpenedTags().str()
 					+ "\n-because: "
-					+ getString( cause )
+					+ getString( check.second )
 				);
 			}
 		}
@@ -775,17 +754,6 @@ Httag::getGlobalAttrib( En_Httag tag )
 	return std::string();
 }
 //-----------------------------------------------------------------------------------
-/// Add an HTML attribute to the tag (templated generic version)
-/**
-If the attribute is already present, then the value will be concatenated to the previous value
-*/
-template<typename T>
-void
-Httag::addAttrib( En_Attrib attr, T value, std::string __file, int __line )
-{
-	p_addAttrib( attr, std::to_string(value), __file, __line );
-}
-//-----------------------------------------------------------------------------------
 /// Add an HTML attribute to the tag (specialized templated version for \c std::string)
 /**
 If the attribute is already present, then the value will be concatenated to the previous value
@@ -806,6 +774,17 @@ void
 Httag::addAttrib<const char*>( En_Attrib attr, const char* value, std::string __file, int __line )
 {
 	p_addAttrib( attr, value, __file, __line );
+}
+//-----------------------------------------------------------------------------------
+/// Add an HTML attribute to the tag (templated generic version)
+/**
+If the attribute is already present, then the value will be concatenated to the previous value
+*/
+template<typename T>
+void
+Httag::addAttrib( En_Attrib attr, T value, std::string __file, int __line )
+{
+	p_addAttrib( attr, std::to_string(value), __file, __line );
 }
 //-----------------------------------------------------------------------------------
 /// Add an HTML attribute to the tag
@@ -970,6 +949,102 @@ operator << ( std::ostream& s, const Httag& h )
 	return s;
 }
 //-----------------------------------------------------------------------------------
+
+
+
+//-----------------------------------------------------------------------------------
+/// Helper function, prints the tags and attributes currently supported, HTML version
+/* See related Httag::printSupported()
+**/
+inline
+void
+Httag::printSupportedHtml( std::ostream& f )
+{
+
+	f << Httag( HT_DOCTYPE );
+
+	Httag h( f, HT_HEAD);
+	h << Httag( HT_TITLE, "cpphtmltags: supported features" );
+	Httag css( HT_LINK, AT_HREF, "misc/supported.css" );
+	css.addAttrib( AT_REL, "stylesheet" );
+	css.addAttrib( AT_TYPE, "text/css" );
+	h << css;
+	h.printTag();
+
+	Httag t2( f, HT_BODY );
+	t2.openTag();
+
+	f << Httag( HT_H2, "Supported tags and categories" );
+	{
+		Httag table( f, HT_TABLE, AT_ID, "t1" );
+		table.openTag();
+		{
+			Httag tr( f, HT_TR );
+			tr << Httag( HT_TH )
+				<< Httag( HT_TH, "Tag" )
+				<< Httag( HT_TH, "Category" )
+				<< Httag( HT_TH, "Allowed attributes" );
+			tr.printTag();			
+		}
+
+		for( size_t i=0; i<HT_DUMMY; i++ )
+		{
+			Httag tr( f, HT_TR );
+			tr.openTag();
+			auto tag = static_cast<En_Httag>(i);
+
+			f << Httag( HT_TD, i+1 ) << Httag( HT_TD, getString( tag ) );
+			Httag td( f, HT_TD );
+			td.openTag();
+			for( size_t j=0; j<priv::C_DUMMY; j++)
+			{
+				auto cat = static_cast<priv::En_TagCat>(j);
+				if( tagBelongsToCat( tag, cat ) )
+					f << getString( cat ) << ',';
+			}
+			td.closeTag();
+			td.openTag();
+			{
+				
+			}
+
+		}
+	}
+
+	f << Httag( HT_H2, "allowed attributes" );
+	{
+		Httag table( f, HT_TABLE, AT_ID, "t2" );
+		table.openTag();
+		{
+			Httag tr( f, HT_TR );
+			tr << Httag( HT_TH ) << Httag( HT_TH, "Tag" ) << Httag( HT_TH, "Allowed attributes" );
+			tr.printTag();			
+		}
+
+		for( size_t i=0; i<HT_DUMMY; i++ )
+		{
+			Httag tr( f, HT_TR );
+			tr.openTag();
+			auto tag = static_cast<En_Httag>(i);
+
+			f << Httag( HT_TD, i+1 ) << Httag( HT_TD, getString( tag ) );
+			Httag td( f, HT_TD );
+			td.openTag();
+
+			for( size_t j=0; j<priv::C_DUMMY; j++)
+			{
+				auto cat = static_cast<priv::En_TagCat>(j);
+				if( tagBelongsToCat( tag, cat ) )
+					f << getString( cat ) << ',';
+			}
+		}
+	}
+
+	f << Httag( HT_H2, "Tag categories" );
+
+
+}
+
 
 } // namespace httag end
 

@@ -6,7 +6,7 @@ For more details, also run `make doc` in the root folder (needs Doxygen).
 ## Generation of library file
 
 Starting from release 1.0, the actual library file (`cpphtmltags.hpp`) is actually generated from several files.
-The main C++ code is in 3 source files: `cpphtmltags_1.hh`, `cpphtmltags_2.hh` and `cpphtmltags_3.hh`
+The main C++ code is in 3 source files: `cpphtmltags_1.hh`, `cpphtmltags_2.hh` and `cpphtmltags_3.hh`.
 The final file is build according to this diagram:
 
 <table>
@@ -85,3 +85,28 @@ See list here: https://developer.mozilla.org/en-US/docs/Glossary/Empty_element
 - private functions of public class are prefixed with `p_`
 - static variables are prefixed with `s_`
 - all enums are prefixed with `En_`
+
+
+
+## Handling ot authorized content
+
+This is done through a map that hold for each tag a value of type httag::priv::AllowedContent
+It is wrapped in the type httag::priv::AllowedContentMap.
+These two types are dymalically generated at build time.
+
+The type httag::priv::AllowedContent holds for a given tag all the allowed content for that tag, as:
+- a list of allowed tags
+- a list of allowed categories of tags (see httag::priv::En_TagCat)
+- a list of non-allowed tags
+- a list of non-allowed categories of tags
+
+
+
+
+
+
+## Other stuff, todos, ...
+
+\todo checkout this:
+https://www.boost.org/doc/libs/1_72_0/doc/html/stacktrace/getting_started.html
+Maybe it can be used to access the caller code in case of error?

@@ -28,13 +28,14 @@ mkdir -p tmp
 echo -e "namespace priv {\n"> $file_out1
 
 echo "/// Enum holding tag categories">> $file_out1
+echo "/** See https://html.spec.whatwg.org/multipage/dom.html#kinds-of-content */">> $file_out1
 echo -e "enum En_TagCat\n{">> $file_out1
 
 
 echo "/// Private class, holds map of categories of tags"> $file_out2
 echo -e "struct TagCat\n{">> $file_out2
-echo -e "\tTagCat_t _map_cat;">> $file_out2
-echo -e "\tconst TagCat_t& get() {">> $file_out2
+echo -e "\tMapTagCat_t _map_cat;">> $file_out2
+echo -e "\tconst MapTagCat_t& get() {">> $file_out2
 echo -e "\t\treturn _map_cat;\n\t}">> $file_out2
 echo -e "\tTagCat()\n\t{" >>$file_out2
 

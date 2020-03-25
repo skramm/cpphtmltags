@@ -17,7 +17,8 @@ file_out=tmp/tag_content.src
 set +x
 mkdir -p tmp
 
-echo "/// Holds for each tag its allowed content"> $file_out
+echo -e "/// Holds for each tag its allowed content, wrapper around std::map<br>\n/// Build-time generated type"> $file_out
+echo -e "/** See related type AllowedContent */\n">> $file_out
 echo -e "struct AllowedContentMap\n{">> $file_out
 
 echo -e "\tstd::map<En_Httag,AllowedContent> _map_AllowedContent;">> $file_out
@@ -26,7 +27,7 @@ echo -e "\tAllowedContent& get( En_Httag tag )\n\t{">> $file_out
 echo -e "\t\tassert( _map_AllowedContent.count(tag) );">> $file_out
 echo -e "\t\treturn _map_AllowedContent[tag];\n\t}">> $file_out
 
-echo -e "\tconst AllowedContent& getC( En_Httag tag ) const\n\t{">> $file_out
+echo -e "\tconst AllowedContent& get( En_Httag tag ) const\n\t{">> $file_out
 echo -e "\t\tassert( _map_AllowedContent.count(tag) );">> $file_out
 echo -e "\t\treturn _map_AllowedContent.at(tag);\n\t}">> $file_out
 

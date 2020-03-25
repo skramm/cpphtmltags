@@ -1,0 +1,20 @@
+/*
+This style sheet is to be used with the output of program
+build/supported > supp.html
+*/
+
+table
+{
+	border-collapse:collapse;
+	border: solid 1px black;
+}
+
+th,tr,td
+{
+	border: solid 1px black;
+}
+th
+{
+font-family:bold;
+}
+

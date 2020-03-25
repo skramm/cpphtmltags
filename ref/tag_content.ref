@@ -11,7 +11,8 @@
 # syntax 2: for elements belonging to special category E_something
 # tag:E_something
 # The possible categories are:
-# E_VOID,E_TEXT
+# - E_VOID: no content at all
+# - E_TEXT: text only content
 
 
 # PRELIMINAR !!!
@@ -30,9 +31,9 @@ basefont
 b:C_phrasing
 bdi:C_phrasing
 bdo:C_phrasing
-big
+big:
 blockquote:C_flow
-body
+body:
 br:E_VOID
 button:C_phrasing,!C_interactive
 canvas

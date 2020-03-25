@@ -148,7 +148,7 @@ td.openTag();
 td.addAttrib( AT_CLASS, "abc" );  // this will throw an error
 ```
 
-
+<a name="global_attribute"></a>
 ####  Tag global attributes
 
 It is possible to add to a given tag a "global attribute", that is each time you will output that tag, this attribute-value pair will be automatically added.

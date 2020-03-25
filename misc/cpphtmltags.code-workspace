@@ -7,8 +7,7 @@
 	"settings": {
 		"files.exclude": {
 			"build": true,
-			"tmp": true,
-			"cpphtmltags.hpp":true
+			"tmp": true
 		},
 		"files.associations": {
 			"iostream": "cpp",
