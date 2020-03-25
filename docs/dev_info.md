@@ -9,29 +9,16 @@ Starting from release 1.0, the actual library file (`cpphtmltags.hpp`) is actual
 The main C++ code is in 3 source files: `cpphtmltags_1.hh`, `cpphtmltags_2.hh` and `cpphtmltags_3.hh`
 The final file is build according to this diagram:
 
-```
-|-------------------|
-|                   |
-| cpphtmltags_1.hh  |
-|                   |
-|-------------------|
-|    generated      |
-|     content       |
-|-------------------|
-|                   |
-| cpphtmltags_2.hh  |
-|                   |
-|-------------------|
-|    generated      |
-|     content       |
-|-------------------|
-|                   |
-| cpphtmltags_3.hh  |
-|                   |
-|-------------------|
-```
+<table>
+<tr><td><code>cpphtmltags_1.hh</code></td></tr>
+<tr><td>generated content</td></tr>
+<tr><td><code>cpphtmltags_2.hh</code></td></tr>
+<tr><td>generated content</td></tr>
+<tr><td><code>cpphtmltags_3.hh</code></td></tr>
+</table>
 
-All the html reference material is located in the files located in the `ref` subfolder:
+The generated content is build by the bash scripts `build.sh` (and 2 others).
+It takes as input the html reference material that is located in the files located in the `ref` subfolder:
 - `tags.ref` holds the list of tags
 - `global_attribs.ref` holds the list of global attributes (the one that can be used with any html element).
 - `valid_attribs.ref` holds the list of authorized tags for a given attribute, in the form `attrib:tag1,tag2,tag3`.
@@ -42,8 +29,6 @@ NEW:
 - `tag_content.ref` : (WIP) processed by script `bcontent.sh`, will generated the class httag::priv::AllowedContentMap
 - `element_cat.ref` : (WIP) processed by script `bcat.sh`, will generated
 
-These files serve a source to build the actual code.
-This done by the shell script `build.sh`.
 
 Four steps:
 - build the reference file holding all the attributes

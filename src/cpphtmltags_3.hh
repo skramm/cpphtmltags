@@ -123,7 +123,10 @@ hasDefaultLF_Close( En_Httag tag )
 }
 
 //-----------------------------------------------------------------------------------
-/// Holds the list of currently opened tags
+/// Holds the list of currently opened tags.
+/**
+Statically instanciated in Httag, see Httag::p_getOpenedTags()
+*/
 class OpenedTags
 {
 	private:
@@ -161,29 +164,61 @@ class OpenedTags
 			return _v_ot.back();
 		}
 };
+
+enum En_UnallowedCause { UR_ForbiddenTag, UR_ForbiddenCat, UR_NotAllowedTag, UR_NotAllowedCat };
+
+inline
+std::string
+getString( En_UnallowedCause cause )
+{
+	switch( cause )
+	{
+		case UR_ForbiddenTag:  return "UR_ForbiddenTag";
+		case UR_ForbiddenCat:  return "UR_ForbiddenCat";
+		case UR_NotAllowedTag: return "UR_NotAllowedTag";
+		case UR_NotAllowedCat: return "UR_NotAllowedCat";
+		default: assert(0);
+	}
+}
+
 //-----------------------------------------------------------------------------------
-/// Returns true if tag is allowed inside tag chain
+/// Returns true if \c tag is allowed inside tag chain
+/**
+ * \todo 20200325 check that out, something fishy...
+*/
 inline
 bool
-tagIsAllowed( En_Httag tag, const OpenedTags& ot, const AllowedContentMap& acm )
+tagIsAllowed( En_Httag tag, const OpenedTags& ot, const AllowedContentMap& acm, En_UnallowedCause& cause )
 {
 	const auto& ac = acm.getC( ot.current() ); // allowed content of currently (latest) opened tag
 
 	for( auto e: ac._v_forbiddenTags )
 		if( e == tag )
+		{
+			cause = UR_ForbiddenTag;
 			return false;
+		}
 
 	for( auto cat: ac._v_forbiddenCats )
 		if( tagBelongsToCat( tag, cat ) )
+		{
+			cause = UR_ForbiddenCat;
 			return false;
+		}
 
 	for( auto cat: ac._v_allowedCats )
 		if( tagBelongsToCat( tag, cat ) )
-			return true;
+		{
+			cause = UR_ForbiddenCat;
+			return false;
+		}
 
 	for( auto e: ac._v_allowedTags )
 		if( e == tag )
-			return true;
+		{
+			cause = UR_NotAllowedTag;
+			return false;
+		}
 
 	return false;
 }
@@ -235,7 +270,7 @@ AllowedContentMap::print( std::ostream& f ) const
 } // namespace priv
 
 //-----------------------------------------------------------------------------------
-/// Line Feed Mode (see manual)
+/// Line Feed Mode. See [manual](md_manual.html#linefeed)
 enum En_LineFeedMode
 {
 	LF_None, LF_Always, LF_Default
@@ -325,7 +360,8 @@ class Httag
 		{
 			lf_mode() = mode;
 		}
-		static void printSupported(  std::ostream& );
+		static void printSupported( std::ostream& );
+		static void printSupportedHtml( std::ostream& );
 		static size_t printOpenedTags( std::ostream&, const char* msg=0 );
 
 	private:
@@ -334,6 +370,7 @@ class Httag
 		void p_checkValidFileType( std::string action );
 		std::string p_getAttribs() const;
 
+		/// Static accessor on list of opened tags
 		static priv::OpenedTags& p_getOpenedTags()
 		{
 			static priv::OpenedTags s_ot;
@@ -364,8 +401,28 @@ class Httag
 		std::map<En_Attrib,std::string> _attr_map;
 };
 
+
+//-----------------------------------------------------------------------------------
+/// Helper function, prints the tags and attributes currently supported, HTML version
+/* See related Httag::printSupported()
+**/
+inline
+void
+Httag::printSupportedHtml( std::ostream& f )
+{
+
+	Httag t1( f, HT_DOCTYPE );
+	t1.openTag();
+	Httag h( f, HT_HEAD);
+	h << Httag( HT_TITLE, "supported" );
+	h.printTag();
+}
+
+
 //-----------------------------------------------------------------------------------
 /// Helper function, prints the tags and attributes currently supported
+/* See related Httag::printSupportedHtml()
+**/
 inline
 void
 Httag::printSupported( std::ostream& f )
@@ -617,9 +674,17 @@ Httag::openTag( std::string __file, int __line )
 			{
 				HTTAG_FATAL_ERROR_FL( std::string("attempt to open tag <") + getString(_tag_en) + "> but currently opened tag is identical" );
 			}
-			if( !tagIsAllowed( _tag_en, p_getOpenedTags(), p_getAllowedContentMap() ) )
+			priv::En_UnallowedCause cause;
+			if( !tagIsAllowed( _tag_en, p_getOpenedTags(), p_getAllowedContentMap(), cause ) )
 			{
-				HTTAG_FATAL_ERROR_FL( std::string("attempt to open tag <") + getString(_tag_en) + "> but is not allowed in current context:" + p_getOpenedTags().str() + std::string("\n") );
+				HTTAG_FATAL_ERROR_FL(
+					std::string("attempt to open tag <")
+					+ getString(_tag_en)
+					+ "> but is not allowed in current context:\n"
+					+ p_getOpenedTags().str()
+					+ "\n-because: "
+					+ getString( cause )
+				);
 			}
 		}
 		switch( _tag_en )

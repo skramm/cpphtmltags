@@ -81,17 +81,48 @@ Refs:
 //			throw std::runtime_error( std::string("httag: fatal error: ") + msg ); \
 //		}
 //#else
+/*
+		msg = msg \
+		+ "\n -file: " \
+		+ __FILE__ \
+		+ "\n -line: " \
+		+ std::to_string(__LINE__) \
+		+ "\n -func: " \
+		+ __FUNCTION__ \
+		+ '\n'; \
+		std::cout << "MACRO 1: " << msg << " s=" << msg.size() << "\n"; \
+		out = in + " -file: "; \
+		std::cout << "MACRO 2: " << msg << " s=" << msg.size() << "\n"; \
 
-#define HTTAG_FATAL_ERROR( msg ) throw std::runtime_error(msg)
+*/
+#define HTTAG_ADD_ERROR_LOCATION( in, out ) \
+	{ \
+		out = in \
+		+ "\n -file: " \
+		+ __FILE__ \
+		+ "\n -line: " \
+		+ std::to_string(__LINE__) \
+		+ "\n -func: " \
+		+ __FUNCTION__ \
+		+ '\n'; \
+	}
+
+#define HTTAG_FATAL_ERROR( msg ) \
+	{ \
+		std::string out; \
+		HTTAG_ADD_ERROR_LOCATION( msg, out ); \
+		throw std::runtime_error( out ); \
+	}
 
 /// Version with available File and Line location
 #define HTTAG_FATAL_ERROR_FL( msg ) \
 	{ \
-		std::string err_msg; \
+		std::string out; \
 		if( __line != 0 ) \
-			err_msg = "\n -file: " + __file + "\n -line: " + std::to_string( __line ) + "\n -"; \
-		err_msg += msg; \
-		throw std::runtime_error(err_msg); \
+			out = msg + "\n -file: " + __file + "\n -line: " + std::to_string( __line ) + "\n -"; \
+		else \
+			HTTAG_ADD_ERROR_LOCATION( msg, out ); \
+		throw std::runtime_error(out); \
 	}
 
 /// Open tag \c t

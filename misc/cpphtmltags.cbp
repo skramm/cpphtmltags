@@ -47,64 +47,32 @@
 			<Add option="-Wall" />
 			<Add option="-std=c++11" />
 		</Compiler>
-		<Unit filename="Doxyfile">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="Makefile">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="README.md">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="bcat.sh" />
-		<Unit filename="bcontent.sh" />
-		<Unit filename="build.sh">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
+		<Unit filename="Doxyfile" />
+		<Unit filename="../Makefile" />
+		<Unit filename="../README.md" />
+		<Unit filename="../bcat.sh" />
+		<Unit filename="../bcontent.sh" />
+		<Unit filename="../build.sh" />
 		<Unit filename="code.css" />
-		<Unit filename="cpphtmltags.hpp" />
-		<Unit filename="cpphtmltags_1.hh">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="cpphtmltags_2.hh">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="cpphtmltags_3.hh" />
+		<Unit filename="../cpphtmltags.hpp" />
+		<Unit filename="../src/cpphtmltags_1.hh" />
+		<Unit filename="../src/cpphtmltags_2.hh" />
+		<Unit filename="../src/cpphtmltags_3.hh" />
 		<Unit filename="customdoxygen.css" />
-		<Unit filename="demo/demo0.cpp" />
-		<Unit filename="demo/demo1.cpp">
-			<Option target="main1" />
-		</Unit>
-		<Unit filename="demo/demo2.cpp">
-			<Option target="main2" />
-		</Unit>
-		<Unit filename="demo/demo3.cpp" />
-		<Unit filename="demo/supported.cpp">
-			<Option target="supported" />
-		</Unit>
-		<Unit filename="dev_info.md">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="manual.md">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="ref/element_cat.ref" />
-		<Unit filename="ref/global_attribs.ref">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="ref/tag_content.ref" />
-		<Unit filename="ref/tags.ref">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="ref/valid_attribs.ref">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="ref/void_elements.ref">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="tests/test_A.cpp">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
+		<Unit filename="../demo/demo0.cpp" />
+		<Unit filename="../demo/demo1.cpp" />
+		<Unit filename="../demo/demo2.cpp" />
+		<Unit filename="../demo/demo3.cpp" />
+		<Unit filename="../demo/supported.cpp" />
+		<Unit filename="../docs/dev_info.md" />
+		<Unit filename="../manual.md" />
+		<Unit filename="../ref/element_cat.ref" />
+		<Unit filename="../ref/global_attribs.ref" />
+		<Unit filename="../ref/tag_content.ref" />
+		<Unit filename="../ref/tags.ref" />
+		<Unit filename="../ref/valid_attribs.ref" />
+		<Unit filename="../ref/void_elements.ref" />
+		<Unit filename="../test_A.cpp" />
 		<Extensions>
 			<envvars />
 			<code_completion />

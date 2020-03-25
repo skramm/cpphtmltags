@@ -42,7 +42,7 @@ clean:
 
 # builds doxygen documentation
 doc:$(SRC_FILE)
-	doxygen misc/Doxyfile
+	doxygen misc/Doxyfile 1>build/doxygen.stdout 2>build/doxygen.stderr
 	xdg-open build/html/index.html
 
 show:

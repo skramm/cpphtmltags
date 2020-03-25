@@ -182,7 +182,7 @@ will printout: `<p class="abc cde">text</p>`
 For global attributes, it works the same.
 Please note that the global attribute will always be added at the end of the string.
 
-
+<a name="linefeed"></a>
 ### A.4 - Line feeds
 
 In order to be human readable, it may be a good idea to have here and then some line feeds in the output html code.
@@ -255,10 +255,14 @@ Add content to a void tag | fatal | `Httag t( HT_BR );`<br>`t.addContent( "abc" 
 Add an attribute to a file-type tag already opened | fatal | `Httag t( f, HT_H2 );`<br>`t.openTag();`<br>`t.addAttrib( AT_CLASS, "abc" )`
 Open a tag inside a context where it is not allowed | fatal | `Httag p( f, HT_P ); p.openTag();`<br>`Httag li( f, HT_LI ); li.openTag() );`
 
+see
+\snippet test_A.cpp error_test_1
 
 <hr>
 ### Developer information
 
 Check out [Developer information](dev_info.md).
+
+Check out dev_info.md.
 
 Copyright Sebastien Kramm - 2018-2020

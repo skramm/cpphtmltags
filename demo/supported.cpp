@@ -11,5 +11,6 @@ When running, if some elements appear as empty, this means that reference materi
 
 int main()
 {
-	httag::Httag::printSupported( std::cout );
+//	httag::Httag::printSupported( std::cout );
+	httag::Httag::printSupportedHtml( std::cout );
 }
