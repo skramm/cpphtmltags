@@ -259,16 +259,16 @@ class Httag
 	public:
 /// \name Constructors & destructors
 ///@{
-		Httag( std::ostream& f, En_Httag );
+		Httag( std::ostream&, En_Httag );
 
 		template<typename T>
-		Httag( std::ostream& f, En_Httag, T t=T() );
+		Httag( std::ostream&, En_Httag, T t=T() );
 
 		template<typename T>
-		Httag( std::ostream& f, En_Httag, En_Attrib=AT_DUMMY, T attribvalue=T() );
+		Httag( std::ostream&, En_Httag, En_Attrib=AT_DUMMY, T attribvalue=T() );
 
 		template<typename T1,typename T2>
-		Httag( std::ostream& f, En_Httag, T1 content, En_Attrib=AT_DUMMY, T2 attribvalue=T2() );
+		Httag( std::ostream&, En_Httag, T1 content, En_Attrib=AT_DUMMY, T2 attribvalue=T2() );
 
 		Httag( En_Httag );
 
@@ -428,8 +428,9 @@ Httag::printSupported( std::ostream& f )
 //-----------------------------------------------------------------------------------
 /// constructor 1
 inline
-Httag::Httag( En_Httag tag )
-	: _tag_en( tag ), _file(0), _isFileType(false)
+Httag::Httag(
+	En_Httag tag
+) : _tag_en( tag ), _file(0), _isFileType(false)
 {
 	assert( tag != HT_DUMMY );
 }
@@ -448,7 +449,7 @@ Httag::Httag(
 	T1         content,
 	En_Attrib  attr,
 	T2         attribvalue
-	) : Httag( tag )
+) : Httag( tag )
 {
 	setContent( content );
 
@@ -462,7 +463,7 @@ Httag::Httag(
 	En_Httag   tag,
 	En_Attrib  attr,
 	T          attribvalue
-	) : Httag( tag )
+) : Httag( tag )
 {
 	if( attr != AT_DUMMY )
 		p_addAttrib( attr, attribvalue );
@@ -477,7 +478,7 @@ inline
 Httag::Httag(
 	std::ostream& f,           ///< the file into where it will be written
 	En_Httag       tag          ///< the html tag id
-	) : _tag_en( tag ), _file(&f), _isFileType(true)
+) : _tag_en( tag ), _file(&f), _isFileType(true)
 {
 	assert( tag != HT_DUMMY );
 }
@@ -489,7 +490,7 @@ Httag::Httag(
 	std::ostream& f,           ///< the file into where it will be written
 	En_Httag       tag,          ///< the html tag id
 	T             content
-	) : _tag_en( tag ), _file(&f), _isFileType(true)
+) : _tag_en( tag ), _file(&f), _isFileType(true)
 {
 	assert( tag != HT_DUMMY );
 	setContent( content );
@@ -503,7 +504,7 @@ Httag::Httag(
 	En_Httag        tag,          ///< the html tag id
 	En_Attrib      att,          ///< (opt.) the tag's attribute id
 	T              attribvalue   ///< (opt.) the attribute value
-	) : _tag_en( tag ), _file(&f), _isFileType(true)
+) : _tag_en( tag ), _file(&f), _isFileType(true)
 {
 	assert( tag != HT_DUMMY );
 	if( att != AT_DUMMY )
@@ -518,7 +519,7 @@ Httag::Httag(
 	T1             content,      ///< tag content
 	En_Attrib      att,          ///< (opt.) the tag's attribute id
 	T2             attribvalue   ///< (opt.) the attribute value
-	) : _tag_en( tag ), _file(&f), _isFileType(true)
+) : _tag_en( tag ), _file(&f), _isFileType(true)
 {
 	assert( tag != HT_DUMMY );
 	if( att != AT_DUMMY )
@@ -921,35 +922,18 @@ operator << ( std::ostream& s, const Httag& h )
 			s << '\n';
 	return s;
 }
-//-----------------------------------------------------------------------------------
-
-
 
 //-----------------------------------------------------------------------------------
-/// Helper function, prints the tags and attributes currently supported, HTML version
-/* See related Httag::printSupported()
-**/
-inline
+namespace priv {
+
+//-----------------------------------------------------------------------------------
+/// Helper function
 void
-Httag::printSupportedHtml( std::ostream& f )
+p_printTable_1( std::ostream& f, std::string table_id )
 {
-
-	f << Httag( HT_DOCTYPE );
-
-	Httag h( f, HT_HEAD);
-	h << Httag( HT_TITLE, "cpphtmltags: supported features" );
-	Httag css( HT_LINK, AT_HREF, "misc/supported.css" );
-	css.addAttrib( AT_REL, "stylesheet" );
-	css.addAttrib( AT_TYPE, "text/css" );
-	h << css;
-	h.printTag();
-
-	Httag t2( f, HT_BODY );
-	t2.openTag();
-	t2 << Httag( HT_P, "This list is automatically generated from reference data" );
 	f << Httag( HT_H2, "Supported tags and categories" );
 	{
-		Httag table( f, HT_TABLE, AT_ID, "t1" );
+		Httag table( f, HT_TABLE, AT_ID, table_id );
 		table.openTag();
 		{
 			Httag tr( f, HT_TR );
@@ -985,7 +969,76 @@ Httag::printSupportedHtml( std::ostream& f )
 			}
 		}
 	}
+}
+//-----------------------------------------------------------------------------------
+/// Helper function
+void
+p_printTable_2( std::ostream& f, std::string table_id )
+{
+	f << Httag( HT_H2, "Supported attributes" );
+	{
+		Httag table( f, HT_TABLE, AT_ID, table_id );
+		table.openTag();
+		{
+			Httag tr( f, HT_TR );
+			tr << Httag( HT_TH )
+				<< Httag( HT_TH, "Attributes" )
+//				<< Httag( HT_TH, "Category" )
+				<< Httag( HT_TH, "Allowed tags" );
+			tr.printTag();			
+		}
 
+		for( size_t i=0; i<AT_DUMMY; i++ )
+		{
+			Httag tr( f, HT_TR );
+			tr.openTag();
+			auto attrib = static_cast<En_Attrib>(i);
+
+			f << Httag( HT_TD, i+1 ) << Httag( HT_TD, getString( attrib ) );
+
+			Httag td( f, HT_TD );
+			td.openTag();
+
+			for( size_t j=0; j<HT_DUMMY; j++ )
+			{
+				auto tag = static_cast<En_Httag>(j);
+				if( priv::attribIsAllowed( attrib, tag ) )
+					f << getString( tag ) << ',';
+			}
+		}
+	}
+}
+//-----------------------------------------------------------------------------------
+
+} // namespace priv end
+
+
+//-----------------------------------------------------------------------------------
+/// Helper function, prints the tags and attributes currently supported, HTML version
+/* See related Httag::printSupported()
+**/
+inline
+void
+Httag::printSupportedHtml( std::ostream& f )
+{
+
+	f << Httag( HT_DOCTYPE );
+
+	Httag h( f, HT_HEAD);
+	h << Httag( HT_TITLE, "cpphtmltags: supported features" );
+	Httag css( HT_LINK, AT_HREF, "supported.css" );
+	css.addAttrib( AT_REL, "stylesheet" );
+	css.addAttrib( AT_TYPE, "text/css" );
+	h << css;
+	h.printTag();
+
+
+	Httag t2( f, HT_BODY );
+	t2.openTag();
+	t2 << Httag( HT_P, "This list is automatically generated from reference data" );
+
+	priv::p_printTable_1( f, "t1" );
+	priv::p_printTable_2( f, "t2" );
 }
 
 

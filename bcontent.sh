@@ -4,21 +4,21 @@
 # author: S. Kramm
 
 # generation of C++ code
-# builds map of categories of tags
+# builds map of content allowed into a tag
 # build class httag::priv::AllowedContentMap
 
 
 echo "Running bcontent.sh"
 
 file_input=ref/tag_content.ref
-file_out=tmp/tag_content.src
+file_out=build/tmp/tag_content.src
 
 # START
 set +x
 mkdir -p tmp
 
-echo -e "/// Holds for each tag its allowed content, wrapper around std::map<br>\n/// Build-time generated type"> $file_out
-echo -e "/** See related type AllowedContent */\n">> $file_out
+echo "/// Holds for each tag its allowed content. Build-time generated type."> $file_out
+echo "/// See related type AllowedContent.">> $file_out
 echo -e "struct AllowedContentMap\n{">> $file_out
 
 echo -e "\tstd::map<En_Httag,AllowedContent> _map_AllowedContent;">> $file_out

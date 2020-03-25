@@ -14,7 +14,8 @@ typedef std::pair<En_Attrib,std::string>       PairAttribString_t;
 typedef std::map<En_Httag, PairAttribString_t> GlobAttribMap_t;
 
 
-/// holds for a given tag what content is allowed inside
+/// holds for a given tag what content is allowed inside.
+/// See related type AllowedContentMap
 struct AllowedContent
 {
 	std::vector<En_Httag>  _v_allowedTags;
@@ -24,7 +25,7 @@ struct AllowedContent
 	bool _isVoid = false;
 	bool _isText = false;
 
-/// type of tag
+/// Type of tag
 	enum En_TagType{ TT_NEITHER, TT_VOID, TT_TEXT };
 
 	/// Constructor

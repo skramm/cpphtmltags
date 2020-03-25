@@ -58,7 +58,7 @@ mkdir -p tmp
 # STEP 0: generate list of attributes from authorized tags/attributes file
 
 file_input=ref/valid_attribs.ref
-file_output=tmp/attribs_1.ref
+file_output=build/tmp/attribs_1.ref
 
 rm $file_output
 while IFS=$':' read a b
@@ -69,14 +69,14 @@ do
 		fi
 	fi
 done < $file_input
-cat tmp/attribs_1.ref ref/global_attribs.ref> tmp/attribs_2.ref
-sort <tmp/attribs_2.ref >tmp/attribs.ref
+cat build/tmp/attribs_1.ref ref/global_attribs.ref> build/tmp/attribs_2.ref
+sort <build/tmp/attribs_2.ref >build/tmp/attribs.ref
 
 
 # STEP 0.1: generate isGlobalAttr()
 
 file_input=ref/global_attribs.ref
-file_output=tmp/global_attribs.src
+file_output=build/tmp/global_attribs.src
 
 echo "/// Returns true if \c attr if global">$file_output
 echo "/** For a list, see: https://www.w3schools.com/tags/ref_standardattributes.asp */">>$file_output
@@ -109,16 +109,16 @@ echo -e "}">>$file_output
 # STEP 1: generate enum and getString() functions, for tags and attributes
 # 1.1 - for tags
 file_input=ref/tags.ref
-file_e=tmp/tags_enum.src
-file_s=tmp/tags_switch.src
+file_e=build/tmp/tags_enum.src
+file_s=build/tmp/tags_switch.src
 pre=HT
 name=En_Httag
 generate
 
 # 1.2 - for attributes
-file_input=tmp/attribs.ref
-file_e=tmp/attribs_enum.src
-file_s=tmp/attribs_switch.src
+file_input=build/tmp/attribs.ref
+file_e=build/tmp/attribs_enum.src
+file_s=build/tmp/attribs_switch.src
 pre=AT
 name=En_Attrib
 generate
@@ -126,7 +126,7 @@ generate
 # STEP 2: generate function isVoidElement()
 
 file_in=ref/void_elements.ref
-file_out=tmp/void_element.src
+file_out=build/tmp/void_element.src
 
 print_header $file_out
 echo "/// Returns true if the tag is a void-element">> $file_out
@@ -152,7 +152,7 @@ echo -e "\treturn false;\n}\n">> $file_out
 # STEP 3: generate map of allowed tags for each attribute
 
 file_input=ref/valid_attribs.ref
-file_out=tmp/attrib_tags.src
+file_out=build/tmp/attrib_tags.src
 
 print_header $file_out
 
@@ -199,18 +199,18 @@ print_header $OUT_FILE
 
 cat \
 	src/cpphtmltags_1.hh \
-	tmp/tags_enum.src \
-	tmp/attribs_enum.src \
-	tmp/tags_switch.src \
-	tmp/attribs_switch.src \
-	tmp/cat_enum.src \
-	tmp/cat_switch.src \
+	build/tmp/tags_enum.src \
+	build/tmp/attribs_enum.src \
+	build/tmp/tags_switch.src \
+	build/tmp/attribs_switch.src \
+	build/tmp/cat_enum.src \
+	build/tmp/cat_switch.src \
 	src/cpphtmltags_2.hh \
-	tmp/attrib_tags.src \
-	tmp/element_cat.src \
-	tmp/void_element.src \
-	tmp/tag_content.src \
-	tmp/global_attribs.src \
+	build/tmp/attrib_tags.src \
+	build/tmp/element_cat.src \
+	build/tmp/void_element.src \
+	build/tmp/tag_content.src \
+	build/tmp/global_attribs.src \
 	src/cpphtmltags_3.hh \
 	>> $OUT_FILE
 

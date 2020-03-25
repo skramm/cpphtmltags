@@ -29,6 +29,7 @@ NEW:
 - `tag_content.ref` : (WIP) processed by script `bcontent.sh`, will generated the class httag::priv::AllowedContentMap
 - `element_cat.ref` : (WIP) processed by script `bcat.sh`, will generated
 
+See <a href="../supported.html">supported tags</a>
 
 Four steps:
 - build the reference file holding all the attributes

@@ -1,9 +1,10 @@
 # makefile for cpphtmltags
 
-.PHONY = clean demo test doc show
+.PHONY = clean demo test doc show diff
 
 SRC_FILE=cpphtmltags.hpp
 TEMPLATE_FILES := $(wildcard src/*.hh)
+BUILD_SCRIPTS  := $(wildcard *.sh)
 REF_FILES      := $(wildcard ref/*.ref)
 SRC_DEMO_FILES := $(wildcard demo/*.cpp)
 EXE_DEMO_FILES := $(patsubst demo/%.cpp, build/%, $(SRC_DEMO_FILES))
@@ -25,7 +26,7 @@ build/a.out: $(SRC_FILE) $(TEST_FILE) Makefile
 	@echo "-Start compiling $(TEST_FILE)"
 	$(CXX) $(CFLAGS) $(TEST_FILE) -o build/a.out
 
-$(SRC_FILE): $(TEMPLATE_FILES) $(REF_FILES) build.sh
+$(SRC_FILE): $(TEMPLATE_FILES) $(REF_FILES) $(BUILD_SCRIPTS)
 	./build.sh
 
 # builds the sample programs
@@ -39,17 +40,19 @@ build/%:demo/%.cpp $(SRC_FILE)
 clean:
 	-rm build/*
 
-
 # builds doxygen documentation
-doc:$(SRC_FILE)
+doc:$(SRC_FILE) demo
+	cp misc/supported.css build/
+	build/supported -html >build/supported.html
 	doxygen misc/Doxyfile 1>build/doxygen.stdout 2>build/doxygen.stderr
 	xdg-open build/html/index.html
 
 show:
-	@echo $(REF_FILES)
-	@echo $(SRC_DEMO_FILES)
-	@echo $(EXE_DEMO_FILES)
-	@echo $(TEST_FILE)
+	@echo "REF_FILES=$(REF_FILES)"
+	@echo "SRC_DEMO_FILES= $(SRC_DEMO_FILES)"
+	@echo "EXE_DEMO_FILES=$(EXE_DEMO_FILES)"
+	@echo "BUILD_SCRIPTS=$(BUILD_SCRIPTS)"
+	@echo "TEMPLATE_FILES=$(TEMPLATE_FILES)"
 
 # for dev purpose, shows differences in browser
 diff:
