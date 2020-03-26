@@ -42,6 +42,7 @@ Refs:
 #define HG_CPPHTMLTAGS_HPP
 
 #include <vector>
+#include <set>
 #include <sstream>
 #include <map>
 #include <cassert>

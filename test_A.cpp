@@ -113,7 +113,7 @@ TEST_CASE( "test1", "[t1]" )
 		oss3 << t1;
 		CHECK( oss3.str() == "<p class=\"myclass abc cdef\" style=\"width:100%;\">content</p>" );
 
-		CHECK( Httag::getGlobalAttrib( HT_P ) == "class=cdef" );
+//		CHECK( Httag::getGlobalAttrib( HT_P ) == "class=cdef" );
 	}
 	SECTION( "iterative adding of attributes 2" )
 	{
@@ -163,6 +163,59 @@ TEST_CASE( "test1", "[t1]" )
 
 		t.printTag();
 		CHECK( oss.str() == "<input max=\"10\" min=\"3\">" );
+	}
+}
+
+TEST_CASE( "Global attributes handling", "[t1b]" )
+{
+	SECTION( "global attributes only" )
+	{
+		std::ostringstream oss;
+		Httag p( oss, HT_P, "Hi" );
+
+		Httag::setGlobalAttrib( HT_P, AT_CLASS, "c1" );
+		p.printTag();
+		CHECK( oss.str() == "<p class=\"c1\">Hi</p>" );
+
+		Httag::setGlobalAttrib( HT_P, AT_CLASS, "c2" );        // replace previous global attr
+		oss.str("");
+		p.printTag();
+		CHECK( oss.str() == "<p class=\"c2\"></p>" );          // tag content is empty
+
+		oss.str("");
+		oss << Httag( HT_P, "aaa" );
+		CHECK( oss.str() == "<p class=\"c2\">aaa</p>" );          // new created tag also has it
+
+		Httag::setGlobalAttrib( HT_P, AT_DIR, "123" );        // new global attr for <p>
+
+		oss.str("");
+		p.printTag();
+		CHECK( oss.str() == "<p class=\"c2\" dir=\"123\"></p>" );         
+
+		Httag::clearGlobalAttribs();
+		oss.str("");
+		p.printTag();
+		CHECK( oss.str() == "<p></p>" );          // no more global attributes
+	}
+
+	SECTION( "Global attributes mixed with non-global" )
+	{
+		std::ostringstream oss;
+		Httag p( oss, HT_P, "Hi", AT_CLASS, "c1" );
+
+		Httag::setGlobalAttrib( HT_P, AT_CLASS, "c2" );
+		p.printTag();
+		CHECK( oss.str() == "<p class=\"c1 c2\">Hi</p>" );
+
+		oss.str("");
+		oss << Httag( HT_P, "aaa", AT_CLASS, "c1" );
+		CHECK( oss.str() == "<p class=\"c1 c2\">aaa</p>" );          // new created tag also has it
+
+		oss.str("");
+		oss << Httag( HT_P, "bbb");
+		CHECK( oss.str() == "<p class=\"c2\">bbb</p>" );          // new created tag also has it
+
+		Httag::clearGlobalAttribs();
 	}
 }
 

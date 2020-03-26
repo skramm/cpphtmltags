@@ -26,7 +26,7 @@ It is used along with `global_attribs.ref` to generate a file holding all the at
 - `tag_content.ref` :processed by script `bcontent.sh`, will generate the class httag::priv::AllowedContentMap
 - `element_cat.ref` :processed by script `bcat.sh`, will generate
 
-See <a href="../supported.html">supported tags</a>
+See <a href="../supported.html">supported tags</a> (page available only on locally-build doc pages).
 
 Four steps:
 - build the reference file holding all the attributes
@@ -113,3 +113,5 @@ Maybe it can be used to access the caller code in case of error?
 
 \bug 20200326 printWithContent() does not throw if called on a void or empty tag.
 should call addContent()
+
+\todo 20200326 add option to change string separator (\' or \")

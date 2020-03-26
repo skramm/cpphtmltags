@@ -301,16 +301,33 @@ class Httag
 /// \name Global attributes handling
 ///@{
 		static void setGlobalAttrib( En_Httag tag, En_Attrib att, const std::string& value );
-		static std::string getGlobalAttrib( En_Httag tag );
+
+//		static std::string getGlobalAttrib( En_Httag tag );
 
 		/// Remove the global attribute for \c tag
-		/**
-			ref: see https://en.cppreference.com/w/cpp/container/map/erase
-		*/
 		static void clearGlobalAttrib( En_Httag tag )
 		{
 			globalAttrib().erase( tag );
 		}
+		static void clearGlobalAttrib( En_Httag tag, En_Attrib attrib )
+		{
+			auto& ga = globalAttrib();
+			if( ga.count(tag) )            // if we have that tag in the map
+			{
+				auto& atrm = ga[tag];      // then we fetch the associated map,
+				if( atrm.count(attrib) )   // check if it holds the key "attrib",
+					atrm.erase( attrib );  // and if so, erase it
+			}
+			
+		}
+#if 0		
+		static void clearGlobalAttrib( En_Attrib attrib )
+		{
+			auto& gam = globalAttrib();
+//			for( auto& pa: gam )
+ /// odo finish this !
+		}
+#endif
 		/// Remove all global attributes
 		static void clearGlobalAttribs()
 		{
@@ -728,11 +745,13 @@ Httag::setGlobalAttrib( En_Httag tag, En_Attrib att, const std::string& value )
 	assert( tag != HT_DUMMY );
 	assert( att != AT_DUMMY );
 
-	globalAttrib()[tag] = std::make_pair( att, value );
+//	globalAttrib()[tag] = std::make_pair( att, value );
+	globalAttrib()[tag][att] = value;
 }
-
 //-----------------------------------------------------------------------------------
+#if 0
 /// Returns the global pair "attribute=string" for \c tag, if any
+/// DEPRECATED (no use)
 inline
 std::string
 Httag::getGlobalAttrib( En_Httag tag )
@@ -743,6 +762,7 @@ Httag::getGlobalAttrib( En_Httag tag )
 		return std::string( getString( globalAttrib()[tag].first )) + '=' + globalAttrib()[tag].second;
 	return std::string();
 }
+#endif
 //-----------------------------------------------------------------------------------
 /// Add an HTML attribute to the tag (specialized templated version for \c std::string)
 /**
@@ -818,11 +838,6 @@ Httag::p_addAttrib( En_Attrib attr, std::string value, std::string __file, int _
 }
 //-----------------------------------------------------------------------------------
 /// Remove attribute
-/**
-\todo instead of storing an empty string, remove the element (see map ref).<br>
-Comment on this (20200322): NO: erasing in a map requires to first search for that element, then remove it.
-It is probably more efficient to just store an empty string (as we do at present)
-*/
 inline
 void
 Httag::removeAttrib( En_Attrib attr )
@@ -852,10 +867,11 @@ inline
 std::string
 Httag::p_getAttribs() const
 {
-	priv::GlobAttribMap_t& gattr = globalAttrib();  // check is there is a global attribute for that tag
-	const priv::PairAttribString_t* gpatst = 0;
+	const auto& gattr = globalAttrib();  // check is there is a global attribute for that tag
+	const priv::AttribMap_t* gpatm = 0;
 	if( gattr.count(_tag_en) )
-		gpatst = &gattr.at(_tag_en);
+		gpatm = &gattr.at(_tag_en);
+	std::set<En_Attrib> flags;
 
 	std::string out;
 //	if( _printAttribs && _attr_map.size() )
@@ -866,30 +882,29 @@ Httag::p_getAttribs() const
 			out += ' ';
 			out += getString( it->first );
 			out += "=\"" + it->second;
-			if( gpatst )
-			{                                          // IF we found a global attribute for that tag
-				if( it->first == gpatst->first )       // then add its value
-					out += ' '+ gpatst->second;
+			if( gpatm )
+			{                                          // IF we found a global attribute map for that tag
+				if( gpatm->count( it->first ) ) // if that atttribute is found in global map for that tag
+				{
+					flags.insert( it->first );
+					out += ' ' + gpatm->at( it->first );
 				}
+			}
 			out += '"';
 		}
 	}
-	else // if no local attributes, then check for global
-	{
-		if( gpatst )
-			out += std::string(" ") + getString( gpatst->first ) + "=\"" + gpatst->second + '\"';
-	}
-
-// check for a global attribute for the current tag
-/*
-		GlobAttribMap_t& gattr = globalAttrib();
-		if( gattr.count(_tag_en) )
+	else // if no local attributes, then check for global and and the
+	{    // ones that have not been added now (this is stored in "flags").
+		if( gpatm )
 		{
-			const auto& p = gattr.at(_tag_en);
-			out += " " + std::string(getString( p.first )) + "=\"" + p.second + '"';
+			for( const auto& at: *gpatm )
+			{
+				if( !flags.count( at.first) )
+					out += ' ' + getString( at.first ) + "=\"" + at.second + '\"';
+			}
 		}
 	}
-*/
+
 	return out;
 }
 //-----------------------------------------------------------------------------------
@@ -1109,6 +1124,7 @@ Httag::printSupportedHtml( std::ostream& f )
 	priv::p_printTable_2( f, "t2" );
 	priv::p_printTable_3( f, "t3" );
 }
+//-----------------------------------------------------------------------------------
 
 
 } // namespace httag end
