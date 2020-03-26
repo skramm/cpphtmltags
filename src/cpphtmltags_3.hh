@@ -290,7 +290,8 @@ class Httag
 //		void PrintAttributes( bool b ) { _printAttribs = b; }
 
 		void printTag();
-		template<typename T> void printWithContent( T );
+		template<typename T>
+		void printWithContent( T );
 
 		En_Httag getTag() const { return _tag_en; }
 		bool isOpen() const { return _tagIsOpen; }
@@ -534,7 +535,7 @@ void
 Httag::addContent<std::string>( std::string content )
 {
 	if( priv::isVoidElement( _tag_en ) )
-		HTTAG_FATAL_ERROR( std::string("attempting to store content '") + content + "' into a void-element tag '" + getString( _tag_en ) + '\'' );
+		HTTAG_FATAL_ERROR( std::string("attempting to store content '") + content + "' into a void-element tag <" + getString( _tag_en ) + ">" );
 	_content += content;
 }
 #if 1
@@ -564,6 +565,7 @@ void Httag::printWithContent( T c )
 {
 	if( !isOpen() )
 		openTag();
+
 	if( !_content.empty() )
 		*_file << _content;
 	*_file << c;
@@ -571,6 +573,8 @@ void Httag::printWithContent( T c )
 
 	if( !priv::isVoidElement( _tag_en ) )
 		closeTag();
+	else
+		p_getOpenedTags().pullTag( _tag_en );
 }
 //-----------------------------------------------------------------------------------
 /// Destructor, automatically closes tag if needed

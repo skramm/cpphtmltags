@@ -142,17 +142,19 @@ TEST_CASE( "test1", "[t1]" )
 		p.printTag();
 		CHECK( oss.str() == "<p class=\"abc cde\">text</p>" );
 	}
-#if 0
-	SECTION( "numerical attributes worls too" )
+	SECTION( "numerical attributes works too" )
 	{
 		std::ostringstream oss;
 		Httag t( oss, HT_INPUT );
 		t.addAttrib( AT_MIN, 3 );
 		t.addAttrib( AT_MAX, 10 );
+		/// \todo uncomment this when fixed, see related bug
+		//CHECK_THROWS( t.printWithContent( "text" ) );   // input is a void tag, thus, no content allowed ! 
+
 		t.printTag();
-		CHECK( oss.str() == "<p min=\"3\" max=\"10\">text</p>" );
+		CHECK( oss.str() == "<input max=\"10\" min=\"3\">" );
 	}
-#endif	
+
 }
 
 TEST_CASE( "Error checking", "[t2]" )

@@ -108,3 +108,8 @@ The type httag::priv::AllowedContent holds for a given tag all the allowed conte
 \todo checkout this:
 https://www.boost.org/doc/libs/1_72_0/doc/html/stacktrace/getting_started.html
 Maybe it can be used to access the caller code in case of error?
+
+\todo 20200326 maybe merge together printWithContent() and printTag()
+
+\bug 20200326 printWithContent() does not throw if called on a void or empty tag.
+should call addContent()

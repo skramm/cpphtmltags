@@ -16,15 +16,15 @@ TEST_FILE      :=test_A.cpp
 CFLAGS := -std=c++11 -s
 
 
-test: build/a.out
+test: build/testapp
 	@echo "-Start test"
-	@build/a.out
-#	@./a.out -s
+#	@build/testapp
+	@build/testapp -s
 
 # for unit testing
-build/a.out: $(SRC_FILE) $(TEST_FILE) Makefile
+build/testapp: $(SRC_FILE) $(TEST_FILE) Makefile
 	@echo "-Start compiling $(TEST_FILE)"
-	$(CXX) $(CFLAGS) $(TEST_FILE) -o build/a.out
+	$(CXX) $(CFLAGS) $(TEST_FILE) -o build/testapp
 
 $(SRC_FILE): $(TEMPLATE_FILES) $(REF_FILES) $(BUILD_SCRIPTS)
 	./build.sh
