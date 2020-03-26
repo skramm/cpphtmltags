@@ -157,12 +157,13 @@ getString( En_UnallowedTag cause )
 
 //-----------------------------------------------------------------------------------
 /// Returns true if \c tag is allowed inside tag chain
-/**
- * \todo 20200325 check that out, something fishy...
-*/
 inline
 std::pair<bool,En_UnallowedTag>
-tagIsAllowed( En_Httag tag, const OpenedTags& ot, const AllowedContentMap& acm )
+tagIsAllowed(
+	En_Httag                 tag,   ///< the tag
+	const OpenedTags&        ot,    ///< current context
+	const AllowedContentMap& acm    ///< reference data
+)
 {
 	if( tag == HT_DOCTYPE )
 		return std::make_pair(true,UT_Undef);
@@ -937,10 +938,10 @@ p_printTable_1( std::ostream& f, std::string table_id )
 		table.openTag();
 		{
 			Httag tr( f, HT_TR );
-			tr << Httag( HT_TH )
-				<< Httag( HT_TH, "Tag" )
-				<< Httag( HT_TH, "Category" )
-				<< Httag( HT_TH, "Allowed attributes" );
+			tr << Httag( HT_TH,                        AT_CLASS, "col1" )
+				<< Httag( HT_TH, "Tag",                AT_CLASS, "col2" )
+				<< Httag( HT_TH, "Category",           AT_CLASS, "col3" )
+				<< Httag( HT_TH, "Allowed attributes", AT_CLASS, "col4" );
 			tr.printTag();			
 		}
 
@@ -965,7 +966,7 @@ p_printTable_1( std::ostream& f, std::string table_id )
 			{
 				auto attrib = static_cast<En_Attrib>(j);
 				if( priv::attribIsAllowed( attrib, tag ) && !priv::isGlobalAttr( attrib ) )
-					f << getString( attrib ) << "<br>";
+					f << getString( attrib ) << ',';
 			}
 		}
 	}
@@ -981,10 +982,10 @@ p_printTable_2( std::ostream& f, std::string table_id )
 		table.openTag();
 		{
 			Httag tr( f, HT_TR );
-			tr << Httag( HT_TH )
-				<< Httag( HT_TH, "Attributes" )
-				<< Httag( HT_TH, "Global" )
-				<< Httag( HT_TH, "Allowed tags" );
+			tr <<  Httag( HT_TH,                 AT_CLASS, "col1" )
+				<< Httag( HT_TH, "Attributes",   AT_CLASS, "col2" )
+				<< Httag( HT_TH, "Global",       AT_CLASS, "col3" )
+				<< Httag( HT_TH, "Allowed tags", AT_CLASS, "col4" );
 			tr.printTag();			
 		}
 
@@ -1016,6 +1017,40 @@ p_printTable_2( std::ostream& f, std::string table_id )
 	}
 }
 //-----------------------------------------------------------------------------------
+/// Helper function, called by Httag::printSupportedHtml()
+void
+p_printTable_3( std::ostream& f, std::string table_id )
+{
+	f << Httag( HT_H2, "Tag categories" );
+	{
+		Httag table( f, HT_TABLE, AT_ID, table_id );
+		table.openTag();
+		{
+			Httag tr( f, HT_TR );
+			tr <<  Httag( HT_TH,                       AT_CLASS, "col1" )
+				<< Httag( HT_TH, "Tag category",       AT_CLASS, "col2" )
+				<< Httag( HT_TH, "Corresponding tags", AT_CLASS, "col3" );
+			tr.printTag();			
+		}
+		for( size_t i=0; i<priv::C_DUMMY; i++ )
+		{
+			Httag tr( f, HT_TR );
+			tr.openTag();
+			auto cat = static_cast<En_TagCat>(i);
+			f << Httag( HT_TD, i+1 ) << Httag( HT_TD, getString( cat ) );
+
+			Httag td( f, HT_TD );
+			td.openTag();
+			for( size_t j=0; j<HT_DUMMY; j++ )
+			{
+				auto tag = static_cast<En_Httag>(j);
+				if( tagBelongsToCat( tag, cat ) )
+					f << getString( tag ) << ',';
+			}
+		}
+	}
+}
+//-----------------------------------------------------------------------------------
 
 } // namespace priv end
 
@@ -1023,6 +1058,7 @@ p_printTable_2( std::ostream& f, std::string table_id )
 //-----------------------------------------------------------------------------------
 /// Helper function, prints the tags and attributes currently supported, HTML version
 /* See related Httag::printSupported()
+\todo Print data in AllowedContentMap in a 4th table
 **/
 inline
 void
@@ -1043,9 +1079,16 @@ Httag::printSupportedHtml( std::ostream& f )
 	Httag t2( f, HT_BODY );
 	t2.openTag();
 	f << Httag( HT_P, "This list is automatically generated from reference data" );
-
+	{
+		Httag ul( f, HT_UL );
+		ul.openTag();
+		Httag li( f, HT_LI );
+		li << Httag( HT_A, "tags", AT_HREF, "#t1" );
+		li.printTag();
+	}
 	priv::p_printTable_1( f, "t1" );
 	priv::p_printTable_2( f, "t2" );
+	priv::p_printTable_3( f, "t3" );
 }
 
 

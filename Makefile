@@ -41,7 +41,9 @@ clean:
 	-rm build/*
 
 # builds doxygen documentation
-doc:$(SRC_FILE) demo
+doc: build/html/index.html
+	
+build/html/index.html:$(SRC_FILE) demo
 	cp misc/supported.css build/
 	build/supported -html >build/supported.html
 	doxygen misc/Doxyfile 1>build/doxygen.stdout 2>build/doxygen.stderr

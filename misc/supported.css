@@ -7,6 +7,8 @@ table
 {
 	border-collapse:collapse;
 	border: solid 1px black;
+	table-layout: fixed;
+	width:80%;
 }
 
 th,tr,td
@@ -15,6 +17,16 @@ th,tr,td
 }
 th
 {
-font-family:bold;
+	font-family:bold;
 }
+th.col1 { width:5em; }
+th.col2 { width:10em; }
+th.col3 { }
+th.col4 { }
 
+table#t2 th.col3 { width:5em; }
+
+td{
+	word-wrap: break-word;
+/*white-space:normal; */
+}

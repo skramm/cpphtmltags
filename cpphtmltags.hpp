@@ -1,5 +1,5 @@
 // -------- GENERATED CODE ! --------
-// timestamp: 20200325-2307
+// timestamp: 20200326-0101
 
 //--- START: TEMPLATE FILE cpphtmltags_1.hh
 /*
@@ -164,7 +164,7 @@ namespace httag {
 //--- END: TEMPLATE FILE cpphtmltags_1.hh
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200325-2307
+// timestamp: 20200326-0101
 
 enum En_Httag
 {
@@ -287,7 +287,7 @@ enum En_Httag
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200325-2307
+// timestamp: 20200326-0101
 
 enum En_Attrib
 {
@@ -430,7 +430,7 @@ enum En_Attrib
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200325-2307
+// timestamp: 20200326-0101
 
 std::string
 getString( En_Httag a )
@@ -559,7 +559,7 @@ getString( En_Httag a )
 }
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200325-2307
+// timestamp: 20200326-0101
 
 std::string
 getString( En_Attrib a )
@@ -823,7 +823,7 @@ struct AllowedContent
 //--- END: TEMPLATE FILE cpphtmltags_2.hh
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200325-2307
+// timestamp: 20200326-0101
 
 /// Private class, holds map of allowed tags (value) for a given attribute (key)
 struct MapAttribs
@@ -978,7 +978,7 @@ struct TagCat
 	}
 };
 // -------- GENERATED CODE ! --------
-// timestamp: 20200325-2307
+// timestamp: 20200326-0101
 
 /// Returns true if the tag is a void-element
 inline
@@ -2572,10 +2572,10 @@ p_printTable_1( std::ostream& f, std::string table_id )
 		table.openTag();
 		{
 			Httag tr( f, HT_TR );
-			tr << Httag( HT_TH )
-				<< Httag( HT_TH, "Tag" )
-				<< Httag( HT_TH, "Category" )
-				<< Httag( HT_TH, "Allowed attributes" );
+			tr << Httag( HT_TH,                        AT_CLASS, "col1" )
+				<< Httag( HT_TH, "Tag",                AT_CLASS, "col2" )
+				<< Httag( HT_TH, "Category",           AT_CLASS, "col3" )
+				<< Httag( HT_TH, "Allowed attributes", AT_CLASS, "col4" );
 			tr.printTag();			
 		}
 
@@ -2600,7 +2600,7 @@ p_printTable_1( std::ostream& f, std::string table_id )
 			{
 				auto attrib = static_cast<En_Attrib>(j);
 				if( priv::attribIsAllowed( attrib, tag ) && !priv::isGlobalAttr( attrib ) )
-					f << getString( attrib ) << "<br>";
+					f << getString( attrib ) << ',';
 			}
 		}
 	}
@@ -2616,10 +2616,10 @@ p_printTable_2( std::ostream& f, std::string table_id )
 		table.openTag();
 		{
 			Httag tr( f, HT_TR );
-			tr << Httag( HT_TH )
-				<< Httag( HT_TH, "Attributes" )
-				<< Httag( HT_TH, "Global" )
-				<< Httag( HT_TH, "Allowed tags" );
+			tr <<  Httag( HT_TH,                 AT_CLASS, "col1" )
+				<< Httag( HT_TH, "Attributes",   AT_CLASS, "col2" )
+				<< Httag( HT_TH, "Global",       AT_CLASS, "col3" )
+				<< Httag( HT_TH, "Allowed tags", AT_CLASS, "col4" );
 			tr.printTag();			
 		}
 
@@ -2646,6 +2646,40 @@ p_printTable_2( std::ostream& f, std::string table_id )
 					if( priv::attribIsAllowed( attrib, tag ) )
 						f << getString( tag ) << ',';
 				}
+			}
+		}
+	}
+}
+//-----------------------------------------------------------------------------------
+/// Helper function, called by Httag::printSupportedHtml()
+void
+p_printTable_3( std::ostream& f, std::string table_id )
+{
+	f << Httag( HT_H2, "Tag categories" );
+	{
+		Httag table( f, HT_TABLE, AT_ID, table_id );
+		table.openTag();
+		{
+			Httag tr( f, HT_TR );
+			tr <<  Httag( HT_TH,                       AT_CLASS, "col1" )
+				<< Httag( HT_TH, "Tag category",       AT_CLASS, "col2" )
+				<< Httag( HT_TH, "Corresponding tags", AT_CLASS, "col3" );
+			tr.printTag();			
+		}
+		for( size_t i=0; i<priv::C_DUMMY; i++ )
+		{
+			Httag tr( f, HT_TR );
+			tr.openTag();
+			auto cat = static_cast<En_TagCat>(i);
+			f << Httag( HT_TD, i+1 ) << Httag( HT_TD, getString( cat ) );
+
+			Httag td( f, HT_TD );
+			td.openTag();
+			for( size_t j=0; j<HT_DUMMY; j++ )
+			{
+				auto tag = static_cast<En_Httag>(j);
+				if( tagBelongsToCat( tag, cat ) )
+					f << getString( tag ) << ',';
 			}
 		}
 	}
@@ -2678,9 +2712,16 @@ Httag::printSupportedHtml( std::ostream& f )
 	Httag t2( f, HT_BODY );
 	t2.openTag();
 	f << Httag( HT_P, "This list is automatically generated from reference data" );
-
+	{
+		Httag ul( f, HT_UL );
+		ul.openTag();
+		Httag li( f, HT_LI );
+		li << Httag( HT_A, "tags", AT_HREF, "#t1" );
+		li.printTag();
+	}
 	priv::p_printTable_1( f, "t1" );
 	priv::p_printTable_2( f, "t2" );
+	priv::p_printTable_3( f, "t3" );
 }
 
 
