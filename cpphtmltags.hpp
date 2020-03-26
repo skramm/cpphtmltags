@@ -1,5 +1,5 @@
 // -------- GENERATED CODE ! --------
-// timestamp: 20200326-0101
+// timestamp: 20200326-0113
 
 //--- START: TEMPLATE FILE cpphtmltags_1.hh
 /*
@@ -164,7 +164,7 @@ namespace httag {
 //--- END: TEMPLATE FILE cpphtmltags_1.hh
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200326-0101
+// timestamp: 20200326-0113
 
 enum En_Httag
 {
@@ -287,7 +287,7 @@ enum En_Httag
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200326-0101
+// timestamp: 20200326-0113
 
 enum En_Attrib
 {
@@ -430,7 +430,7 @@ enum En_Attrib
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200326-0101
+// timestamp: 20200326-0113
 
 std::string
 getString( En_Httag a )
@@ -559,7 +559,7 @@ getString( En_Httag a )
 }
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200326-0101
+// timestamp: 20200326-0113
 
 std::string
 getString( En_Attrib a )
@@ -823,7 +823,7 @@ struct AllowedContent
 //--- END: TEMPLATE FILE cpphtmltags_2.hh
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200326-0101
+// timestamp: 20200326-0113
 
 /// Private class, holds map of allowed tags (value) for a given attribute (key)
 struct MapAttribs
@@ -978,7 +978,7 @@ struct TagCat
 	}
 };
 // -------- GENERATED CODE ! --------
-// timestamp: 20200326-0101
+// timestamp: 20200326-0113
 
 /// Returns true if the tag is a void-element
 inline
@@ -1792,12 +1792,13 @@ getString( En_UnallowedTag cause )
 
 //-----------------------------------------------------------------------------------
 /// Returns true if \c tag is allowed inside tag chain
-/**
- * \todo 20200325 check that out, something fishy...
-*/
 inline
 std::pair<bool,En_UnallowedTag>
-tagIsAllowed( En_Httag tag, const OpenedTags& ot, const AllowedContentMap& acm )
+tagIsAllowed(
+	En_Httag                 tag,   ///< the tag
+	const OpenedTags&        ot,    ///< current context
+	const AllowedContentMap& acm    ///< reference data
+)
 {
 	if( tag == HT_DOCTYPE )
 		return std::make_pair(true,UT_Undef);
@@ -2692,6 +2693,7 @@ p_printTable_3( std::ostream& f, std::string table_id )
 //-----------------------------------------------------------------------------------
 /// Helper function, prints the tags and attributes currently supported, HTML version
 /* See related Httag::printSupported()
+\todo Print data in AllowedContentMap in a 4th table
 **/
 inline
 void
