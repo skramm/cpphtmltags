@@ -148,6 +148,16 @@ td.openTag();
 td.addAttrib( AT_CLASS, "abc" );  // this will throw an error
 ```
 
+A specific attribute can be removed from a variable, for example:
+```C++
+td.removeAttrib( AT_COLSPAN );
+```
+You can also clear all attributes with;
+```C++
+td.clearAttribs() 
+```
+
+
 <a name="global_attribute"></a>
 ####  Tag global attributes
 
@@ -255,8 +265,6 @@ Add content to a void tag | fatal | `Httag t( HT_BR );`<br>`t.addContent( "abc" 
 Add an attribute to a file-type tag already opened | fatal | `Httag t( f, HT_H2 );`<br>`t.openTag();`<br>`t.addAttrib( AT_CLASS, "abc" )`
 Open a tag inside a context where it is not allowed | fatal | `Httag p( f, HT_P ); p.openTag();`<br>`Httag li( f, HT_LI ); li.openTag() );`
 
-see
-\snippet test_A.cpp error_test_1
 
 <hr>
 ### Developer information

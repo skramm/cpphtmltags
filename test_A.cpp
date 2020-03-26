@@ -172,10 +172,8 @@ TEST_CASE( "Error checking", "[t2]" )
 	{
 		CHECK( Httag::printOpenedTags( std::cout ) == 0 );
 
-/// [error_test_1]
 		Httag t0a( HT_P );
 		CHECK_THROWS( t0a.openTag() ); // cannot open a non-file type tag
-/// [error_test_1]
 
 		Httag t0b( HT_P );
 		CHECK_THROWS( t0b.closeTag() ); // cannot close a non-file type tag
