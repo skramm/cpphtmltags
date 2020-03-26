@@ -955,7 +955,7 @@ p_printTable_1( std::ostream& f, std::string table_id )
 			Httag tr( f, HT_TR );
 			tr << Httag( HT_TH,                        AT_CLASS, "col1" )
 				<< Httag( HT_TH, "Tag",                AT_CLASS, "col2" )
-				<< Httag( HT_TH, "Category",           AT_CLASS, "col3" )
+				<< Httag( HT_TH, "Allowed content category", AT_CLASS, "col3" )
 				<< Httag( HT_TH, "Allowed attributes", AT_CLASS, "col4" );
 			tr.printTag();			
 		}
