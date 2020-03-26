@@ -95,7 +95,7 @@ This code is an attempt to tackle this complexity but (as usual) no warranty is 
 
 
 ## Build and install
-- build: no build, header-only (for details on how the code is generated [see here](dev_info.md)).
+- build: no build, header-only (for details on how the code is generated [see here](docs/dev_info.md)).
 - install: just fetch the single file [`cpphtmltags.hpp`](cpphtmltags.hpp), put it somewhere (`/usr/include` should be fine) and include it in your code.
 
 ## Related software
