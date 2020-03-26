@@ -287,6 +287,8 @@ class Httag
 		template<typename T>
 		void addAttrib( En_Attrib, T, std::string f=std::string(), int line=0 );
 		void removeAttrib( En_Attrib );
+		void clearAttribs() { _attr_map.clear(); }
+
 //		void PrintAttributes( bool b ) { _printAttribs = b; }
 
 		void printTag();
@@ -560,6 +562,13 @@ void Httag::printTag()
 	printWithContent( "" );
 }
 //-----------------------------------------------------------------------------------
+/// Prints whole tag:
+/**
+- opens it (if not already done),
+- prints content \c c (added to content that might have been already added)
+- close tag,
+- clear content (so object can be reused)
+*/
 template<typename T>
 void Httag::printWithContent( T c )
 {
@@ -575,6 +584,8 @@ void Httag::printWithContent( T c )
 		closeTag();
 	else
 		p_getOpenedTags().pullTag( _tag_en );
+	clearContent();
+	clearAttribs();
 }
 //-----------------------------------------------------------------------------------
 /// Destructor, automatically closes tag if needed
@@ -1088,6 +1099,10 @@ Httag::printSupportedHtml( std::ostream& f )
 		ul.openTag();
 		Httag li( f, HT_LI );
 		li << Httag( HT_A, "tags", AT_HREF, "#t1" );
+		li.printTag();
+		li << Httag( HT_A, "attributes", AT_HREF, "#t2" );
+		li.printTag();
+		li << Httag( HT_A, "Tag categories", AT_HREF, "#t3" );
 		li.printTag();
 	}
 	priv::p_printTable_1( f, "t1" );

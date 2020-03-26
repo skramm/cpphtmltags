@@ -122,12 +122,19 @@ TEST_CASE( "test1", "[t1]" )
 		oss1 << Httag( HT_P, "hi there" );
 		CHECK( oss1.str() == "<p class=\"cdef\">hi there</p>" ); // global attributes defined before stay
 
-		Httag p3( HT_P, "hi there" );
-		oss3 << p3;
-		CHECK( oss3.str() == "<p class=\"cdef\">hi there</p>" ); // global attributes stay
-
+		{
+			std::ostringstream oss;
+			Httag p3( oss, HT_P, "hi there" );
+			p3.printTag();
+			CHECK( oss.str() == "<p class=\"cdef\">hi there</p>" ); // global attributes stay
+			oss.str(""); // clear
+			p3.printTag();
+			CHECK( oss.str() == "<p class=\"cdef\"></p>" ); // global attributes stay, even when tag emptied
+		}
+	
 		oss2 << Httag( HT_LI, "this is li" );                // but only for the tag it was assigned too, others are unaffected
 		CHECK( oss2.str() == "<li>this is li</li>\n" );
+
 
 		Httag::clearGlobalAttrib( HT_P ); // clear global attribute for <p>
 		oss4 << Httag( HT_P, "hi" );
@@ -141,6 +148,9 @@ TEST_CASE( "test1", "[t1]" )
 		p.addAttrib( AT_CLASS, "cde" );
 		p.printTag();
 		CHECK( oss.str() == "<p class=\"abc cde\">text</p>" );
+		oss.str(""); // clear
+		p.printTag();
+		CHECK( oss.str() == "<p></p>" );
 	}
 	SECTION( "numerical attributes works too" )
 	{
@@ -154,7 +164,6 @@ TEST_CASE( "test1", "[t1]" )
 		t.printTag();
 		CHECK( oss.str() == "<input max=\"10\" min=\"3\">" );
 	}
-
 }
 
 TEST_CASE( "Error checking", "[t2]" )
@@ -276,6 +285,10 @@ TEST_CASE( "tag closure", "[t4]" )
 			t0 << ", some more content";
 			t0.printTag();
 			CHECK( oss.str() == "<p>content, some more content</p>" );
+			oss.str(""); // clear
+
+			t0.printTag();                       // once printed, 
+			CHECK( oss.str() == "<p></p>" );     // the tag becomes empty
 		}
 		{
 			std::ostringstream oss;

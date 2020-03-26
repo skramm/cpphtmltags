@@ -15,11 +15,11 @@ TEST_FILE      :=test_A.cpp
 #CFLAGS := -std=c++11 -g
 CFLAGS := -std=c++11 -s
 
-
+# -s option: also prints successful tests
 test: build/testapp
 	@echo "-Start test"
-#	@build/testapp
-	@build/testapp -s
+	@build/testapp
+#	@build/testapp -s
 
 # for unit testing
 build/testapp: $(SRC_FILE) $(TEST_FILE) Makefile
@@ -43,7 +43,7 @@ clean:
 # builds doxygen documentation
 doc: build/html/index.html
 	
-build/html/index.html:$(SRC_FILE) demo
+build/html/index.html:$(SRC_FILE) build/supported 
 	cp misc/supported.css build/
 	build/supported -html >build/supported.html
 	doxygen misc/Doxyfile 1>build/doxygen.stdout 2>build/doxygen.stderr

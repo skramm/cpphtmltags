@@ -1,5 +1,5 @@
 // -------- GENERATED CODE ! --------
-// timestamp: 20200326-0113
+// timestamp: 20200326-1159
 
 //--- START: TEMPLATE FILE cpphtmltags_1.hh
 /*
@@ -164,7 +164,7 @@ namespace httag {
 //--- END: TEMPLATE FILE cpphtmltags_1.hh
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200326-0113
+// timestamp: 20200326-1159
 
 enum En_Httag
 {
@@ -287,7 +287,7 @@ enum En_Httag
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200326-0113
+// timestamp: 20200326-1159
 
 enum En_Attrib
 {
@@ -430,7 +430,7 @@ enum En_Attrib
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200326-0113
+// timestamp: 20200326-1159
 
 std::string
 getString( En_Httag a )
@@ -559,7 +559,7 @@ getString( En_Httag a )
 }
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200326-0113
+// timestamp: 20200326-1159
 
 std::string
 getString( En_Attrib a )
@@ -823,7 +823,7 @@ struct AllowedContent
 //--- END: TEMPLATE FILE cpphtmltags_2.hh
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200326-0113
+// timestamp: 20200326-1159
 
 /// Private class, holds map of allowed tags (value) for a given attribute (key)
 struct MapAttribs
@@ -978,7 +978,7 @@ struct TagCat
 	}
 };
 // -------- GENERATED CODE ! --------
-// timestamp: 20200326-0113
+// timestamp: 20200326-1159
 
 /// Returns true if the tag is a void-element
 inline
@@ -1922,10 +1922,13 @@ class Httag
 		template<typename T>
 		void addAttrib( En_Attrib, T, std::string f=std::string(), int line=0 );
 		void removeAttrib( En_Attrib );
+		void clearAttribs() { _attr_map.clear(); }
+
 //		void PrintAttributes( bool b ) { _printAttribs = b; }
 
 		void printTag();
-		template<typename T> void printWithContent( T );
+		template<typename T>
+		void printWithContent( T );
 
 		En_Httag getTag() const { return _tag_en; }
 		bool isOpen() const { return _tagIsOpen; }
@@ -2169,7 +2172,7 @@ void
 Httag::addContent<std::string>( std::string content )
 {
 	if( priv::isVoidElement( _tag_en ) )
-		HTTAG_FATAL_ERROR( std::string("attempting to store content '") + content + "' into a void-element tag '" + getString( _tag_en ) + '\'' );
+		HTTAG_FATAL_ERROR( std::string("attempting to store content '") + content + "' into a void-element tag <" + getString( _tag_en ) + ">" );
 	_content += content;
 }
 #if 1
@@ -2194,11 +2197,19 @@ void Httag::printTag()
 	printWithContent( "" );
 }
 //-----------------------------------------------------------------------------------
+/// Prints whole tag:
+/**
+- opens it (if not already done),
+- prints content \c c (added to content that might have been already added)
+- close tag,
+- clear content (so object can be reused)
+*/
 template<typename T>
 void Httag::printWithContent( T c )
 {
 	if( !isOpen() )
 		openTag();
+
 	if( !_content.empty() )
 		*_file << _content;
 	*_file << c;
@@ -2206,6 +2217,10 @@ void Httag::printWithContent( T c )
 
 	if( !priv::isVoidElement( _tag_en ) )
 		closeTag();
+	else
+		p_getOpenedTags().pullTag( _tag_en );
+	clearContent();
+	clearAttribs();
 }
 //-----------------------------------------------------------------------------------
 /// Destructor, automatically closes tag if needed
@@ -2719,6 +2734,10 @@ Httag::printSupportedHtml( std::ostream& f )
 		ul.openTag();
 		Httag li( f, HT_LI );
 		li << Httag( HT_A, "tags", AT_HREF, "#t1" );
+		li.printTag();
+		li << Httag( HT_A, "attributes", AT_HREF, "#t2" );
+		li.printTag();
+		li << Httag( HT_A, "Tag categories", AT_HREF, "#t3" );
 		li.printTag();
 	}
 	priv::p_printTable_1( f, "t1" );
