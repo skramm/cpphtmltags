@@ -16,6 +16,11 @@ table
 	width:80%;
 }
 
+table#t1 { border-left: 5px solid red; }
+table#t2 { border-left: 5px solid green; }
+table#t3 { border-left: 5px solid blue; }
+
+
 th,tr,td
 {
 	border: solid 1px black;

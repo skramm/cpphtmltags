@@ -250,6 +250,12 @@ AllowedContentMap::print( std::ostream& f ) const
 }
 //-----------------------------------------------------------------------------------
 
+// forward declaration, needed
+void p_printTable_1( std::ostream&, std::string id );
+
+std::string g_lt{ "&lt;" };
+std::string g_gt{ "&gt;" };
+
 } // namespace priv
 
 //-----------------------------------------------------------------------------------
@@ -258,6 +264,8 @@ enum En_LineFeedMode
 {
 	LF_None, LF_Always, LF_Default
 };
+
+
 
 //-----------------------------------------------------------------------------------
 /// HTML tag
@@ -270,6 +278,7 @@ class Httag
 	friend Httag&        operator << ( Httag&        tag,    const T& );
 	friend Httag&        operator << ( Httag&        tag,    const Httag& );
 	friend std::ostream& operator << ( std::ostream& stream, const Httag& );
+	friend void priv::p_printTable_1( std::ostream&, std::string id );
 
 	public:
 /// \name Constructors & destructors
@@ -1032,6 +1041,17 @@ operator << ( std::ostream& s, const Httag& h )
 //-----------------------------------------------------------------------------------
 namespace priv {
 
+/// \todo Finish this (currently: crashes)
+void
+print_A( std::ostream& f, const AllowedContent& ac )
+{
+	Httag td( f, HT_TD );
+//	td.openTag();
+//	for( auto e: ac._v_allowedCats )
+//		f << getString(e) << "-";
+//	for( auto e: ac._v_allowedTags )
+//		f << getString(e) << "-";
+}
 //-----------------------------------------------------------------------------------
 /// Prints HTML table of tag
 /** Helper function, called by Httag::printSupportedHtml() */
@@ -1047,7 +1067,7 @@ p_printTable_1( std::ostream& f, std::string table_id )
 			tr << Httag( HT_TH,                         AT_CLASS, "col1" )
 				<< Httag( HT_TH, "Tag",                 AT_CLASS, "col2" )
 				<< Httag( HT_TH, "Is void",             AT_CLASS, "col3" )
-				<< Httag( HT_TH, "Belongs in category", AT_CLASS, "col4" )
+				<< Httag( HT_TH, "Belongs to category", AT_CLASS, "col4" )
 				<< Httag( HT_TH, "Allowed attributes",  AT_CLASS, "col5" );
 			tr.printTag();			
 		}
@@ -1059,7 +1079,7 @@ p_printTable_1( std::ostream& f, std::string table_id )
 			auto tag = static_cast<En_Httag>(i);
 
 			f << Httag( HT_TD, i+1, AT_CLASS, "cent" )
-				<< Httag( HT_TD, std::string("<")+getString( tag )+">" ).addAttrib( AT_ID, std::string("t_") + getString( tag ) ).addAttrib( AT_CLASS, "cent" );
+				<< Httag( HT_TD, g_lt+getString( tag )+g_gt ).addAttrib( AT_ID, std::string("t_") + getString( tag ) ).addAttrib( AT_CLASS, "cent" );
 			f << Httag( HT_TD, ( isVoidElement(tag) ? "Y" : "N" ), AT_CLASS, "cent" );
 
 			Httag td( f, HT_TD );
@@ -1074,12 +1094,14 @@ p_printTable_1( std::ostream& f, std::string table_id )
 				}
 
 			}
-// column "allowed content"
-//			auto pbu = Httag::p_getAllowedContentMap();
-
-
 			td.closeTag();
-			td.openTag();                               // column: "allowed attributes"
+
+// column "allowed content"
+			const auto& ac = Httag::p_getAllowedContentMap().get(tag);
+			print_A( f, ac );
+
+// column: "allowed attributes"			
+			td.openTag();                               
 			for( size_t j=0; j<AT_DUMMY; j++)
 			{
 				auto attrib = static_cast<En_Attrib>(j);
@@ -1120,8 +1142,6 @@ p_printTable_2( std::ostream& f, std::string table_id )
 			f << Httag( HT_TD, i+1, AT_CLASS, "cent" )
 				<< Httag( HT_TD, getString( attrib ), AT_ID, std::string("a_") + getString( attrib ) );
 
-			Httag td( f, HT_TD );
-			//td.openTag();
 			if( isGlobalAttr( attrib ) )				
 				f << Httag( f, HT_TD, "Y", AT_CLASS, "cent" ) << Httag( f, HT_TD);
 			else
@@ -1133,10 +1153,7 @@ p_printTable_2( std::ostream& f, std::string table_id )
 				{
 					auto tag = static_cast<En_Httag>(j);
 					if( priv::attribIsAllowed( attrib, tag ) )
-					{
-						Httag ta( HT_A, getString( tag ), AT_HREF, std::string("#t_") + getString( tag ) );
-						f << ta << ',';
-					}
+						f << Httag( HT_A, g_lt+getString( tag )+g_gt, AT_HREF, std::string("#t_") + getString( tag ) );
 				}
 			}
 		}
@@ -1174,7 +1191,7 @@ p_printTable_3( std::ostream& f, std::string table_id )
 				auto tag = static_cast<En_Httag>(j);
 				if( tagBelongsToCat( tag, cat ) )
 				{
-					Httag ta( HT_A, getString( tag ), AT_HREF, std::string("#t_") + getString( tag ) );
+					Httag ta( HT_A, g_lt+getString( tag )+g_gt, AT_HREF, std::string("#t_") + getString( tag ) );
 					f << ta << ',';
 				}
 			}
