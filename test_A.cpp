@@ -434,7 +434,14 @@ TEST_CASE( "named functions", "[t8]" )
 
 TEST_CASE( "content test", "[ct1]" ) // testing for allowed content
 {
+	std::ostringstream oss;
+	Httag p( oss, HT_P );
+	p.openTag();
 
-//	CHECK( );
+	Httag li( oss, HT_LI );
+	CHECK_THROWS( li.openTag() );  // <li> not allowed in <p>
+
+	CHECK_THROWS( p << Httag( oss, HT_LI ) );  // <li> not allowed in <p>
+	oss << p;
 }
 

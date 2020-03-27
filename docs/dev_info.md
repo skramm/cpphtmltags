@@ -117,6 +117,7 @@ Maybe it can be used to access the caller code in case of error?
 
 \todo 20200326 maybe merge together printWithContent() and printTag()
 
+\todo 20200327: out back the silent error mode (see HTTAG_NO_CHECK)
 
 \bug 20200326 printWithContent() does not throw if called on a void or empty tag.
 Should call addContent()

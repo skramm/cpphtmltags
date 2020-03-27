@@ -31,12 +31,12 @@ attribIsAllowed( En_Attrib attr, En_Httag tag )
 	assert( tag  != HT_DUMMY );
 	assert( attr != AT_DUMMY );
 
-	static MapAttribs mapAllowedAttribs;
-	if( mapAllowedAttribs.get().count(attr) ) // if it is there
+	static MapAttribs s_mapAllowedAttribs;
+	if( s_mapAllowedAttribs.get().count(attr) ) // if it is there
 	{
-		const auto& vec = mapAllowedAttribs.get().at(attr);
+		const auto& vec = s_mapAllowedAttribs.get().at(attr);
 		auto res = std::find( std::begin( vec ), std::end( vec ), tag );
-		if( res == std::end( mapAllowedAttribs.get().at(attr) ) )
+		if( res == std::end( s_mapAllowedAttribs.get().at(attr) ) )
 			return false;
 	}
 	return true;
@@ -155,21 +155,20 @@ getString( En_UnallowedTag cause )
 	}
 	return std::string(); // to avoid a build warning
 }
-
 //-----------------------------------------------------------------------------------
-/// Returns true if \c tag is allowed inside tag chain
+/// Returns true if \c tag is allowed inside tag \c parent
 inline
 std::pair<bool,En_UnallowedTag>
 tagIsAllowed(
-	En_Httag                 tag,   ///< the tag
-	const OpenedTags&        ot,    ///< current context
-	const AllowedContentMap& acm    ///< reference data
+	En_Httag                 tag,    ///< the tag
+	En_Httag                 parent, ///< parent tag
+	const AllowedContentMap& acm     ///< reference data
 )
 {
 	if( tag == HT_DOCTYPE )
 		return std::make_pair(true,UT_Undef);
 
-	const auto& ac = acm.get( ot.current() ); // allowed content of currently (latest) opened tag
+	const auto& ac = acm.get( parent ); // allowed content of currently (latest) opened tag
 
 	for( auto e: ac._v_forbiddenTags )
 		if( e == tag )
@@ -193,6 +192,19 @@ tagIsAllowed(
 	}
 	return std::make_pair(false,UT_NotAllowed);
 }
+//-----------------------------------------------------------------------------------
+/// Returns true if \c tag is allowed inside current tag chain
+inline
+std::pair<bool,En_UnallowedTag>
+tagIsAllowed(
+	En_Httag                 tag,    ///< the tag
+	const OpenedTags&        otags,  ///< current context
+	const AllowedContentMap& acm     ///< reference data
+)
+{
+	return tagIsAllowed( tag, otags.current(), acm );
+}
+
 //-----------------------------------------------------------------------------------
 template<typename T>
 void
@@ -256,6 +268,7 @@ class Httag
 {
 	template<typename T>
 	friend Httag&        operator << ( Httag&        tag,    const T& );
+	friend Httag&        operator << ( Httag&        tag,    const Httag& );
 	friend std::ostream& operator << ( std::ostream& stream, const Httag& );
 
 	public:
@@ -640,10 +653,10 @@ void
 Httag::p_checkValidFileType( std::string action )
 {
 	if( !_isFileType )
-		HTTAG_FATAL_ERROR( std::string("object tag '") + getString(_tag_en) + "' is not a \"file type\" object." );
+		HTTAG_FATAL_ERROR( std::string("object tag '") + getString(_tag_en) + "' is not a \"file type\" object" );
 
 	if( !_file )
-		HTTAG_FATAL_ERROR( std::string("object tag '") + getString(_tag_en) + "': asked to " + action + " but file not available." );
+		HTTAG_FATAL_ERROR( std::string("object tag '") + getString(_tag_en) + "': asked to " + action + " but file not available" );
 
 #if 0
 	if( !_file->is_open() )
@@ -662,19 +675,17 @@ Httag::openTag( std::string __file, int __line )
 	p_checkValidFileType( "open" );
 	if( _tagIsOpen )
 	{
-		HTTAG_FATAL_ERROR_FL( std::string( "tag '" ) + getString(_tag_en) + std::string( "': asked to open but was already open." ) );
-	}	
+		HTTAG_FATAL_ERROR_FL( std::string( "tag '" ) + getString(_tag_en) + std::string( "': asked to open but was already open" ) );
+	}
 	else
 	{
 		if( p_getOpenedTags().size() )
 		{
 			if( p_getOpenedTags().current() == _tag_en )
-			{
 				HTTAG_FATAL_ERROR_FL( std::string("attempt to open tag <") + getString(_tag_en) + "> but currently opened tag is identical" );
-			}
+
 			auto check = tagIsAllowed( _tag_en, p_getOpenedTags(), p_getAllowedContentMap() );
 			if( !check.first )
-			{
 				HTTAG_FATAL_ERROR_FL(
 					std::string("attempt to open tag <")
 					+ getString(_tag_en)
@@ -683,7 +694,6 @@ Httag::openTag( std::string __file, int __line )
 					+ "\n-because: "
 					+ getString( check.second )
 				);
-			}
 		}
 		switch( _tag_en )
 		{
@@ -721,7 +731,7 @@ Httag::closeTag( std::string __file, int __line, bool linefeed )
 		HTTAG_FATAL_ERROR_FL( std::string( "asked to close tag <" ) + getString(_tag_en) + "> but is void-element" );
 
 	if( !_tagIsOpen )
-		HTTAG_FATAL_ERROR_FL( std::string( "tag <" ) + getString(_tag_en) + ">: asked to close but was already closed." );
+		HTTAG_FATAL_ERROR_FL( std::string( "tag <" ) + getString(_tag_en) + ">: asked to close but was already closed" );
 
 	if( _tag_en == HT_COMMENT )
 		*_file << "-->";
@@ -737,12 +747,37 @@ Httag::closeTag( std::string __file, int __line, bool linefeed )
 
 }
 //-----------------------------------------------------------------------------------
-/// Insert some content into the tag, that will get printed later
+/// Insert tag \c t2 and its content into \c tag. Will get printed later
+Httag&
+operator << ( Httag& tag, const Httag& t2 )
+{
+//	assert( !tag._isFileType );
+	std::ostringstream oss;
+	oss << tag._content;
+
+	auto check = tagIsAllowed( t2.getTag(), tag.getTag(), Httag::p_getAllowedContentMap() );
+	if( check.first )
+		oss << t2;
+	else
+		HTTAG_FATAL_ERROR( 
+			std::string("tag <")
+			+ getString( t2._tag_en )
+			+ "> not allowed as content inside tag <"
+			+ getString( tag._tag_en )
+			+ ">"
+		);
+
+	tag._content = oss.str();
+	return tag;
+}
+//-----------------------------------------------------------------------------------
+/// Insert some content into \c tag. Will get printed later
 template<typename T>
 Httag&
 operator << ( Httag& tag, const T& str )
 {
 //	assert( !tag._isFileType );
+
 	std::ostringstream oss;
 	oss << tag._content << str;
 	tag._content = oss.str();
@@ -826,22 +861,42 @@ Httag::p_addAttrib( En_Attrib attr, std::string value, std::string __file, int _
 	assert( attr != AT_DUMMY );
 
 	if( _tagIsOpen ) // because if it is already opened, then we can't add an attribute !
-		HTTAG_FATAL_ERROR_FL( std::string("unable to add attribute '") + getString(attr) + "' with value '" + value + "', tag is already opened." );
+		HTTAG_FATAL_ERROR_FL(
+			std::string("unable to add attribute '")
+			+ getString(attr) + "' with value '"
+			+ value
+			+ "' to tag <"
+			+ getString( _tag_en )
+			+ ">, tag is already opened"
+		);
 
 	if( value.empty() ) // empty string => nothing to add
 	{
-		HTTAG_WARNING( std::string( "warning: asking to add tag attribute '" ) + getString(attr) + std::string( "' but string is empty." ) );
+		HTTAG_WARNING(
+			std::string( "warning: asking to add tag attribute '" )
+			+ getString(attr)
+			+ "' to tag <"
+			+ getString( _tag_en )
+			+ ">, but string is empty"
+		);
 		return;
 	}
+
 #ifndef HTTAG_NO_CHECK
 	if( !priv::attribIsAllowed( attr, _tag_en ) )
-		HTTAG_FATAL_ERROR_FL( std::string( "attempt to assign attribute '") + getString(attr) + "' to tag '" + getString( _tag_en )+  "': invalid with html5" );
+		HTTAG_FATAL_ERROR_FL(
+			std::string( "attempt to assign attribute '")
+			+ getString(attr)
+			+ "' to tag <"
+			+ getString( _tag_en )
+			+  ">: invalid"
+		);
 #endif
 
 // check for unneeded pairs attribute/value
 		if( ( attr == AT_COLSPAN && value == "1" ) || ( attr == AT_ROWSPAN && value == "1" ) )
 		{
-			HTTAG_WARNING( std::string( "asking to add unnecessary attribute/value: '" ) + getString(attr) + std::string( "'=" ) + value );
+			HTTAG_WARNING( std::string( "asking to add unnecessary attribute/value: '" ) + getString(attr) + "'=" + value );
 			return;
 		}
 
@@ -862,7 +917,6 @@ Httag::removeAttrib( En_Attrib attr )
 {
 	assert( attr != AT_DUMMY );
 
-/// \todo (20200322): why are these 2 lines commented ? They make sense...
 	if( _tagIsOpen ) // because if it is open, then we can't remove it!
 		HTTAG_FATAL_ERROR( "asking to remove attribute on open tag" );
 
@@ -872,9 +926,9 @@ Httag::removeAttrib( En_Attrib attr )
 		HTTAG_WARNING(
 			std::string( "asked to remove attribute " )
 			+ getString( attr )
-			+ std::string( " to tag ") 
+			+ std::string( " of tag <") 
 			+ getString( _tag_en )
-			+ std::string( " but attribute not present." )
+			+ std::string( "> but attribute not present" )
 		);
 	}
 	else
@@ -990,11 +1044,11 @@ p_printTable_1( std::ostream& f, std::string table_id )
 		table.openTag();
 		{
 			Httag tr( f, HT_TR );
-			tr << Httag( HT_TH,                              AT_CLASS, "col1" )
-				<< Httag( HT_TH, "Tag",                      AT_CLASS, "col2" )
-				<< Httag( HT_TH, "Is void",                  AT_CLASS, "col3" )
-				<< Httag( HT_TH, "Allowed content category", AT_CLASS, "col4" )
-				<< Httag( HT_TH, "Allowed attributes",       AT_CLASS, "col5" );
+			tr << Httag( HT_TH,                         AT_CLASS, "col1" )
+				<< Httag( HT_TH, "Tag",                 AT_CLASS, "col2" )
+				<< Httag( HT_TH, "Is void",             AT_CLASS, "col3" )
+				<< Httag( HT_TH, "Belongs in category", AT_CLASS, "col4" )
+				<< Httag( HT_TH, "Allowed attributes",  AT_CLASS, "col5" );
 			tr.printTag();			
 		}
 
@@ -1005,11 +1059,11 @@ p_printTable_1( std::ostream& f, std::string table_id )
 			auto tag = static_cast<En_Httag>(i);
 
 			f << Httag( HT_TD, i+1, AT_CLASS, "cent" )
-				<< Httag( HT_TD, getString( tag ), AT_ID, std::string("t_") + getString( tag ) ).addAttrib( AT_CLASS, "cent" );
+				<< Httag( HT_TD, std::string("<")+getString( tag )+">" ).addAttrib( AT_ID, std::string("t_") + getString( tag ) ).addAttrib( AT_CLASS, "cent" );
 			f << Httag( HT_TD, ( isVoidElement(tag) ? "Y" : "N" ), AT_CLASS, "cent" );
 
 			Httag td( f, HT_TD );
-			td.openTag();
+			td.openTag();                                 // column: "belongs to category"
 			for( size_t j=0; j<priv::C_DUMMY; j++)
 			{
 				auto cat = static_cast<priv::En_TagCat>(j);
@@ -1020,8 +1074,12 @@ p_printTable_1( std::ostream& f, std::string table_id )
 				}
 
 			}
+// column "allowed content"
+//			auto pbu = Httag::p_getAllowedContentMap();
+
+
 			td.closeTag();
-			td.openTag();
+			td.openTag();                               // column: "allowed attributes"
 			for( size_t j=0; j<AT_DUMMY; j++)
 			{
 				auto attrib = static_cast<En_Attrib>(j);
