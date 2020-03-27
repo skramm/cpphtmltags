@@ -285,8 +285,12 @@ class Httag
 		void openTag(  std::string file=std::string(), int line=0 );
 		void closeTag( std::string file=std::string(), int line=0, bool linefeed=false );
 		void closeTag( bool linefeed );
+
 		template<typename T>
-		void addAttrib( En_Attrib, T, std::string f=std::string(), int line=0 );
+		Httag& addAttrib( En_Attrib, T, std::string f=std::string(), int line=0 );
+/*		template<typename T>
+		Httag& addAttrib( En_Attrib, T );*/
+
 		void removeAttrib( En_Attrib );
 		void clearAttribs() { _attr_map.clear(); }
 
@@ -308,11 +312,11 @@ class Httag
 		/// Remove the global attribute for \c tag
 		static void clearGlobalAttrib( En_Httag tag )
 		{
-			globalAttrib().erase( tag );
+			p_globalAttrib().erase( tag );
 		}
 		static void clearGlobalAttrib( En_Httag tag, En_Attrib attrib )
 		{
-			auto& ga = globalAttrib();
+			auto& ga = p_globalAttrib();
 			if( ga.count(tag) )            // if we have that tag in the map
 			{
 				auto& atrm = ga[tag];      // then we fetch the associated map,
@@ -332,17 +336,17 @@ class Httag
 		/// Remove all global attributes
 		static void clearGlobalAttribs()
 		{
-			globalAttrib().clear();
+			p_globalAttrib().clear();
 		}
 ///@}
 
 /// \name Tag content related functions
 ///@{
-		template<typename T> void addContent( T content );
-		template<typename T> void setContent( T content )
+		template<typename T> Httag& addContent( T content );
+		template<typename T> Httag& setContent( T content )
 		{
 			clearContent();
-			addContent( content );
+			return addContent( content );
 		}	
 		void clearContent() { _content.clear(); }
 ///@}
@@ -372,7 +376,7 @@ class Httag
 			static priv::AllowedContentMap s_allowed_tags;
 			return s_allowed_tags;
 		}
-		static priv::GlobAttribMap_t& globalAttrib()
+		static priv::GlobAttribMap_t& p_globalAttrib()
 		{
 			static priv::GlobAttribMap_t s_global_attrib;
 			return s_global_attrib;
@@ -551,28 +555,31 @@ Httag::Httag(
 //-----------------------------------------------------------------------------------
 /// specialization for std::string
 template<>
-void
+Httag&
 Httag::addContent<std::string>( std::string content )
 {
 	if( priv::isVoidElement( _tag_en ) )
 		HTTAG_FATAL_ERROR( std::string("attempting to store content '") + content + "' into a void-element tag <" + getString( _tag_en ) + ">" );
 	_content += content;
+	return *this;
 }
 #if 1
 /// specialization for const char*
 template<>
-void
+Httag&
 Httag::addContent<const char*>( const char* content )
 {
 	addContent<std::string>( std::string(content) );
+	return *this;
 }
 #endif
 /// default implementation
 template<typename T>
-void
+Httag&
 Httag::addContent( T content )
 {
 	addContent<std::string>( std::to_string(content) );
+	return *this;
 }
 //-----------------------------------------------------------------------------------
 void Httag::printTag()
@@ -747,7 +754,7 @@ Httag::setGlobalAttrib( En_Httag tag, En_Attrib att, const std::string& value )
 	assert( att != AT_DUMMY );
 
 //	globalAttrib()[tag] = std::make_pair( att, value );
-	globalAttrib()[tag][att] = value;
+	p_globalAttrib()[tag][att] = value;
 }
 //-----------------------------------------------------------------------------------
 #if 0
@@ -759,8 +766,8 @@ Httag::getGlobalAttrib( En_Httag tag )
 {
 	assert( tag != HT_DUMMY );
 
-	if( globalAttrib().count(tag) )
-		return std::string( getString( globalAttrib()[tag].first )) + '=' + globalAttrib()[tag].second;
+	if( p_globalAttrib().count(tag) )
+		return std::string( getString( p_globalAttrib()[tag].first )) + '=' + p_globalAttrib()[tag].second;
 	return std::string();
 }
 #endif
@@ -770,10 +777,11 @@ Httag::getGlobalAttrib( En_Httag tag )
 If the attribute is already present, then the value will be concatenated to the previous value
 */
 template<>
-void
+Httag&
 Httag::addAttrib<std::string>( En_Attrib attr, std::string value, std::string __file, int __line )
 {
 	p_addAttrib( attr, value, __file, __line );
+	return *this;
 }
 //-----------------------------------------------------------------------------------
 /// Add an HTML attribute to the tag (specialized templated version for <tt>const char*</tt>)
@@ -781,10 +789,11 @@ Httag::addAttrib<std::string>( En_Attrib attr, std::string value, std::string __
 If the attribute is already present, then the value will be concatenated to the previous value
 */
 template<>
-void
+Httag&
 Httag::addAttrib<const char*>( En_Attrib attr, const char* value, std::string __file, int __line )
 {
 	p_addAttrib( attr, value, __file, __line );
+	return *this;
 }
 //-----------------------------------------------------------------------------------
 /// Add an HTML attribute to the tag (templated generic version)
@@ -792,11 +801,21 @@ Httag::addAttrib<const char*>( En_Attrib attr, const char* value, std::string __
 If the attribute is already present, then the value will be concatenated to the previous value
 */
 template<typename T>
-void
+Httag&
 Httag::addAttrib( En_Attrib attr, T value, std::string __file, int __line )
 {
 	p_addAttrib( attr, std::to_string(value), __file, __line );
+	return *this;
 }
+
+/*
+template<typename T>
+Httag& addAttrib( En_Attrib attr, T value )
+{
+	p_addAttrib( attr, value );
+	return *this;
+}
+*/
 //-----------------------------------------------------------------------------------
 /// Add an HTML attribute to the tag
 /**
@@ -868,9 +887,9 @@ inline
 std::string
 Httag::p_getAttribs() const
 {
-	const auto& gattr = globalAttrib();  // check is there is a global attribute for that tag
+	const auto& gattr = p_globalAttrib();
 	const priv::AttribMap_t* gpatm = 0;
-	if( gattr.count(_tag_en) )
+	if( gattr.count(_tag_en) )              // check is there is a global attribute for that tag
 		gpatm = &gattr.at(_tag_en);
 	std::set<En_Attrib> flags;
 
@@ -970,10 +989,11 @@ p_printTable_1( std::ostream& f, std::string table_id )
 		table.openTag();
 		{
 			Httag tr( f, HT_TR );
-			tr << Httag( HT_TH,                        AT_CLASS, "col1" )
-				<< Httag( HT_TH, "Tag",                AT_CLASS, "col2" )
-				<< Httag( HT_TH, "Allowed content category", AT_CLASS, "col3" )
-				<< Httag( HT_TH, "Allowed attributes", AT_CLASS, "col4" );
+			tr << Httag( HT_TH,                              AT_CLASS, "col1" )
+				<< Httag( HT_TH, "Tag",                      AT_CLASS, "col2" )
+				<< Httag( HT_TH, "Is void",                  AT_CLASS, "col3" )
+				<< Httag( HT_TH, "Allowed content category", AT_CLASS, "col4" )
+				<< Httag( HT_TH, "Allowed attributes",       AT_CLASS, "col5" );
 			tr.printTag();			
 		}
 
@@ -983,7 +1003,10 @@ p_printTable_1( std::ostream& f, std::string table_id )
 			tr.openTag();
 			auto tag = static_cast<En_Httag>(i);
 
-			f << Httag( HT_TD, i+1 ) << Httag( HT_TD, getString( tag ), AT_ID, std::string("t_") + getString( tag ) );
+			f << Httag( HT_TD, i+1, AT_CLASS, "cent" )
+				<< Httag( HT_TD, getString( tag ), AT_ID, std::string("t_") + getString( tag ) ).addAttrib( AT_CLASS, "cent" );
+			f << Httag( HT_TD, ( isVoidElement(tag) ? "Y" : "N" ), AT_CLASS, "cent" );
+
 			Httag td( f, HT_TD );
 			td.openTag();
 			for( size_t j=0; j<priv::C_DUMMY; j++)
@@ -1035,15 +1058,16 @@ p_printTable_2( std::ostream& f, std::string table_id )
 			tr.openTag();
 			auto attrib = static_cast<En_Attrib>(i);
 
-			f << Httag( HT_TD, i+1 ) << Httag( HT_TD, getString( attrib ), AT_ID, std::string("a_") + getString( attrib ) );
+			f << Httag( HT_TD, i+1, AT_CLASS, "cent" )
+				<< Httag( HT_TD, getString( attrib ), AT_ID, std::string("a_") + getString( attrib ) );
 
 			Httag td( f, HT_TD );
 			//td.openTag();
 			if( isGlobalAttr( attrib ) )				
-				f << Httag( f, HT_TD, "Y" ) << Httag( f, HT_TD);
+				f << Httag( f, HT_TD, "Y", AT_CLASS, "cent" ) << Httag( f, HT_TD);
 			else
 			{
-				f << Httag( f, HT_TD, "N" );
+				f << Httag( f, HT_TD, "N", AT_CLASS, "cent" );
 				Httag td( f, HT_TD );
 				td.openTag();
 				for( size_t j=0; j<HT_DUMMY; j++ )
@@ -1081,7 +1105,8 @@ p_printTable_3( std::ostream& f, std::string table_id )
 			Httag tr( f, HT_TR );
 			tr.openTag();
 			auto cat = static_cast<En_TagCat>(i);
-			f << Httag( HT_TD, i+1 ) << Httag( HT_TD, getString( cat ), AT_ID, std::string("c_") + getString( cat ) );
+			f << Httag( HT_TD, i+1, AT_CLASS, "cent" )
+				<< Httag( HT_TD, getString( cat ), AT_ID, std::string("c_") + getString( cat ) );
 
 			Httag td( f, HT_TD );
 			td.openTag();
@@ -1130,11 +1155,11 @@ Httag::printSupportedHtml( std::ostream& f )
 		Httag ul( f, HT_UL );
 		ul.openTag();
 		Httag li( f, HT_LI );
-		li << Httag( HT_A, "tags", AT_HREF, "#t1" );
+		li << Httag( HT_A, "Tag list", AT_HREF, "#t1" );
 		li.printTag();
-		li << Httag( HT_A, "attributes", AT_HREF, "#t2" );
+		li << Httag( HT_A, "Attribute list", AT_HREF, "#t2" );
 		li.printTag();
-		li << Httag( HT_A, "Tag categories", AT_HREF, "#t3" );
+		li << Httag( HT_A, "Tag categories list", AT_HREF, "#t3" );
 		li.printTag();
 	}
 	priv::p_printTable_1( f, "t1" );

@@ -6,6 +6,7 @@ build/supported > supp.html
 body {font-family:sans-serif;}
 
 a { color:inherit; text-decoration:none; }
+ul a { text-decoration:underline; }
 
 table
 {
@@ -19,6 +20,16 @@ th,tr,td
 {
 	border: solid 1px black;
 }
+
+td
+{
+	text-align:left;
+}
+td.cent
+{
+	text-align:center;
+}
+
 th
 {
 	font-family:bold;
@@ -29,6 +40,7 @@ th.col3 { }
 th.col4 { }
 
 table#t2 th.col3 { width:5em; }
+table#t1 th.col3 { width:5em; }
 
 td{
 	word-wrap: break-word;

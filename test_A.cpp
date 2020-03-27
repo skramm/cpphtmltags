@@ -201,15 +201,19 @@ TEST_CASE( "Global attributes handling", "[t1b]" )
 	SECTION( "Global attributes mixed with non-global" )
 	{
 		std::ostringstream oss;
-		Httag p( oss, HT_P, "Hi", AT_CLASS, "c1" );
+		Httag p( oss, HT_P, "Hi", AT_CLASS, "c1" );         // <p> with class
 
-		Httag::setGlobalAttrib( HT_P, AT_CLASS, "c2" );
+		Httag::setGlobalAttrib( HT_P, AT_CLASS, "c2" );     // add a global attribute on <p>
 		p.printTag();
-		CHECK( oss.str() == "<p class=\"c1 c2\">Hi</p>" );
+		CHECK( oss.str() == "<p class=\"c1 c2\">Hi</p>" );  // so we get both
 
 		oss.str("");
-		oss << Httag( HT_P, "aaa", AT_CLASS, "c1" );
-		CHECK( oss.str() == "<p class=\"c1 c2\">aaa</p>" );          // new created tag also has it
+		oss << Httag( HT_LI, "inside", AT_CLASS, "c3" );     // but other tags dont have it
+		CHECK( oss.str() == "<li class=\"c3\">inside</li>\n" );
+
+		oss.str("");
+		oss << Httag( HT_P, "aaa", AT_CLASS, "c1" );     
+		CHECK( oss.str() == "<p class=\"c1 c2\">aaa</p>" );    // new created tag also has it
 
 		oss.str("");
 		oss << Httag( HT_P, "bbb");
@@ -377,6 +381,7 @@ TEST_CASE( "test_ac", "[t6]" ) // testing allowed content in a tag
 	}
 	CHECK( oss.str() == "<p>this is <strong>important</strong>, is it ?</p>" );
 }
+
 TEST_CASE( "test_void", "[t7]" ) // testing void elements
 {
 	CHECK( priv::isVoidElement(HT_IMG) );
@@ -384,3 +389,28 @@ TEST_CASE( "test_void", "[t7]" ) // testing void elements
 	CHECK( priv::isVoidElement(HT_BR) );
 	CHECK( priv::isVoidElement(HT_HR) );
 }
+
+TEST_CASE( "named functions", "[t8]" )
+{
+	std::ostringstream oss;
+	oss << Httag( HT_P ).addAttrib( AT_CLASS, "aaa" ).addAttrib( AT_ID, "bbb" );
+	CHECK( oss.str() == "<p class=\"aaa\" id=\"bbb\"></p>" );
+
+	oss.str( "" );
+	oss << Httag( HT_P ).addAttrib( AT_CLASS, "aaa" ).addContent( "text" ).addAttrib( AT_ID, "bbb" );
+	CHECK( oss.str() == "<p class=\"aaa\" id=\"bbb\">text</p>" );
+
+	oss.str( "" );
+	std::string hello{"hello"};
+	Httag p( HT_P );
+	p.setContent( "say " ).addContent( hello );
+	oss << p;  // 
+	CHECK( oss.str() == "<p>say hello</p>" );
+}
+
+TEST_CASE( "content test", "[ct1]" ) // testing for allowed content
+{
+
+//	CHECK( );
+}
+
