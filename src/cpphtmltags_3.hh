@@ -2,14 +2,15 @@
 
 //-----------------------------------------------------------------------------------
 /// Returns true if \c tag belong to category \c cat
+inline
 bool
 tagBelongsToCat( En_Httag tag, En_TagCat cat )
 {
 	assert( cat != C_DUMMY );
 	assert( tag != HT_DUMMY );
 
-	static TagCat tagcat;
-	const auto& v_cat = tagcat.get().at(cat);
+	static TagCategory s_tagcat;
+	const auto& v_cat = s_tagcat.get().at(cat);
 
 	auto it = std::find(
 				std::begin(v_cat),
@@ -958,7 +959,8 @@ operator << ( std::ostream& s, const Httag& h )
 namespace priv {
 
 //-----------------------------------------------------------------------------------
-/// Helper function, called by Httag::printSupportedHtml()
+/// Prints HTML table of tag
+/** Helper function, called by Httag::printSupportedHtml() */
 void
 p_printTable_1( std::ostream& f, std::string table_id )
 {
@@ -981,14 +983,18 @@ p_printTable_1( std::ostream& f, std::string table_id )
 			tr.openTag();
 			auto tag = static_cast<En_Httag>(i);
 
-			f << Httag( HT_TD, i+1 ) << Httag( HT_TD, getString( tag ) );
+			f << Httag( HT_TD, i+1 ) << Httag( HT_TD, getString( tag ), AT_ID, std::string("t_") + getString( tag ) );
 			Httag td( f, HT_TD );
 			td.openTag();
 			for( size_t j=0; j<priv::C_DUMMY; j++)
 			{
 				auto cat = static_cast<priv::En_TagCat>(j);
 				if( tagBelongsToCat( tag, cat ) )
-					f << getString( cat ) << ',';
+				{
+					Httag ta( HT_A, getString( cat ), AT_HREF, std::string("#c_") + getString( cat ) );
+					f << ta << ',';
+				}
+
 			}
 			td.closeTag();
 			td.openTag();
@@ -996,13 +1002,17 @@ p_printTable_1( std::ostream& f, std::string table_id )
 			{
 				auto attrib = static_cast<En_Attrib>(j);
 				if( priv::attribIsAllowed( attrib, tag ) && !priv::isGlobalAttr( attrib ) )
-					f << getString( attrib ) << ',';
+				{
+					Httag ta( HT_A, getString( attrib ), AT_HREF, std::string("#a_") + getString( attrib ) );
+					f << ta << ',';
+				}
 			}
 		}
 	}
 }
 //-----------------------------------------------------------------------------------
-/// Helper function, called by Httag::printSupportedHtml()
+/// Prints HTML table of attributes
+/** Helper function, called by Httag::printSupportedHtml() */
 void
 p_printTable_2( std::ostream& f, std::string table_id )
 {
@@ -1025,7 +1035,7 @@ p_printTable_2( std::ostream& f, std::string table_id )
 			tr.openTag();
 			auto attrib = static_cast<En_Attrib>(i);
 
-			f << Httag( HT_TD, i+1 ) << Httag( HT_TD, getString( attrib ) );
+			f << Httag( HT_TD, i+1 ) << Httag( HT_TD, getString( attrib ), AT_ID, std::string("a_") + getString( attrib ) );
 
 			Httag td( f, HT_TD );
 			//td.openTag();
@@ -1040,14 +1050,18 @@ p_printTable_2( std::ostream& f, std::string table_id )
 				{
 					auto tag = static_cast<En_Httag>(j);
 					if( priv::attribIsAllowed( attrib, tag ) )
-						f << getString( tag ) << ',';
+					{
+						Httag ta( HT_A, getString( tag ), AT_HREF, std::string("#t_") + getString( tag ) );
+						f << ta << ',';
+					}
 				}
 			}
 		}
 	}
 }
 //-----------------------------------------------------------------------------------
-/// Helper function, called by Httag::printSupportedHtml()
+/// Prints HTML table of tag categories
+/** Helper function, called by Httag::printSupportedHtml() */
 void
 p_printTable_3( std::ostream& f, std::string table_id )
 {
@@ -1067,7 +1081,7 @@ p_printTable_3( std::ostream& f, std::string table_id )
 			Httag tr( f, HT_TR );
 			tr.openTag();
 			auto cat = static_cast<En_TagCat>(i);
-			f << Httag( HT_TD, i+1 ) << Httag( HT_TD, getString( cat ) );
+			f << Httag( HT_TD, i+1 ) << Httag( HT_TD, getString( cat ), AT_ID, std::string("c_") + getString( cat ) );
 
 			Httag td( f, HT_TD );
 			td.openTag();
@@ -1075,7 +1089,10 @@ p_printTable_3( std::ostream& f, std::string table_id )
 			{
 				auto tag = static_cast<En_Httag>(j);
 				if( tagBelongsToCat( tag, cat ) )
-					f << getString( tag ) << ',';
+				{
+					Httag ta( HT_A, getString( tag ), AT_HREF, std::string("#t_") + getString( tag ) );
+					f << ta << ',';
+				}
 			}
 		}
 	}
