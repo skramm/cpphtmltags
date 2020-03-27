@@ -69,7 +69,7 @@ function extract()
 
 #**************************************************
 echo "-Start build script"
-mkdir -p tmp
+mkdir -p build/tmp
 
 # STEP 0: generate list of attributes from authorized tags/attributes file
 

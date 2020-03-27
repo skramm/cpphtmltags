@@ -15,7 +15,7 @@ file_out=build/tmp/tag_content.src
 
 # START
 set +x
-mkdir -p tmp
+mkdir -p build/tmp
 
 echo "/// Holds for each tag its allowed content. Build-time generated type."> $file_out
 echo "/// See related type AllowedContent.">> $file_out
