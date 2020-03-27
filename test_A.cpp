@@ -406,6 +406,31 @@ TEST_CASE( "named functions", "[t8]" )
 	p.setContent( "say " ).addContent( hello );
 	oss << p;  // 
 	CHECK( oss.str() == "<p>say hello</p>" );
+
+	{
+		Httag td1( HT_TD, "text", AT_COLSPAN, 3 );
+		Httag td2 = td1;
+
+		oss.str( "" );
+		oss << td1;
+		CHECK( oss.str() == "<td colspan=\"3\">text</td>" );
+
+		td1.removeAttrib( AT_COLSPAN ).addAttrib( AT_ID, "myid" );
+		oss.str( "" );
+		oss << td1;
+		CHECK( oss.str() == "<td id=\"myid\">text</td>" );
+
+		td2.addAttrib( AT_ID, "myid" ).removeAttrib( AT_COLSPAN );
+		oss.str( "" );
+		oss << td2;
+		CHECK( oss.str() == "<td id=\"myid\">text</td>" );
+
+		td2.clearAttribs().addContent( " more" );
+		oss.str( "" );
+		oss << td2;
+		CHECK( oss.str() == "<td>text more</td>" );
+		
+	}
 }
 
 TEST_CASE( "content test", "[ct1]" ) // testing for allowed content

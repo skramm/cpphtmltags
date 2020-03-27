@@ -291,8 +291,12 @@ class Httag
 /*		template<typename T>
 		Httag& addAttrib( En_Attrib, T );*/
 
-		void removeAttrib( En_Attrib );
-		void clearAttribs() { _attr_map.clear(); }
+		Httag& removeAttrib( En_Attrib );
+		Httag& clearAttribs()
+		{
+			_attr_map.clear();
+			return *this;
+		}
 
 //		void PrintAttributes( bool b ) { _printAttribs = b; }
 
@@ -480,7 +484,7 @@ Httag::Httag(
 	setContent( content );
 
 	if( attr != AT_DUMMY )
-		p_addAttrib( attr, attribvalue );
+		addAttrib( attr, attribvalue );
 }
 //-----------------------------------------------------------------------------------
 /// generic constructor 3b
@@ -492,7 +496,7 @@ Httag::Httag(
 ) : Httag( tag )
 {
 	if( attr != AT_DUMMY )
-		p_addAttrib( attr, attribvalue );
+		addAttrib( attr, attribvalue );
 }
 //-----------------------------------------------------------------------------------
 #if 1
@@ -776,6 +780,7 @@ Httag::getGlobalAttrib( En_Httag tag )
 /**
 If the attribute is already present, then the value will be concatenated to the previous value
 */
+#if 1
 template<>
 Httag&
 Httag::addAttrib<std::string>( En_Attrib attr, std::string value, std::string __file, int __line )
@@ -795,6 +800,7 @@ Httag::addAttrib<const char*>( En_Attrib attr, const char* value, std::string __
 	p_addAttrib( attr, value, __file, __line );
 	return *this;
 }
+#endif
 //-----------------------------------------------------------------------------------
 /// Add an HTML attribute to the tag (templated generic version)
 /**
@@ -808,14 +814,6 @@ Httag::addAttrib( En_Attrib attr, T value, std::string __file, int __line )
 	return *this;
 }
 
-/*
-template<typename T>
-Httag& addAttrib( En_Attrib attr, T value )
-{
-	p_addAttrib( attr, value );
-	return *this;
-}
-*/
 //-----------------------------------------------------------------------------------
 /// Add an HTML attribute to the tag
 /**
@@ -859,7 +857,7 @@ Httag::p_addAttrib( En_Attrib attr, std::string value, std::string __file, int _
 //-----------------------------------------------------------------------------------
 /// Remove attribute
 inline
-void
+Httag&
 Httag::removeAttrib( En_Attrib attr )
 {
 	assert( attr != AT_DUMMY );
@@ -868,7 +866,8 @@ Httag::removeAttrib( En_Attrib attr )
 //	if( _tagIsOpen ); // because if it is open, then we can't remove it!
 //		HTTAG_FATAL_ERROR( "asking to remove attribute on open tag" );
 
-	if( _attr_map.find(attr) == _attr_map.end() )   // check if element is already present or not
+	auto it = _attr_map.find(attr);
+	if( it == _attr_map.end() )   // check if element is already present or not
 	{
 		HTTAG_WARNING(
 			std::string( "asked to remove attribute " )
@@ -880,6 +879,8 @@ Httag::removeAttrib( En_Attrib attr )
 	}
 	else
 		_attr_map.at(attr) = std::string();
+
+	return *this;
 }
 //-----------------------------------------------------------------------------------
 /// Returns a string holding the attributes

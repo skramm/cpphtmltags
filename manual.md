@@ -46,6 +46,7 @@ Or both, at creation time:
 ```C++
 Httag mytag( HT_TD, "my cell", AT_COLSPAN, 2 );
 ```
+
 #### A.1.b - Type 2 constructor ("file-type" object)
 
 You can specify the stream where the html code must be generated.
@@ -108,6 +109,11 @@ p.openTag();
 std::cout << "a paragraph";
 p.closeTag();
 ```
+Of course, if `p` is not used afterwards, it would be faster to write:
+```C++
+std::cout << Httag ( std::cout, HT_P, "a paragraph" );
+```
+
 
 - Or you can use the provided functions (can be used with the two types of tags):
 ```C++
@@ -116,6 +122,16 @@ p.setContent( "a paragraph" );
 p.addContent( " of text" );
 std::cout << p;  // <p>a paragraph of text</p>
 ```
+
+These function can be used in a chained way.
+For example:
+```C++
+std::string hello{"hello"};
+Httag p( HT_P );
+p.setContent( "say " ).addContent( hello );
+std::cout << p;  // <p>say hello</p>
+```
+
 - But you can also directly stream something **into** the tag.
 This will produce the same as above:
 ```C++
@@ -152,6 +168,12 @@ A specific attribute can be removed from a variable, for example:
 ```C++
 td.removeAttrib( AT_COLSPAN );
 ```
+This can also be chained with other member functions:
+```C++
+td.removeAttrib( AT_COLSPAN ).addAttrib( AT_ID, "myid" );
+td.addAttrib( AT_ID, "myid" ).removeAttrib( AT_COLSPAN ); //does the same as above !
+```
+
 You can also clear all attributes with;
 ```C++
 td.clearAttribs() 
