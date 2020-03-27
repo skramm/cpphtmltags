@@ -174,7 +174,15 @@ To remove, you can:
 For example:
 `Httag::clearGlobalAttrib( HT_LI )`
 
-These are static function, thus the `Httag::` prefix.
+Another example of usefulness of this features is for the `<a>` tag.
+As you know, you can add the attribute `target="_blank"` to make the link open in another tab/window of the browser. 
+So if you want all of you generated links to have automatically this feature, just add this in you code:
+```
+Httag::setGlobalAttrib( HT_A, AT_TARGET, "_blank" );
+```
+
+
+All these are static function, thus the `Httag::` prefix.
 
 #### Attributes uniqueness enforcement
 

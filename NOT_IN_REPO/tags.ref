@@ -1,22 +1,51 @@
-# This file holds the list of all html elements
-# AND the allowed content for each tag, as either a set of tags, or a category
+# tags.ref
 
-# syntax: one of these 4
+# This file holds the list of all html elements, the categories to with it belong, 
+# and the allowed content for each tag, as either a set of tags, or a category
 
-# syntax 1:
-# tag:a,b,c,d,C_c1,!e,!C_c2
-# means that inside that tag <tag> are allowed the tags <a>,<b> and <c> and all the tags belonging to category "c1" EXCEPT the tag <e>
-# and EXCEPT tags belonging to the category "C_c2"
+# syntax:
+# tag:belongs_to:allowed_content
 
-# syntax 2: for elements belonging to special category E_something
-# tag:E_something
-# The possible categories are:
-# - E_VOID: no content at all
-# - E_TEXT: text only content
+# warning, some tags belongs to no category,
+# see for example https://html.spec.whatwg.org/multipage/grouping-content.html#the-li-element
+
+p:C_content,C_Palpable:C_Phrasing
+hr:C_flow:E_VOID
+pre:C_flow,C_Palpable:C_phrasing
+blockquote:C_flow,C_sectioning,C_Palpable:C_flow
+ol:C_flow,C_Palpable:li,script,template
+ul:C_flow,C_Palpable:li,script,template
+menu:C_flow,C_Palpable:li,script,template
+li::C_flow
+dl:C_flow:dt,script,template,div
+dt::C_Flow,!header,!footer,!C_sectioning,!C_heading
+dd::C_flow
+figure:C_flow,C_sectioning,C_Palpable:figcaption,C_flow
+figcaption::C_flow
+main:c_flow,C_Palpable:c_flow
+div:c_flow,C_Palpable:dt,dd,C_flow
+h1:C_flow,C_heading,C_Palpable:C_phrasing
+h2:C_flow,C_heading,C_Palpable:C_phrasing
+h3:C_flow,C_heading,C_Palpable:C_phrasing
+h4:C_flow,C_heading,C_Palpable:C_phrasing
+h5:C_flow,C_heading,C_Palpable:C_phrasing
+h6:C_flow,C_heading,C_Palpable:C_phrasing
+head::base,title,base,link,meta,noscript,script,style,template
+body::C_flow
+link::E_VOID
+article:C_flow,C_sectioning,C_Palpable:C_flow
+section:C_flow,C_sectioning,C_Palpable:C_flow
+nav:C_flow,C_sectioning,C_Palpable:C_flow
+aside:C_flow,C_sectioning,C_Palpable:C_flow
+hgroup:C_flow,C_heading,C_Palpable:h1,h2,h3,h4,h5,h6,script,template
+header:C_flow,C_Palpable:c_flow
+footer:C_flow,C_Palpable:c_flow
+address:C_flow,C_Palpable:c_flow
 
 
-# PRELIMINAR !!!
+#---------------------------------------------
 
+# CHECK !
 abbr:C_phrasing
 a:!C_interactive,!a
 acronym
@@ -66,7 +95,6 @@ h5:C_phrasing
 h6:C_phrasing
 head:title,meta,script,base
 header:C_flow,!footer,!header
-hgroup:C_heading
 hr:E_VOID
 html:head,body
 i:C_phrasing
