@@ -98,7 +98,7 @@ Refs:
 */
 #define HTTAG_ADD_ERROR_LOCATION( in, out ) \
 	{ \
-		out = in \
+		out = std::string(in) \
 		+ "\n -file: " \
 		+ __FILE__ \
 		+ "\n -line: " \

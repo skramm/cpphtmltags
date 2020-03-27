@@ -429,7 +429,6 @@ TEST_CASE( "named functions", "[t8]" )
 		oss.str( "" );
 		oss << td2;
 		CHECK( oss.str() == "<td>text more</td>" );
-		
 	}
 }
 

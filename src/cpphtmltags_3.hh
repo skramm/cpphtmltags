@@ -863,8 +863,8 @@ Httag::removeAttrib( En_Attrib attr )
 	assert( attr != AT_DUMMY );
 
 /// \todo (20200322): why are these 2 lines commented ? They make sense...
-//	if( _tagIsOpen ); // because if it is open, then we can't remove it!
-//		HTTAG_FATAL_ERROR( "asking to remove attribute on open tag" );
+	if( _tagIsOpen ) // because if it is open, then we can't remove it!
+		HTTAG_FATAL_ERROR( "asking to remove attribute on open tag" );
 
 	auto it = _attr_map.find(attr);
 	if( it == _attr_map.end() )   // check if element is already present or not
@@ -878,7 +878,7 @@ Httag::removeAttrib( En_Attrib attr )
 		);
 	}
 	else
-		_attr_map.at(attr) = std::string();
+		_attr_map.erase(attr);
 
 	return *this;
 }
