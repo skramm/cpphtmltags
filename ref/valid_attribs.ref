@@ -116,7 +116,7 @@ srcset:img,source
 start:ol
 step:input
 target:a,area,base,form
-type:button,embed,input,link,menu,object,script,source,style
+type:button,embed,input,link,menu,object,script,source,style,area
 usemap:img,object
 value:button,input,li,option,meter,progress,param
 width:canvas,embed,iframe,img,input,object,video

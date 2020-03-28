@@ -1094,7 +1094,10 @@ print_A( std::ostream& f, const AllowedContent& ac )
 	}
 
 	for( auto e: ac._v_allowedCats )
-		td << getString(e) << "-";
+	{
+		Httag ta( HT_A, getString( e ), AT_HREF, std::string("#c_") + getString( e ) );
+		td << ta << "-";
+	}
 	f << td;
 	td.clearContent();
 
@@ -1103,14 +1106,15 @@ print_A( std::ostream& f, const AllowedContent& ac )
 	f << td;
 	td.clearContent();
 
-	td << "TODO";
+	for( auto e: ac._v_forbiddenCats )
+		td << getString(e) << "-";
 	f << td;
 	td.clearContent();
 
-	td << "TODO";
+	for( auto e: ac._v_forbiddenTags )
+		td << getString(e) << "-";
 	f << td;
 	td.clearContent();
-
 }
 //-----------------------------------------------------------------------------------
 /// Prints HTML table of tag
@@ -1141,14 +1145,22 @@ p_printTable_1( std::ostream& f, std::string table_id )
 			tr.printTag();			
 		}
 
+std::string ext{"https://www.w3schools.com/tags/tag_"};
+
 		for( size_t i=0; i<HT_DUMMY; i++ )
 		{
 			Httag tr( f, HT_TR );
 			tr.openTag();
 			auto tag = static_cast<En_Httag>(i);
 
-			f << Httag( HT_TD, i+1, AT_CLASS, "cent" )
-				<< Httag( HT_TD, g_lt+getString( tag )+g_gt ).addAttrib( AT_ID, std::string("t_") + getString( tag ) ).addAttrib( AT_CLASS, "cent" );
+			f << Httag( HT_TD, i+1, AT_CLASS, "cent" );
+
+			Httag ta( HT_A, g_lt+getString( tag )+g_gt );
+			ta.addAttrib( AT_HREF, ext + getString( tag )+ ".asp" ).addAttrib( AT_TARGET, "_blank" );
+			Httag td2( HT_TD, AT_CLASS, "cent" );
+			td2 << ta;
+			f << td2;
+
 			f << Httag( HT_TD, ( isVoidElement(tag) ? "Y" : "N" ), AT_CLASS, "cent" );
 
 			Httag td( f, HT_TD );

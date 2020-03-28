@@ -51,3 +51,5 @@ td{
 	word-wrap: break-word;
 /*white-space:normal; */
 }
+
+tr:nth-child(even) {background: #eee;}
