@@ -26,6 +26,11 @@ th,tr,td
 	border: solid 1px black;
 }
 
+th
+{
+	border-bottom: 2px solid black; }
+}
+
 td
 {
 	text-align:left;
@@ -44,8 +49,10 @@ th.col2 { width:10em; }
 th.col3 { }
 th.col4 { }
 
-table#t2 th.col3 { width:5em; }
 table#t1 th.col3 { width:5em; }
+
+table#t2 th.col3 { width:5em; }
+table#t2 th.col4 { width:5em; }
 
 td{
 	word-wrap: break-word;

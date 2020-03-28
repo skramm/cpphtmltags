@@ -617,7 +617,7 @@ Httag::addContent<std::string>( std::string content )
 	_content += content;
 	return *this;
 }
-#if 1
+
 /// specialization for const char*
 template<>
 Httag&
@@ -626,7 +626,18 @@ Httag::addContent<const char*>( const char* content )
 	addContent<std::string>( std::string(content) );
 	return *this;
 }
-#endif
+
+/// specialization for Httag
+template<>
+Httag&
+Httag::addContent<Httag>( Httag content )
+{
+	std::ostringstream oss;
+	oss << content;
+	addContent<std::string>( oss.str() );
+	return *this;
+}
+
 /// default implementation
 template<typename T>
 Httag&
@@ -640,23 +651,49 @@ void Httag::printTag()
 {
 	printWithContent( "" );
 }
+
+namespace priv {
+
+
+bool
+isNotEmpty( const char* stuff )
+{
+	return !std::string(stuff).empty();
+}
+
+template<typename T>
+bool
+isNotEmpty( T stuff )
+{
+	return !stuff.empty();
+}
+
+
+}  // namespace priv
+
 //-----------------------------------------------------------------------------------
 /// Prints whole tag:
 /**
 - opens it (if not already done),
-- prints content \c c (added to content that might have been already added)
+- prints content \c stuff (added to content that might have been already added)
 - close tag,
-- clear content (so object can be reused)
+
+Requirement on type \c T: must be streamable
 */
 template<typename T>
-void Httag::printWithContent( T c )
+void Httag::printWithContent( T stuff )
 {
 	if( !isOpen() )
 		openTag();
 
-	if( !_content.empty() )
-		*_file << _content;
-	*_file << c;
+	if( !_content.empty()  || priv::isNotEmpty(stuff) )
+	{
+		if( !priv::isVoidElement( _tag_en ) )
+			*_file << _content << stuff;
+		else
+			HTTAG_FATAL_ERROR( std::string("attempting to add content '") + _content + "' to void tag <" + getString(_tag_en) + ">" );
+	}
+//	*_file << c;
 //	_printAttribs = false;
 
 	if( !priv::isVoidElement( _tag_en ) )
@@ -995,16 +1032,19 @@ Httag::p_getAttribs() const
 		{
 			out += ' ';
 			out += getString( it->first );
-			out += "=\"" + it->second;
-			if( gpatm )
-			{                                          // IF we found a global attribute map for that tag
-				if( gpatm->count( it->first ) ) // if that atttribute is found in global map for that tag
-				{
-					flags.insert( it->first );
-					out += ' ' + gpatm->at( it->first );
+			if( !priv::isBoolAttr( it->first) )
+			{
+				out += "=\"" + it->second;
+				if( gpatm )
+				{                                          // IF we found a global attribute map for that tag
+					if( gpatm->count( it->first ) ) // if that atttribute is found in global map for that tag
+					{
+						flags.insert( it->first );
+						out += ' ' + gpatm->at( it->first );
+					}
 				}
+				out += '"';
 			}
-			out += '"';
 		}
 	}
 	else // if no local attributes, then check for global and and the
@@ -1122,6 +1162,7 @@ print_A( std::ostream& f, const AllowedContent& ac )
 void
 p_printTable_1( std::ostream& f, std::string table_id )
 {
+	Httag::setClosingTagClearsContent( true );
 	f << Httag( HT_H2, "Supported tags and categories" );
 	{
 		Httag table( f, HT_TABLE, AT_ID, table_id );
@@ -1145,7 +1186,7 @@ p_printTable_1( std::ostream& f, std::string table_id )
 			tr.printTag();			
 		}
 
-std::string ext{"https://www.w3schools.com/tags/tag_"};
+		std::string ext{"https://www.w3schools.com/tags/tag_"};
 
 		for( size_t i=0; i<HT_DUMMY; i++ )
 		{
@@ -1155,10 +1196,9 @@ std::string ext{"https://www.w3schools.com/tags/tag_"};
 
 			f << Httag( HT_TD, i+1, AT_CLASS, "cent" );
 
-			Httag ta( HT_A, g_lt+getString( tag )+g_gt );
-			ta.addAttrib( AT_HREF, ext + getString( tag )+ ".asp" ).addAttrib( AT_TARGET, "_blank" );
-			Httag td2( HT_TD, AT_CLASS, "cent" );
-			td2 << ta;
+			Httag a( HT_A, g_lt+getString( tag )+g_gt );
+			a.addAttrib( AT_HREF, ext + getString( tag )+ ".asp" ).addAttrib( AT_TARGET, "_blank" );
+			Httag td2( HT_TD, a, AT_CLASS, "cent" );
 			f << td2;
 
 			f << Httag( HT_TD, ( isVoidElement(tag) ? "Y" : "N" ), AT_CLASS, "cent" );
@@ -1210,24 +1250,30 @@ p_printTable_2( std::ostream& f, std::string table_id )
 			tr <<  Httag( HT_TH,                 AT_CLASS, "col1" )
 				<< Httag( HT_TH, "Attributes",   AT_CLASS, "col2" )
 				<< Httag( HT_TH, "Global",       AT_CLASS, "col3" )
-				<< Httag( HT_TH, "Allowed tags", AT_CLASS, "col4" );
+				<< Httag( HT_TH, "Boolean",      AT_CLASS, "col4" )
+				<< Httag( HT_TH, "Allowed tags", AT_CLASS, "col5" );
 			tr.printTag();			
 		}
 
+		std::string ext{"https://www.w3schools.com/tags/att_"};
 		for( size_t i=0; i<AT_DUMMY; i++ )
 		{
 			Httag tr( f, HT_TR );
 			tr.openTag();
 			auto attrib = static_cast<En_Attrib>(i);
 
-			f << Httag( HT_TD, i+1, AT_CLASS, "cent" )
-				<< Httag( HT_TD, getString( attrib ), AT_ID, std::string("a_") + getString( attrib ) );
+			f << Httag( HT_TD, i+1, AT_CLASS, "cent" );
+
+			Httag a( HT_A, getString( attrib ) );
+			a.addAttrib( AT_HREF, ext + getString( attrib ) + ".asp" ).addAttrib( AT_TARGET, "_blank" );		
+			f << Httag( HT_TD, a, AT_ID, std::string("a_") + getString( attrib ) );
 
 			if( isGlobalAttr( attrib ) )				
-				f << Httag( f, HT_TD, "Y", AT_CLASS, "cent" ) << Httag( f, HT_TD);
+				f << Httag( HT_TD, "Y", AT_CLASS, "cent" ) << Httag( HT_TD ) << Httag( HT_TD );
 			else
 			{
-				f << Httag( f, HT_TD, "N", AT_CLASS, "cent" );
+				f << Httag( HT_TD, "N", AT_CLASS, "cent" );
+				f << Httag( HT_TD, (isBoolAttr(attrib)?"Y":"N"), AT_CLASS, "cent" );
 				Httag td( f, HT_TD );
 				td.openTag();
 				for( size_t j=0; j<HT_DUMMY; j++ )

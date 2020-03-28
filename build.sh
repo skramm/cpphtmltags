@@ -80,44 +80,55 @@ extract
 cat build/tmp/attribs_1.ref ref/global_attribs.ref> build/tmp/attribs_2.ref
 sort <build/tmp/attribs_2.ref >build/tmp/attribs.ref
 
-
 file_input=ref/tag_content.ref
 file_output=build/tmp/tags.ref
 extract
 
 
+#*************************************************
+# used vars: file_output, file_input, something, funcname
 
-# STEP 0.1: generate isGlobalAttr()
+function generateIsSomething()
+{
+	echo "/// Returns true if \c attr if $something">$file_output
+	echo "inline bool">>$file_output
+	echo "$funcname( En_Attrib attr )">>$file_output
+	echo -e "{">>$file_output
+	echo -e "\tassert( attr != AT_DUMMY );">>$file_output
+	echo -e "\tswitch( attr )">>$file_output
+	echo -e "\t{">>$file_output
+
+	while read elem
+	do
+		if [ "${elem:0:1}" != "#" ]; then
+			if [ ${#elem} -ne 0 ]; then
+				e=$(echo $elem | tr '[:lower:]' '[:upper:]')
+				echo -e "\t\tcase AT_$e:">> $file_output
+			fi
+		fi
+	done < $file_input
+
+	echo -e "\t\t\treturn true;">>$file_output
+	echo -e "\t\tdefault:">>$file_output
+	echo -e "\t\t\treturn false;">>$file_output
+	echo -e "\t}">>$file_output
+	echo -e "\treturn false;">>$file_output
+	echo -e "}">>$file_output
+}
+
+# STEP 0.1: generate isGlobalAttr() and is isBoolAttr()
 
 file_input=ref/global_attribs.ref
 file_output=build/tmp/global_attribs.src
+something=global
+funcname=isGlobalAttr
+generateIsSomething
 
-echo "/// Returns true if \c attr if global">$file_output
-echo "/** For a list, see: https://www.w3schools.com/tags/ref_standardattributes.asp */">>$file_output
-echo "inline bool">>$file_output
-echo "isGlobalAttr( En_Attrib attr )">>$file_output
-echo -e "\t{">>$file_output
-echo -e "\tassert( attr != AT_DUMMY );">>$file_output
-echo -e "\tswitch( attr )">>$file_output
-echo -e "\t{">>$file_output
-
-while read elem
-do
-	if [ "${elem:0:1}" != "#" ]; then
-		if [ ${#elem} -ne 0 ]; then
-			e=$(echo $elem | tr '[:lower:]' '[:upper:]')
-			echo -e "\t\tcase AT_$e:">> $file_output
-		fi
-	fi
-done < $file_input
-
-echo -e "\t\treturn true;">>$file_output
-echo -e "\t\tdefault:">>$file_output
-echo -e "\t\t\treturn false;">>$file_output
-echo -e "\t}">>$file_output
-echo -e "\treturn false;">>$file_output
-echo -e "}">>$file_output
-
+file_input=ref/bool_attribs.ref
+file_output=build/tmp/bool_attribs.src
+something=boolean
+funcname=isBoolAttr
+generateIsSomething
 
 
 # STEP 1: generate enum and getString() functions, for tags and attributes
@@ -222,6 +233,7 @@ cat \
 	build/tmp/void_element.src \
 	build/tmp/tag_content.src \
 	build/tmp/global_attribs.src \
+	build/tmp/bool_attribs.src \
 	src/cpphtmltags_3.hh \
 	>> $OUT_FILE
 

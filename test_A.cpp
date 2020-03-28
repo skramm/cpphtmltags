@@ -128,8 +128,8 @@ TEST_CASE( "test1", "[t1]" )
 			p3.printTag();
 			CHECK( oss.str() == "<p class=\"cdef\">hi there</p>" ); // global attributes stay
 			oss.str(""); // clear
-			p3.printTag();
 			p3.clearContent();
+			p3.printTag();
 			CHECK( oss.str() == "<p class=\"cdef\"></p>" ); // global attributes stay, even when tag emptied
 		}
 	
@@ -156,8 +156,8 @@ TEST_CASE( "test1", "[t1]" )
 		Httag t( oss, HT_INPUT );
 		t.addAttrib( AT_MIN, 3 );
 		t.addAttrib( AT_MAX, 10 );
-		/// \todo uncomment this when fixed, see related bug
-		//CHECK_THROWS( t.printWithContent( "text" ) );   // input is a void tag, thus, no content allowed ! 
+
+		CHECK_THROWS( t.printWithContent( "text" ) );   // <input> is a void tag, thus, no content allowed ! 
 
 		t.printTag();
 		CHECK( oss.str() == "<input max=\"10\" min=\"3\">" );
@@ -323,7 +323,7 @@ TEST_CASE( "File type tags", "[t3]" )
 		oss4 << t4;
 		CHECK( oss4.str() == "<p class=\"abc\"></p>" );
 	}
-	CHECK( Httag::printOpenedTags( std::cout ) == 0 );	
+	CHECK( Httag::printOpenedTags( std::cout ) == 0 );
 }
 
 TEST_CASE( "tag closure", "[t4]" )
@@ -339,11 +339,12 @@ TEST_CASE( "tag closure", "[t4]" )
 			t0.printTag();
 			CHECK( oss.str() == "<p>content, some more content</p>" );
 
+			Httag::setClosingTagClearsContent( true );
+
 			oss.str(""); // clear
 			t0.printTag();                       // once printed, the tag keeps its content
 			CHECK( oss.str() == "<p>content, some more content</p>" );   
 
-			Httag::setClosingTagClearsContent( true );
 			oss.str(""); // clear
 			t0.printTag();                       // once printed, 
 			CHECK( oss.str() == "<p></p>" );     // the tag becomes empty
@@ -391,6 +392,7 @@ TEST_CASE( "test_void", "[t7]" ) // testing void elements
 	CHECK( priv::isVoidElement(HT_META) );
 	CHECK( priv::isVoidElement(HT_BR) );
 	CHECK( priv::isVoidElement(HT_HR) );
+	CHECK( priv::isVoidElement(HT_INPUT) );
 }
 
 TEST_CASE( "chained functions", "[t8]" )

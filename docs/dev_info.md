@@ -69,6 +69,14 @@ The list of categories is build automatically by `bcat.sh` from file `ref/elemen
 The script will generate the enum `httag::priv::En_TagCat`
 These categories must match the one given to describe the category a tag belongs to, in file `ref/tag_content.ref`
 
+In some situations, the allowed content is described as:
+> "If the element has a XXXX attribute: zero or more YYYY elements [...]. If the element does not have a XXXX attribute:  zero or more ZZZZ elements [...]"
+
+In such a situation, both `YYYY` and `ZZZZ` are allowed, no matter the presence of the attribute.
+
+
+
+
 #### "Empty" vs. "void" elements
 
 We consider here these are the same.
@@ -101,10 +109,13 @@ The type httag::priv::AllowedContent holds for a given tag all the allowed conte
 
 ## Boolean attributes
 https://html.spec.whatwg.org/multipage/common-microsyntaxes.html#boolean-attributes
+
+https://github.com/iandevlin/html-attributes/blob/master/boolean-attributes.json
+
 list:
 required, readonly, disabled
 
-\todo handle these ?
+\todo handle these: DONE: => now, add tests
 
 
 
@@ -117,8 +128,5 @@ Maybe it can be used to access the caller code in case of error?
 
 \todo 20200326 maybe merge together printWithContent() and printTag()
 
-\todo 20200327: out back the silent error mode (see HTTAG_NO_CHECK)
-
-\bug 20200326 printWithContent() does not throw if called on a void or empty tag.
-Should call addContent()
+\todo 20200327: put back the silent error mode (see HTTAG_NO_CHECK)
 
