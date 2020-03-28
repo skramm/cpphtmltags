@@ -18,13 +18,12 @@
 # PRELIMINAR !!!
 
 abbr:C_phrasing
-a:!C_interactive,!a
-acronym
-address
+a:!C_interactive
+address:C_flow
 area:E_VOID
 article:C_flow
-aside
-audio
+aside:C_flow
+audio:C_transp
 base:E_VOID
 b:C_phrasing
 bdi:C_phrasing
