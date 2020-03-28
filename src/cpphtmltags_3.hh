@@ -396,7 +396,7 @@ class Httag
 			p_LF_mode() = mode;
 		}
 		/// Defines the behavior on closing a tag: does it clear the content ?
-		static void setClosingTabClearsContent( bool b )
+		static void setClosingTagClearsContent( bool b )
 		{
 			p_getCTCC() = b;
 		}
@@ -663,8 +663,8 @@ void Httag::printWithContent( T c )
 		closeTag();
 	else
 		p_getOpenedTags().pullTag( _tag_en );
-	clearContent();
-	clearAttribs();
+//	clearContent();
+//	clearAttribs();
 }
 //-----------------------------------------------------------------------------------
 /// Destructor, automatically closes tag if needed
@@ -1083,7 +1083,7 @@ namespace priv {
 void
 print_A( std::ostream& f, const AllowedContent& ac )
 {
-	Httag::setClosingTabClearsContent( true );
+	Httag::setClosingTagClearsContent( true );
 	Httag td( f, HT_TD );
 //	td.openTag();
 	if( ac.isEmpty() )

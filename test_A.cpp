@@ -129,6 +129,7 @@ TEST_CASE( "test1", "[t1]" )
 			CHECK( oss.str() == "<p class=\"cdef\">hi there</p>" ); // global attributes stay
 			oss.str(""); // clear
 			p3.printTag();
+			p3.clearContent();
 			CHECK( oss.str() == "<p class=\"cdef\"></p>" ); // global attributes stay, even when tag emptied
 		}
 	
@@ -148,9 +149,6 @@ TEST_CASE( "test1", "[t1]" )
 		p.addAttrib( AT_CLASS, "cde" );
 		p.printTag();
 		CHECK( oss.str() == "<p class=\"abc cde\">text</p>" );
-		oss.str(""); // clear
-		p.printTag();
-		CHECK( oss.str() == "<p></p>" );
 	}
 	SECTION( "numerical attributes works too" )
 	{
@@ -180,7 +178,7 @@ TEST_CASE( "Global attributes handling", "[t1b]" )
 		Httag::setGlobalAttrib( HT_P, AT_CLASS, "c2" );        // replace previous global attr
 		oss.str("");
 		p.printTag();
-		CHECK( oss.str() == "<p class=\"c2\"></p>" );          // tag content is empty
+		CHECK( oss.str() == "<p class=\"c2\">Hi</p>" );   
 
 		oss.str("");
 		oss << Httag( HT_P, "aaa" );
@@ -190,12 +188,12 @@ TEST_CASE( "Global attributes handling", "[t1b]" )
 
 		oss.str("");
 		p.printTag();
-		CHECK( oss.str() == "<p class=\"c2\" dir=\"123\"></p>" );         
+		CHECK( oss.str() == "<p class=\"c2\" dir=\"123\">Hi</p>" );         
 
 		Httag::clearGlobalAttribs();
 		oss.str("");
 		p.printTag();
-		CHECK( oss.str() == "<p></p>" );          // no more global attributes
+		CHECK( oss.str() == "<p>Hi</p>" );          // no more global attributes
 	}
 
 	SECTION( "Global attributes mixed with non-global" )
@@ -340,8 +338,13 @@ TEST_CASE( "tag closure", "[t4]" )
 			t0 << ", some more content";
 			t0.printTag();
 			CHECK( oss.str() == "<p>content, some more content</p>" );
-			oss.str(""); // clear
 
+			oss.str(""); // clear
+			t0.printTag();                       // once printed, the tag keeps its content
+			CHECK( oss.str() == "<p>content, some more content</p>" );   
+
+			Httag::setClosingTagClearsContent( true );
+			oss.str(""); // clear
 			t0.printTag();                       // once printed, 
 			CHECK( oss.str() == "<p></p>" );     // the tag becomes empty
 		}
@@ -390,7 +393,7 @@ TEST_CASE( "test_void", "[t7]" ) // testing void elements
 	CHECK( priv::isVoidElement(HT_HR) );
 }
 
-TEST_CASE( "named functions", "[t8]" )
+TEST_CASE( "chained functions", "[t8]" )
 {
 	std::ostringstream oss;
 	oss << Httag( HT_P ).addAttrib( AT_CLASS, "aaa" ).addAttrib( AT_ID, "bbb" );
@@ -430,6 +433,31 @@ TEST_CASE( "named functions", "[t8]" )
 		oss << td2;
 		CHECK( oss.str() == "<td>text more</td>" );
 	}
+}
+
+TEST_CASE( "clearing content", "[t9]" )
+{
+	Httag::setClosingTagClearsContent( false );
+	std::ostringstream oss;
+	Httag p( oss, HT_P, "text", AT_CLASS, "c1" );
+
+	oss.str( "" );
+	p.printTag();
+	CHECK( oss.str() == "<p class=\"c1\">text</p>" );
+
+	oss.str( "" );
+	p.printTag();            // no change
+	CHECK( oss.str() == "<p class=\"c1\">text</p>" );
+
+	Httag::setClosingTagClearsContent( true );
+
+	oss.str( "" );
+	p.printTag();
+	CHECK( oss.str() == "<p class=\"c1\">text</p>" );
+
+	oss.str( "" );
+	p.printTag();            // tag has been cleared
+	CHECK( oss.str() == "<p class=\"c1\"></p>" );
 }
 
 TEST_CASE( "content test", "[ct1]" ) // testing for allowed content
