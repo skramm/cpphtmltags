@@ -33,7 +33,7 @@ echo -e "\t\treturn _map_AllowedContent.at(tag);\n\t}">> $file_out
 
 echo -e "\n\tvoid print( std::ostream& ) const;">> $file_out
 
-echo -e "\n// Constructor">> $file_out
+echo -e "\n/// Constructor">> $file_out
 echo -e "\tAllowedContentMap()\n\t{">> $file_out
 
 

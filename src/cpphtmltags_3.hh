@@ -1,5 +1,8 @@
 //--- START: TEMPLATE FILE cpphtmltags_3.hh
 
+std::string g_lt{ "&lt;" };
+std::string g_gt{ "&gt;" };
+
 //-----------------------------------------------------------------------------------
 /// Returns true if \c tag belong to category \c cat
 inline
@@ -206,16 +209,20 @@ tagIsAllowed(
 }
 
 //-----------------------------------------------------------------------------------
+/// Helper function for AllowedContentMap::print()
 template<typename T>
 void
 printAllowedContent( std::ostream& f, std::string af, std::string type, std::vector<T> vec )
 {
 	if( vec.size() )
 	{
-		f << "\n -" << af << ' ' << vec.size() << ' ' << type << "(s): ";
+		f << " -" << af << ' ' << vec.size() << ' ' << type << "(s): ";
 		for( const auto& e: vec )
 			f << getString(e) << ' ';
+		f << '\n';
 	}
+	else
+		f << " -" << af << "/" << type << ": empty\n";
 }
 //-----------------------------------------------------------------------------------
 /// Prints some details about allowed tags content
@@ -230,11 +237,11 @@ AllowedContentMap::print( std::ostream& f ) const
 	for( const auto& elem: _map_AllowedContent )
 	{
 		const auto& s = elem.second;
-		f << ++c << ": tag <" << getString(elem.first) << '>';
+		f << ++c << ": tag <" << getString(elem.first) << ">:\n";
 		if( s.isEmpty() )
 		{
 			nbEmpty++;
-			f << " : EMPTY !!!";
+			f << " : EMPTY !!!\n";
 		}
 		else
 		{
@@ -250,11 +257,8 @@ AllowedContentMap::print( std::ostream& f ) const
 }
 //-----------------------------------------------------------------------------------
 
-// forward declaration, needed
+// forward declaration, needed because it gets declared as friend in Httag but is in a sub-namespace
 void p_printTable_1( std::ostream&, std::string id );
-
-std::string g_lt{ "&lt;" };
-std::string g_gt{ "&gt;" };
 
 } // namespace priv
 
@@ -310,8 +314,6 @@ class Httag
 
 		template<typename T>
 		Httag& addAttrib( En_Attrib, T, std::string f=std::string(), int line=0 );
-/*		template<typename T>
-		Httag& addAttrib( En_Attrib, T );*/
 
 		Httag& removeAttrib( En_Attrib );
 		Httag& clearAttribs()
@@ -369,18 +371,36 @@ class Httag
 /// \name Tag content related functions
 ///@{
 		template<typename T> Httag& addContent( T content );
-		template<typename T> Httag& setContent( T content )
+
+		template<typename T>
+		Httag& setContent( T content )
 		{
 			clearContent();
 			return addContent( content );
 		}	
-		void clearContent() { _content.clear(); }
+
+		Httag& clearContent()
+		{
+			_content.clear();
+			return *this;
+		}
+
+		Httag& clear()
+		{
+			return clearContent().clearAttribs();
+		}
 ///@}
 
 		static void setLineFeedMode( En_LineFeedMode mode )
 		{
-			lf_mode() = mode;
+			p_LF_mode() = mode;
 		}
+		/// Defines the behavior on closing a tag: does it clear the content ?
+		static void setClosingTabClearsContent( bool b )
+		{
+			p_getCTCC() = b;
+		}
+
 		static void printSupported( std::ostream& );
 		static void printSupportedHtml( std::ostream& );
 		static size_t printOpenedTags( std::ostream&, const char* msg=0 );
@@ -407,11 +427,19 @@ class Httag
 			static priv::GlobAttribMap_t s_global_attrib;
 			return s_global_attrib;
 		}
-		static En_LineFeedMode& lf_mode()
+		static En_LineFeedMode& p_LF_mode()
 		{
 			static En_LineFeedMode s_lfMode = LF_Default;
 			return s_lfMode;
 		}
+
+		static bool& p_getCTCC()
+		{
+			static bool s_option_COC = false;
+			return s_option_COC;
+		}
+
+
 	private:
 		En_Httag        _tag_en;
 		std::ostream*   _file;
@@ -754,6 +782,8 @@ Httag::closeTag( std::string __file, int __line, bool linefeed )
 	if( p_doLineFeed( linefeed ) )
 		*_file << '\n';
 
+	if( p_getCTCC() )       // if option set, clear content
+		clearContent();
 }
 //-----------------------------------------------------------------------------------
 /// Insert tag \c t2 and its content into \c tag. Will get printed later
@@ -998,7 +1028,7 @@ bool
 Httag::p_doLineFeed( bool linefeed ) const
 {
 	bool doIt = false;
-	switch( lf_mode() )
+	switch( p_LF_mode() )
 	{
 		case LF_Always: doIt = true; break;
 		case LF_None: break;
@@ -1011,6 +1041,10 @@ Httag::p_doLineFeed( bool linefeed ) const
 }
 //-----------------------------------------------------------------------------------
 /// Streams into \c s the opening tag (with attributes), the content, and the closing tag
+/**
+\warning: as the streamed tag (\c h) is const, the automatic content clearing 
+(see \ref run_time_option) can not happen!
+*/
 inline
 std::ostream&
 operator << ( std::ostream& s, const Httag& h )
@@ -1031,26 +1065,52 @@ operator << ( std::ostream& s, const Httag& h )
 		else
 			s << "</" << getString( h._tag_en ) << '>';
 	}
-
+#if 1
 //    if( h._isFileType )
 		if( h.p_doLineFeed() )
 			s << '\n';
+#else
+	h.closeTag();
+#endif			
 	return s;
 }
 
 //-----------------------------------------------------------------------------------
 namespace priv {
 
-/// \todo Finish this (currently: crashes)
+/// Helper function for p_printTable_1()
+/// \todo Finish this
 void
 print_A( std::ostream& f, const AllowedContent& ac )
 {
+	Httag::setClosingTabClearsContent( true );
 	Httag td( f, HT_TD );
 //	td.openTag();
-//	for( auto e: ac._v_allowedCats )
-//		f << getString(e) << "-";
-//	for( auto e: ac._v_allowedTags )
-//		f << getString(e) << "-";
+	if( ac.isEmpty() )
+	{
+		td << "EMTPY";
+		f << td << td << td << td;
+		return;
+	}
+
+	for( auto e: ac._v_allowedCats )
+		td << getString(e) << "-";
+	f << td;
+	td.clearContent();
+
+	for( auto e: ac._v_allowedTags )
+		td << getString(e) << "-";
+	f << td;
+	td.clearContent();
+
+	td << "TODO";
+	f << td;
+	td.clearContent();
+
+	td << "TODO";
+	f << td;
+	td.clearContent();
+
 }
 //-----------------------------------------------------------------------------------
 /// Prints HTML table of tag
@@ -1064,11 +1124,20 @@ p_printTable_1( std::ostream& f, std::string table_id )
 		table.openTag();
 		{
 			Httag tr( f, HT_TR );
-			tr << Httag( HT_TH,                         AT_CLASS, "col1" )
-				<< Httag( HT_TH, "Tag",                 AT_CLASS, "col2" )
-				<< Httag( HT_TH, "Is void",             AT_CLASS, "col3" )
-				<< Httag( HT_TH, "Belongs to category", AT_CLASS, "col4" )
-				<< Httag( HT_TH, "Allowed attributes",  AT_CLASS, "col5" );
+
+			tr  << Httag(  HT_TH,                       AT_ROWSPAN, 2 ).addAttrib( AT_CLASS, "col1" )
+				<< Httag( HT_TH, "Tags",               AT_ROWSPAN, 2 ).addAttrib( AT_CLASS, "col2" )
+				<< Httag( HT_TH, "Is void",            AT_ROWSPAN, 2 ).addAttrib( AT_CLASS, "col3" )
+				<< Httag( HT_TH, "Belongs to",         AT_ROWSPAN, 2 ).addAttrib( AT_CLASS, "col4" )
+				<< Httag( HT_TH, "Allowed content",    AT_COLSPAN, 2 ).addAttrib( AT_CLASS, "col5" )
+				<< Httag( HT_TH, "Forbidden content",  AT_COLSPAN, 2 ).addAttrib( AT_CLASS, "col6" )
+				<< Httag( HT_TH, "Allowed attributes", AT_ROWSPAN, 2 ).addAttrib( AT_CLASS, "col7" );
+			tr.printTag();	
+
+			tr  << Httag( HT_TH, "Tag category", AT_CLASS, "col5a" )
+				<< Httag( HT_TH, "Tags",         AT_CLASS, "col5b" )
+				<< Httag( HT_TH, "Tag category", AT_CLASS, "col6a" )
+				<< Httag( HT_TH, "Tags",         AT_CLASS, "col6b" );	
 			tr.printTag();			
 		}
 
@@ -1095,10 +1164,10 @@ p_printTable_1( std::ostream& f, std::string table_id )
 
 			}
 			td.closeTag();
-
+//	std::cout << "BEFORE: " << td << "\n";
 // column "allowed content"
-			const auto& ac = Httag::p_getAllowedContentMap().get(tag);
-			print_A( f, ac );
+			const auto& acm = Httag::p_getAllowedContentMap();
+			print_A( f, acm.get( tag ) );
 
 // column: "allowed attributes"			
 			td.openTag();                               

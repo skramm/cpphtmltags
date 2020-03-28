@@ -80,10 +80,10 @@ See list here: https://developer.mozilla.org/en-US/docs/Glossary/Empty_element
 ## Coding conventions
 
 - TABS for indentation, SPC for... spacing
-- private functions of public class are prefixed with `p_`
+- private member functions are prefixed with `p_`
 - static variables are prefixed with `s_`
 - all enums are prefixed with `En_`
-
+- all enum values belonging to same enum are prefixed with same uppercase prefix ('XX_')
 
 
 ## Handling ot authorized content
