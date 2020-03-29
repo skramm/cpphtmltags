@@ -97,6 +97,24 @@ TEST_CASE( "test1", "[t1]" )
 	}
 } // section end
 
+SECTION( "tag inside a tag" )
+{
+	{
+		std::ostringstream oss;
+		Httag a( HT_A, "a link", AT_HREF, "https://somewhere.com" );
+		Httag li( HT_LI, a );
+		oss << li;
+		CHECK( oss.str() == "<li><a href=\"https://somewhere.com\">a link</a></li>\n" );
+	}
+	{
+		std::ostringstream oss;
+		Httag li( HT_LI );
+		li << Httag( HT_A, "a link", AT_HREF, "https://somewhere.com" );
+		oss << li;
+		CHECK( oss.str() == "<li><a href=\"https://somewhere.com\">a link</a></li>\n" );
+	}
+}
+
 	SECTION( "iterative adding of attributes" )
 	{
 		std::ostringstream oss,oss2,oss3;
@@ -460,6 +478,23 @@ TEST_CASE( "clearing content", "[t9]" )
 	oss.str( "" );
 	p.printTag();            // tag has been cleared
 	CHECK( oss.str() == "<p class=\"c1\"></p>" );
+}
+
+TEST_CASE( "boolean attributes", "[t10]" )
+{
+	Httag::setClosingTagClearsContent( false );
+	std::ostringstream oss;
+
+	oss << Httag( HT_INPUT ).addAttrib( AT_CHECKED);
+	CHECK( oss.str() == "<input checked>" );
+
+	oss.str("");
+	oss << Httag( HT_INPUT ).addAttrib( AT_CHECKED ).addAttrib( AT_CLASS, "abc" );
+	CHECK( oss.str() == "<input checked class=\"abc\">" );
+
+	oss.str("");
+	oss << Httag( HT_INPUT, AT_CHECKED, "" );
+	CHECK( oss.str() == "<input checked>" );
 }
 
 TEST_CASE( "content test", "[ct1]" ) // testing for allowed content

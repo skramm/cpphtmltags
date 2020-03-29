@@ -315,6 +315,8 @@ class Httag
 		template<typename T>
 		Httag& addAttrib( En_Attrib, T, std::string f=std::string(), int line=0 );
 
+		Httag& addAttrib( En_Attrib );
+
 		Httag& removeAttrib( En_Attrib );
 		Httag& clearAttribs()
 		{
@@ -926,6 +928,16 @@ Httag::addAttrib( En_Attrib attr, T value, std::string __file, int __line )
 }
 
 //-----------------------------------------------------------------------------------
+/// Add a boolean attribute (no value)
+Httag&
+Httag::addAttrib( En_Attrib attr )
+{
+	p_addAttrib( attr, std::string(), "", 0 );
+	return *this;
+}
+
+
+//-----------------------------------------------------------------------------------
 /// Add an HTML attribute to the tag
 /**
 If the attribute is already present, then the value will be concatenated to the previous value
@@ -946,7 +958,7 @@ Httag::p_addAttrib( En_Attrib attr, std::string value, std::string __file, int _
 			+ ">, tag is already opened"
 		);
 
-	if( value.empty() ) // empty string => nothing to add
+	if( value.empty() && !priv::isBoolAttr(attr) ) // empty string => nothing to add
 	{
 		HTTAG_WARNING(
 			std::string( "warning: asking to add tag attribute '" )
@@ -970,11 +982,11 @@ Httag::p_addAttrib( En_Attrib attr, std::string value, std::string __file, int _
 #endif
 
 // check for unneeded pairs attribute/value
-		if( ( attr == AT_COLSPAN && value == "1" ) || ( attr == AT_ROWSPAN && value == "1" ) )
-		{
-			HTTAG_WARNING( std::string( "asking to add unnecessary attribute/value: '" ) + getString(attr) + "'=" + value );
-			return;
-		}
+	if( ( attr == AT_COLSPAN && value == "1" ) || ( attr == AT_ROWSPAN && value == "1" ) )
+	{
+		HTTAG_WARNING( std::string( "asking to add unnecessary attribute/value: '" ) + getString(attr) + "'=" + value );
+		return;
+	}
 
 	if( _attr_map.find(attr) != _attr_map.end() )   // check if element is already present or not
 	{
@@ -1020,7 +1032,7 @@ Httag::p_getAttribs() const
 {
 	const auto& gattr = p_globalAttrib();
 	const priv::AttribMap_t* gpatm = 0;
-	if( gattr.count(_tag_en) )              // check is there is a global attribute for that tag
+	if( gattr.count(_tag_en) )              // check if there is a global attribute for that tag
 		gpatm = &gattr.at(_tag_en);
 	std::set<En_Attrib> flags;
 
@@ -1037,7 +1049,7 @@ Httag::p_getAttribs() const
 				out += "=\"" + it->second;
 				if( gpatm )
 				{                                          // IF we found a global attribute map for that tag
-					if( gpatm->count( it->first ) ) // if that atttribute is found in global map for that tag
+					if( gpatm->count( it->first ) ) // if that attribute is found in global map for that tag
 					{
 						flags.insert( it->first );
 						out += ' ' + gpatm->at( it->first );
@@ -1197,8 +1209,9 @@ p_printTable_1( std::ostream& f, std::string table_id )
 			f << Httag( HT_TD, i+1, AT_CLASS, "cent" );
 
 			Httag a( HT_A, g_lt+getString( tag )+g_gt );
-			a.addAttrib( AT_HREF, ext + getString( tag )+ ".asp" ).addAttrib( AT_TARGET, "_blank" );
+			a.addAttrib( AT_HREF, ext + getString( tag ) + ".asp" ).addAttrib( AT_TARGET, "_blank" );
 			Httag td2( HT_TD, a, AT_CLASS, "cent" );
+			td2.addAttrib( AT_ID, std::string("t_") + getString( tag ) );
 			f << td2;
 
 			f << Httag( HT_TD, ( isVoidElement(tag) ? "Y" : "N" ), AT_CLASS, "cent" );
@@ -1216,7 +1229,7 @@ p_printTable_1( std::ostream& f, std::string table_id )
 
 			}
 			td.closeTag();
-//	std::cout << "BEFORE: " << td << "\n";
+
 // column "allowed content"
 			const auto& acm = Httag::p_getAllowedContentMap();
 			print_A( f, acm.get( tag ) );

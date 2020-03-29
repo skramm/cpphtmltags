@@ -109,9 +109,9 @@ p.openTag();
 std::cout << "a paragraph";
 p.closeTag();
 ```
-Of course, if `p` is not used afterwards, it would be faster to write:
+If `p` is not used afterwards, it would be faster to write:
 ```C++
-std::cout << Httag ( std::cout, HT_P, "a paragraph" );
+std::cout << Httag( std::cout, HT_P, "a paragraph" );
 ```
 
 
@@ -141,9 +141,27 @@ p << " of text";
 std::cout << p;
 ```
 
+But there is more: the content can be another tag!
+You can stream a tag inside a tag, or use it as a content.
+For example:
+```C++
+Httag a( HT_A, "a link", AT_HREF, "https://somewhere.com" );
+Httag li( HT_LI, a );
+f << li;
+```
+will produce:<br>
+`<li><a href=""https://somewhere.com">a link</a></li>`
+
+Another way of achieving this would be:
+```C++
+Httag li( HT_LI );
+li << Httag( HT_A, "a link", AT_HREF, "https://somewhere.com" );
+f << li;
+```
+
 ### A.3 - Attributes
 
-#### Adding attributes
+#### A.3.1 - Adding attributes
 Tag attributes can be added to the tag at creation time (see above) or afterwards:
 ```C++
 Httag p( HT_P );
@@ -174,14 +192,30 @@ td.removeAttrib( AT_COLSPAN ).addAttrib( AT_ID, "myid" );
 td.addAttrib( AT_ID, "myid" ).removeAttrib( AT_COLSPAN ); //does the same as above !
 ```
 
-You can also clear all attributes with;
+You can clear all attributes with:
 ```C++
-td.clearAttribs() 
+td.clearAttribs();
 ```
 
+#### A.3.2 - Boolean attributes
+
+These are attributes that have no value.
+They are perfectly handled, for exemple the tag `<input>` allows the boolean attribute `checked`.
+So you can write
+```C++
+f << Httag( HT_INPUT ).addAttrib( AT_CHECKED);
+```
+which will produce: `<input checked>`.
+
+The only difference is that, for technical considerations due to the way C++ does the template resolution, you cannot add a boolean attribute with the constructor.
+This:<br>`f << Httag( HT_INPUT, AT_CHECKED);`<br>will fail.
+But you can use an empty value.
+This:<br>
+`f << Httag( HT_INPUT, AT_CHECKED, "" );`<br>
+is fine.
 
 <a name="global_attribute"></a>
-####  Tag global attributes
+#### A.3.3 - Tag global attributes
 
 It is possible to add to a given tag a "global attribute", that is each time you will output that tag, this attribute-value pair will be automatically added.
 For example, at one point you want to add to all the tags `li` the attribute `class="my_class"`.
@@ -192,12 +226,12 @@ To remove, you can:
 - remove all global attributes:<br>
 `Httag::clearGlobalAttribs()`
 - remove the global attribute on a given tag:<br>
-`Httag::clearGlobalAttrib( <tag id> )`
+`Httag::clearGlobalAttrib( <tag id> )`<br>
 For example:
 `Httag::clearGlobalAttrib( HT_LI )`
 
-Another example of usefulness of this features is for the `<a>` tag.
-As you know, you can add the attribute `target="_blank"` to make the link open in another tab/window of the browser. 
+An example of usefulness of this features is for the `<a>` tag.
+As you know, you can add the attribute `target="_blank"` to make the link open in another tab/window of the browser.
 So if you want all of you generated links to have automatically this feature, just add this in you code:
 ```
 Httag::setGlobalAttrib( HT_A, AT_TARGET, "_blank" );
@@ -206,7 +240,7 @@ Httag::setGlobalAttrib( HT_A, AT_TARGET, "_blank" );
 
 All these are static function, thus the `Httag::` prefix.
 
-#### Attributes uniqueness enforcement
+#### A.3.4 - Attributes uniqueness enforcement
 
 HTML 5 mandates that no attribute shall be present more than once.
 This is enforced here, and adding attributes will end up as a concatenation of the values, space separated.
@@ -222,8 +256,13 @@ will printout: `<p class="abc cde">text</p>`
 For global attributes, it works the same.
 Please note that the global attribute will always be added at the end of the string.
 
+
+### A.4 - Run-time options
+
+Different settings can be set at run-time, using static functions.
+
 <a name="linefeed"></a>
-### A.4 - Line feeds
+#### A.4.1 - Line feeds
 
 In order to be human readable, it may be a good idea to have here and then some line feeds in the output html code.
 On the other side, for large files it may be wanted to have "compact" html code, by removing all the unnecessary linefeeds.
@@ -241,6 +280,16 @@ For example:
 ```C++
 Httag::setLineFeedMode( LF_Always );
 ```
+
+#### A.4.2 - Behavior on tag closing
+
+Two different behaviors can be selected, globally.
+Either the tag content is cleared automatically, either it is retained.
+This can be selected with:
+```C++
+Httag::setClosingTagClearsContent( bool );
+```
+The default value is `false`.
 
 ### A.5 - Error handling
 

@@ -1,0 +1,22 @@
+# bool_attribs.ref
+
+async
+autofocus
+autoplay
+checked
+controls
+default
+defer
+disabled
+hidden
+ismap
+loop
+multiple
+muted
+novalidate
+open
+readonly
+required
+reversed
+selected
+

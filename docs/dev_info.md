@@ -107,17 +107,6 @@ The type httag::priv::AllowedContent holds for a given tag all the allowed conte
 - a list of non-allowed categories of tags
 
 
-## Boolean attributes
-https://html.spec.whatwg.org/multipage/common-microsyntaxes.html#boolean-attributes
-
-https://github.com/iandevlin/html-attributes/blob/master/boolean-attributes.json
-
-list:
-required, readonly, disabled
-
-\todo handle these: DONE: => now, add tests
-
-
 
 ## Other stuff, todos, ...
 
@@ -126,7 +115,9 @@ https://www.boost.org/doc/libs/1_72_0/doc/html/stacktrace/getting_started.html
 Maybe it can be used to access the caller code in case of error?
 
 
-\todo 20200326 maybe merge together printWithContent() and printTag()
+\todo 20200326: maybe merge together printWithContent() and printTag()
 
 \todo 20200327: put back the silent error mode (see HTTAG_NO_CHECK)
+
+\todo 20200329: check bevavior of f << tag: does tag get cleared ?
 
