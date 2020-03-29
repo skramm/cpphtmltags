@@ -162,6 +162,14 @@ li << Httag( HT_A, "a link", AT_HREF, "https://somewhere.com" );
 f << li;
 ```
 
+Even this is possible! :
+```C++
+	Httag t( HT_DIV, Httag( HT_DIV, "aaa" ) );
+```
+and will produce (after `t` is streamed): `<div><div>aaa</div></div>`
+
+
+
 ### A.3 - Attributes
 
 #### A.3.1 - Adding attributes
@@ -341,7 +349,6 @@ Error  | Outcome  |  Example
 -------|---------------------------------------|----------------
 Open a tag that is not a file-type tag | fatal | `Httag t( HT_P );`<br>`t.openTag();`
 Open a tag that is already open  | fatal | `Httag t( f, HT_P );`<br>`t.openTag();`<br>`t.openTag();`
-Open a tag `<x>` inside an identical tag.<br>(whatever the tag, `<x><x>content</x></x>` is invalid) | fatal | `Httag ta( f, HT_P ), tb( f, HT_P );`<br>`ta.openTag(); tb.openTag();`
 Add an attribute to a tag where that attribute is not allowed | fatal | `Httag t( HT_TD );`<br>`t.addAttrib( AT_DATA, "abc" );`<br>or<br>`Httag t( HT_TD, AT_DATA, "abc" );`
 Add content to a void tag | fatal | `Httag t( HT_BR );`<br>`t.addContent( "abc" );`
 Add an attribute to a file-type tag already opened | fatal | `Httag t( f, HT_H2 );`<br>`t.openTag();`<br>`t.addAttrib( AT_CLASS, "abc" )`

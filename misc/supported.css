@@ -5,7 +5,7 @@ build/supported > supp.html
 
 body {font-family:sans-serif;}
 
-a { color:inherit; text-decoration:none; }
+table a { color:inherit; text-decoration:none; }
 ul a { text-decoration:underline; }
 
 table

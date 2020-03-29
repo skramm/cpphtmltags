@@ -20,9 +20,9 @@ The final file is build according to this diagram:
 The generated content is build by the bash scripts `build.sh` (and 2 others).
 It takes as input the html reference material that is located in the files located in the `ref` subfolder:
 - `global_attribs.ref` holds the list of global attributes (the one that can be used with any html element).
+- `bool_attribs.ref` holds the list of boolean attributes (attributes that have no value, see [manual](manual.md#boolean-attributes)).
 - `valid_attribs.ref` holds the list of authorized tags for a given attribute, in the form `attrib:tag1,tag2,tag3`.
 It is used along with `global_attribs.ref` to generate a file holding all the attributes, that is used to generate the code.
-- `void_elements.ref` holds the list of void-elements (tags that don't get closed)
 - `tag_content.ref` :processed by script `bcontent.sh`, will generate the class httag::priv::AllowedContentMap
 - `element_cat.ref` :processed by script `bcat.sh`, will generate
 
@@ -52,6 +52,16 @@ If is is installed on your machine, you can run the tests with `make test`.
 Currently used with catch 2.3.0.
 Coverage is currently not complete, but will expand.
 
+
+## FAQ
+
+Q-How are HTML comments handled (`<!-- content -->`.)?<br>
+A-The library provides the special HT_COMMENT element id: it can be used just as any element, you can put whatever you want inside.
+The formatting takes place only at printing time.
+
+Q-How is the doctype element handled?
+A-The library provides the special HT_DOCTYPE element id.
+The formatting takes place only at printing time.
 
 ## Misc. design choices
 
@@ -115,9 +125,10 @@ https://www.boost.org/doc/libs/1_72_0/doc/html/stacktrace/getting_started.html
 Maybe it can be used to access the caller code in case of error?
 
 
-\todo 20200326: maybe merge together printWithContent() and printTag()
+\todo 20200326: API: maybe merge together printWithContent() and printTag()
 
 \todo 20200327: put back the silent error mode (see HTTAG_NO_CHECK)
 
 \todo 20200329: check bevavior of f << tag: does tag get cleared ?
 
+\todo 20200329: enforce not tag content when parent tag is "text-only"
