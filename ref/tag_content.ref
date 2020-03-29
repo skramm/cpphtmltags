@@ -47,7 +47,7 @@ details:summary,C_flow
 dfn:C_phrasing,!dfn
 dialog:C_flow
 div:C_flow
-dl:div,dt
+dl:div,dt,dd,C_script
 doctype:E_VOID
 dt:C_flow,!C_sectioning,!C_heading,!header,!footer
 embed:E_VOID

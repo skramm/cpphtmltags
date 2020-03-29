@@ -153,7 +153,7 @@ Httag li( HT_LI, a );
 f << li;
 ```
 will produce:<br>
-`<li><a href=""https://somewhere.com">a link</a></li>`
+`<li><a href="https://somewhere.com">a link</a></li>`
 
 Another way of achieving this would be:
 ```C++
