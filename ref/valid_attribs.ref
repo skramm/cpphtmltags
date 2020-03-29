@@ -49,6 +49,7 @@ min:input,meter
 multiple:input,select
 muted:video,audio
 name:button,fieldset,form,iframe,input,map,meta,object,output,param,select,textarea
+nomodule:script
 novalidate:form
 onabort:audio,embed,img,object,video
 onafterprint:body
@@ -93,11 +94,13 @@ onwaiting:audio,video
 open:details
 optimum:meter
 pattern:input
+ping:a,area
 placeholder:input,textarea
 poster:video
 preload:audio,video
 readonly:input,textarea
 rel:a,area,link
+referrerpolicy:a,area,iframe,img,link,script
 required:input,select,textarea
 reversed:ol
 rows:textarea

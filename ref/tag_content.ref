@@ -29,7 +29,7 @@ b:C_phrasing
 bdi:C_phrasing
 bdo:C_phrasing
 blockquote:C_flow
-body:
+body:C_flow
 br:E_VOID
 button:C_phrasing,!C_interactive
 canvas
@@ -79,7 +79,7 @@ legend
 li:C_flow
 link:E_VOID
 main:C_flow
-map
+map:C_transp
 mark:C_phrasing
 menu:li,C_flow
 meta:E_VOID
