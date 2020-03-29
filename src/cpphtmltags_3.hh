@@ -280,8 +280,12 @@ class Httag
 {
 	template<typename T>
 	friend Httag&        operator << ( Httag&        tag,    const T& );
+
 	friend Httag&        operator << ( Httag&        tag,    const Httag& );
+	friend Httag&        operator << ( Httag&        tag,    /*const*/ Httag& );
+
 	friend std::ostream& operator << ( std::ostream& stream, const Httag& );
+	friend std::ostream& operator << ( std::ostream& stream, /*const*/ Httag& );
 	friend void priv::p_printTable_1( std::ostream&, std::string id );
 
 	public:
@@ -353,9 +357,9 @@ class Httag
 				if( atrm.count(attrib) )   // check if it holds the key "attrib",
 					atrm.erase( attrib );  // and if so, erase it
 			}
-			
+
 		}
-#if 0		
+#if 0
 		static void clearGlobalAttrib( En_Attrib attrib )
 		{
 			auto& gam = globalAttrib();
@@ -379,7 +383,7 @@ class Httag
 		{
 			clearContent();
 			return addContent( content );
-		}	
+		}
 
 		Httag& clearContent()
 		{
@@ -640,7 +644,7 @@ Httag::addContent<Httag>( Httag content )
 		getTag(),
 		Httag::p_getAllowedContentMap()
 	);
-	
+
 	if( !res.first )
 		HTTAG_FATAL_ERROR( std::string("attempting to insert <")
 			+ getString( content.getTag() )
@@ -818,25 +822,30 @@ inline
 void
 Httag::closeTag( std::string __file, int __line, bool linefeed )
 {
-	p_checkValidFileType( "close" );
+//	p_checkValidFileType( "close" );
 
 	if( priv::isVoidElement( _tag_en ) )
-		HTTAG_FATAL_ERROR_FL( std::string( "asked to close tag <" ) + getString(_tag_en) + "> but is void-element" );
+		return;
+//		HTTAG_FATAL_ERROR_FL( std::string( "asked to close tag <" ) + getString(_tag_en) + "> but is void-element" );
 
 	if( !_tagIsOpen )
 		HTTAG_FATAL_ERROR_FL( std::string( "tag <" ) + getString(_tag_en) + ">: asked to close but was already closed" );
 
-	if( _tag_en == HT_COMMENT )
-		*_file << "-->";
-	else
-		*_file << "</" << getString(_tag_en) << '>';
+	if( _isFileType )
+	{
+		if( _tag_en == HT_COMMENT )
+			*_file << "-->";
+		else
+			*_file << "</" << getString(_tag_en) << '>';
 
-	if( _tagIsOpen )
-		p_getOpenedTags().pullTag( _tag_en );
-
+		if( _tagIsOpen )
+			p_getOpenedTags().pullTag( _tag_en );
+	}
 	_tagIsOpen = false;
-	if( p_doLineFeed( linefeed ) )
-		*_file << '\n';
+
+	if( _isFileType )
+		if( p_doLineFeed( linefeed ) )
+			*_file << '\n';
 
 	if( p_getCTCC() )       // if option set, clear content
 		clearContent();
@@ -854,7 +863,7 @@ operator << ( Httag& tag, const Httag& t2 )
 	if( check.first )
 		oss << t2;
 	else
-		HTTAG_FATAL_ERROR( 
+		HTTAG_FATAL_ERROR(
 			std::string("tag <")
 			+ getString( t2._tag_en )
 			+ "> not allowed as content inside tag <"
@@ -865,6 +874,30 @@ operator << ( Httag& tag, const Httag& t2 )
 	tag._content = oss.str();
 	return tag;
 }
+/// V2: NOT CONST. Insert tag \c t2 and its content into \c tag. Will get printed later
+Httag&
+operator << ( Httag& tag, /* const*/ Httag& t2 )
+{
+//	assert( !tag._isFileType );
+	std::ostringstream oss;
+	oss << tag._content;
+
+	auto check = tagIsAllowed( t2.getTag(), tag.getTag(), Httag::p_getAllowedContentMap() );
+	if( check.first )
+		oss << t2;
+	else
+		HTTAG_FATAL_ERROR(
+			std::string("tag <")
+			+ getString( t2._tag_en )
+			+ "> not allowed as content inside tag <"
+			+ getString( tag._tag_en )
+			+ ">"
+		);
+
+	tag._content = oss.str();
+	return tag;
+}
+
 //-----------------------------------------------------------------------------------
 /// Insert some content into \c tag. Will get printed later
 template<typename T>
@@ -1031,7 +1064,7 @@ Httag::removeAttrib( En_Attrib attr )
 		HTTAG_WARNING(
 			std::string( "asked to remove attribute " )
 			+ getString( attr )
-			+ std::string( " of tag <") 
+			+ std::string( " of tag <")
 			+ getString( _tag_en )
 			+ std::string( "> but attribute not present" )
 		);
@@ -1111,7 +1144,7 @@ Httag::p_doLineFeed( bool linefeed ) const
 //-----------------------------------------------------------------------------------
 /// Streams into \c s the opening tag (with attributes), the content, and the closing tag
 /**
-\warning: as the streamed tag (\c h) is const, the automatic content clearing 
+\warning: as the streamed tag (\c h) is const, the automatic content clearing
 (see \ref run_time_option) can not happen!
 */
 inline
@@ -1140,7 +1173,39 @@ operator << ( std::ostream& s, const Httag& h )
 			s << '\n';
 #else
 	h.closeTag();
-#endif			
+#endif
+	return s;
+}
+
+// NOT CONST VERSION
+inline
+std::ostream&
+operator << ( std::ostream& s, /*const*/ Httag& h )
+{
+	h._tagIsOpen = true;
+	switch( h._tag_en )
+	{
+		case HT_COMMENT: s << "<!-- "; break;
+		case HT_DOCTYPE: s << "<!DOCTYPE html>\n"; break;
+		default:
+			s << '<' << getString( h._tag_en )
+				<< h.p_getAttribs() << '>';
+	}
+	if( !priv::isVoidElement( h.getTag() ) )
+	{
+		s << h._content;
+		if( h._tag_en == HT_COMMENT )
+			s << " -->\n";
+		else
+			s << "</" << getString( h._tag_en ) << '>';
+	}
+#if 0
+//    if( h._isFileType )
+		if( h.p_doLineFeed() )
+			s << '\n';
+#else
+	h.closeTag();
+#endif
 	return s;
 }
 
@@ -1206,13 +1271,13 @@ p_printTable_1( std::ostream& f, std::string table_id )
 				<< Httag( HT_TH, "Allowed content",    AT_COLSPAN, 2 ).addAttrib( AT_CLASS, "col5" )
 				<< Httag( HT_TH, "Forbidden content",  AT_COLSPAN, 2 ).addAttrib( AT_CLASS, "col6" )
 				<< Httag( HT_TH, "Allowed attributes", AT_ROWSPAN, 2 ).addAttrib( AT_CLASS, "col7" );
-			tr.printTag();	
+			tr.printTag();
 
 			tr  << Httag( HT_TH, "Tag category", AT_CLASS, "col5a" )
 				<< Httag( HT_TH, "Tags",         AT_CLASS, "col5b" )
 				<< Httag( HT_TH, "Tag category", AT_CLASS, "col6a" )
-				<< Httag( HT_TH, "Tags",         AT_CLASS, "col6b" );	
-			tr.printTag();			
+				<< Httag( HT_TH, "Tags",         AT_CLASS, "col6b" );
+			tr.printTag();
 		}
 
 		std::string ext{"https://www.w3schools.com/tags/tag_"};
@@ -1251,8 +1316,8 @@ p_printTable_1( std::ostream& f, std::string table_id )
 			const auto& acm = Httag::p_getAllowedContentMap();
 			print_A( f, acm.get( tag ) );
 
-// column: "allowed attributes"			
-			td.openTag();                               
+// column: "allowed attributes"
+			td.openTag();
 			for( size_t j=0; j<AT_DUMMY; j++)
 			{
 				auto attrib = static_cast<En_Attrib>(j);
@@ -1282,7 +1347,7 @@ p_printTable_2( std::ostream& f, std::string table_id )
 				<< Httag( HT_TH, "Global",       AT_CLASS, "col3" )
 				<< Httag( HT_TH, "Boolean",      AT_CLASS, "col4" )
 				<< Httag( HT_TH, "Allowed tags", AT_CLASS, "col5" );
-			tr.printTag();			
+			tr.printTag();
 		}
 
 		std::string ext{"https://www.w3schools.com/tags/att_"};
@@ -1295,10 +1360,10 @@ p_printTable_2( std::ostream& f, std::string table_id )
 			f << Httag( HT_TD, i+1, AT_CLASS, "cent" );
 
 			Httag a( HT_A, getString( attrib ) );
-			a.addAttrib( AT_HREF, ext + getString( attrib ) + ".asp" ).addAttrib( AT_TARGET, "_blank" );		
+			a.addAttrib( AT_HREF, ext + getString( attrib ) + ".asp" ).addAttrib( AT_TARGET, "_blank" );
 			f << Httag( HT_TD, a, AT_ID, std::string("a_") + getString( attrib ) );
 
-			if( isGlobalAttr( attrib ) )				
+			if( isGlobalAttr( attrib ) )
 				f << Httag( HT_TD, "Y", AT_CLASS, "cent" ) << Httag( HT_TD ) << Httag( HT_TD );
 			else
 			{
@@ -1331,7 +1396,7 @@ p_printTable_3( std::ostream& f, std::string table_id )
 			tr <<  Httag( HT_TH,                       AT_CLASS, "col1" )
 				<< Httag( HT_TH, "Tag category",       AT_CLASS, "col2" )
 				<< Httag( HT_TH, "Corresponding tags", AT_CLASS, "col3" );
-			tr.printTag();			
+			tr.printTag();
 		}
 		for( size_t i=0; i<priv::C_DUMMY; i++ )
 		{

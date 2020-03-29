@@ -155,7 +155,7 @@ SECTION( "tag inside a tag" )
 			p3.printTag();
 			CHECK( oss.str() == "<p class=\"cdef\"></p>" ); // global attributes stay, even when tag emptied
 		}
-	
+
 		oss2 << Httag( HT_LI, "this is li" );                // but only for the tag it was assigned too, others are unaffected
 		CHECK( oss2.str() == "<li>this is li</li>\n" );
 
@@ -180,7 +180,7 @@ SECTION( "tag inside a tag" )
 		t.addAttrib( AT_MIN, 3 );
 		t.addAttrib( AT_MAX, 10 );
 
-		CHECK_THROWS( t.printWithContent( "text" ) );   // <input> is a void tag, thus, no content allowed ! 
+		CHECK_THROWS( t.printWithContent( "text" ) );   // <input> is a void tag, thus, no content allowed !
 
 		t.printTag();
 		CHECK( oss.str() == "<input max=\"10\" min=\"3\">" );
@@ -201,7 +201,7 @@ TEST_CASE( "Global attributes handling", "[t1b]" )
 		Httag::setGlobalAttrib( HT_P, AT_CLASS, "c2" );        // replace previous global attr
 		oss.str("");
 		p.printTag();
-		CHECK( oss.str() == "<p class=\"c2\">Hi</p>" );   
+		CHECK( oss.str() == "<p class=\"c2\">Hi</p>" );
 
 		oss.str("");
 		oss << Httag( HT_P, "aaa" );
@@ -211,7 +211,7 @@ TEST_CASE( "Global attributes handling", "[t1b]" )
 
 		oss.str("");
 		p.printTag();
-		CHECK( oss.str() == "<p class=\"c2\" dir=\"123\">Hi</p>" );         
+		CHECK( oss.str() == "<p class=\"c2\" dir=\"123\">Hi</p>" );
 
 		Httag::clearGlobalAttribs();
 		oss.str("");
@@ -233,7 +233,7 @@ TEST_CASE( "Global attributes handling", "[t1b]" )
 		CHECK( oss.str() == "<li class=\"c3\">inside</li>\n" );
 
 		oss.str("");
-		oss << Httag( HT_P, "aaa", AT_CLASS, "c1" );     
+		oss << Httag( HT_P, "aaa", AT_CLASS, "c1" );
 		CHECK( oss.str() == "<p class=\"c1 c2\">aaa</p>" );    // new created tag also has it
 
 		oss.str("");
@@ -308,19 +308,21 @@ TEST_CASE( "File type tags", "[t3]" )
 {
 	SECTION( "File type tags 1" )
 	{
-		std::ostringstream oss, oss1, oss2, oss3, oss4;
+		std::ostringstream oss, oss1;
 
 		Httag t0( oss, HT_P );                        // adding content to a tag
 		t0 << "content";
 		oss << t0;
 		CHECK( oss.str() == "<p>content</p>" );
-
+/*
 		Httag t1( oss1, HT_P );
 		t1 << "this ";
 		t1 << "is text";
 		oss1 << t1;
 		CHECK( oss1.str() == "<p>this is text</p>" );
+*/
 	}
+#if 0
 	SECTION( "File type tags 2" )
 	{
 		std::ostringstream oss, oss1, oss2, oss3, oss4;
@@ -347,6 +349,7 @@ TEST_CASE( "File type tags", "[t3]" )
 		CHECK( oss4.str() == "<p class=\"abc\"></p>" );
 	}
 	CHECK( Httag::printOpenedTags( std::cout ) == 0 );
+#endif
 }
 
 TEST_CASE( "tag closure", "[t4]" )
@@ -366,10 +369,10 @@ TEST_CASE( "tag closure", "[t4]" )
 
 			oss.str(""); // clear
 			t0.printTag();                       // once printed, the tag keeps its content
-			CHECK( oss.str() == "<p>content, some more content</p>" );   
+			CHECK( oss.str() == "<p>content, some more content</p>" );
 
 			oss.str(""); // clear
-			t0.printTag();                       // once printed, 
+			t0.printTag();                       // once printed,
 			CHECK( oss.str() == "<p></p>" );     // the tag becomes empty
 		}
 		{
@@ -393,21 +396,63 @@ TEST_CASE( "test_cat", "[t5]" )
 
 TEST_CASE( "test_ac", "[t6]" ) // testing allowed content in a tag
 {
-	std::ostringstream oss;
+	Httag::setClosingTagClearsContent( true );
+	Httag::setLineFeedMode( LF_None );
+	SECTION( "t6-1" )
 	{
-		Httag t1( oss, HT_P );
-		Httag t2( oss, HT_H1 );
-		Httag t3( oss, HT_STRONG );
-		t1.openTag();
-		oss << "this is ";
-		CHECK_THROWS( t2.openTag() );      // cannot have <h1> inside <p>
-		CHECK_NOTHROW( t3.openTag() );     // but <strong> is ok
-		oss << "important";
-		t3.closeTag();
-		oss << ", is it ?";
+		std::ostringstream oss;
+		{
+			Httag t1( oss, HT_P );
+			Httag t2( oss, HT_H1 );
+			Httag t3( oss, HT_STRONG );
+			t1.openTag();
+			oss << "this is ";
+			CHECK_THROWS( t2.openTag() );      // cannot have <h1> inside <p>
+			CHECK_NOTHROW( t3.openTag() );     // but <strong> is ok
+			oss << "important";
+			t3.closeTag();
+			oss << ", is it ?";
+		}
+		CHECK( oss.str() == "<p>this is <strong>important</strong>, is it ?</p>" );
+
 	}
-	CHECK( oss.str() == "<p>this is <strong>important</strong>, is it ?</p>" );
+
+	SECTION( "t6-2" )
+	{
+		std::ostringstream oss;
+
+		Httag t( HT_DIV, Httag( HT_DIV ) );
+		oss << t;
+		CHECK( oss.str() == "<div><div></div></div>" );
+
+		oss.str("");
+		Httag t2( HT_DIV, Httag( HT_P, "text" ) );
+		oss << t2;
+		CHECK( oss.str() == "<div><p>text</p></div>" );
+
+		CHECK_THROWS( Httag( HT_P ).setContent( Httag( HT_P ) ) );  // can't put a <p> inside a <p>
+		CHECK_THROWS( Httag( HT_P ).setContent( Httag( HT_DIV ) ) );  // can't put a <div> inside a <p>
+		CHECK_THROWS( Httag( HT_A ).setContent( Httag( HT_A ) ) );  // can't put a <a> inside a <a>
+
+		Httag t3( HT_DFN );
+		CHECK_NOTHROW( t3.setContent( Httag( HT_BR ) ) );  // <br>  allowed inside     <dfn>
+		CHECK_THROWS(  t3.setContent( Httag( HT_P ) ) );   // <p>   not allowed inside <dfn>
+		CHECK_THROWS(  t3.setContent( Httag( HT_DFN ) ) ); // <dfn> not allowed inside <dfn>
+	}
+	SECTION( "t6-3" )
+	{
+		std::ostringstream oss;
+		Httag p( oss, HT_P );
+		p.openTag();
+
+		Httag li( oss, HT_LI );
+		CHECK_THROWS( li.openTag() );  // <li> not allowed in <p>
+
+		CHECK_THROWS( p << Httag( oss, HT_LI ) );  // <li> not allowed in <p>
+		oss << p;
+	}
 }
+
 
 TEST_CASE( "test_void", "[t7]" ) // testing void elements
 {
@@ -432,9 +477,10 @@ TEST_CASE( "chained functions", "[t8]" )
 	std::string hello{"hello"};
 	Httag p( HT_P );
 	p.setContent( "say " ).addContent( hello );
-	oss << p;  // 
+	oss << p;  //
 	CHECK( oss.str() == "<p>say hello</p>" );
 
+	SECTION( "t8-b" )
 	{
 		Httag td1( HT_TD, "text", AT_COLSPAN, 3 );
 		Httag td2 = td1;
@@ -462,27 +508,51 @@ TEST_CASE( "chained functions", "[t8]" )
 
 TEST_CASE( "clearing content", "[t9]" )
 {
-	Httag::setClosingTagClearsContent( false );
 	std::ostringstream oss;
-	Httag p( oss, HT_P, "text", AT_CLASS, "c1" );
+	SECTION( "t9-a: file-typetags" )
+	{
+		Httag::setClosingTagClearsContent( false );
+		Httag p( oss, HT_P, "text", AT_CLASS, "c1" );
 
-	oss.str( "" );
-	p.printTag();
-	CHECK( oss.str() == "<p class=\"c1\">text</p>" );
+		oss.str( "" );
+		p.printTag();
+		CHECK( oss.str() == "<p class=\"c1\">text</p>" );
 
-	oss.str( "" );
-	p.printTag();            // no change
-	CHECK( oss.str() == "<p class=\"c1\">text</p>" );
+		oss.str( "" );
+		p.printTag();            // no change
+		CHECK( oss.str() == "<p class=\"c1\">text</p>" );
 
-	Httag::setClosingTagClearsContent( true );
+		Httag::setClosingTagClearsContent( true );
 
-	oss.str( "" );
-	p.printTag();
-	CHECK( oss.str() == "<p class=\"c1\">text</p>" );
+		oss.str( "" );
+		p.printTag();
+		CHECK( oss.str() == "<p class=\"c1\">text</p>" );
 
-	oss.str( "" );
-	p.printTag();            // tag has been cleared
-	CHECK( oss.str() == "<p class=\"c1\"></p>" );
+		oss.str( "" );
+		p.printTag();            // tag has been cleared
+		CHECK( oss.str() == "<p class=\"c1\"></p>" );
+	}
+	SECTION( "t9-b: normal tags" )
+	{
+		Httag p1(HT_P, "text");
+
+		Httag::setClosingTagClearsContent( false );
+		oss.str( "" );
+		oss << p1;
+		CHECK( oss.str() == "<p>text</p>" );
+		oss.str( "" );
+		oss << p1;
+		CHECK( oss.str() == "<p>text</p>" );
+
+		Httag::setClosingTagClearsContent( true );
+		Httag p2(HT_P, "text");
+		oss.str( "" );
+		oss << p2;
+		CHECK( oss.str() == "<p>text</p>" );
+		oss.str( "" );
+		oss << p2;
+		CHECK( oss.str() == "<p></p>" );
+	}
 }
 
 TEST_CASE( "boolean attributes", "[t10]" )
@@ -501,38 +571,4 @@ TEST_CASE( "boolean attributes", "[t10]" )
 	oss << Httag( HT_INPUT, AT_CHECKED, "" );
 	CHECK( oss.str() == "<input checked>" );
 }
-
-TEST_CASE( "embedded tags", "[t11]" )
-{
-	Httag::setClosingTagClearsContent( true );
-	Httag::setLineFeedMode( LF_None );
-	std::ostringstream oss;
-
-//	Httag t( HT_DIV, setContent( Httag( HT_DIV ) );
-	Httag t( HT_DIV, Httag( HT_DIV ) );
-	oss << t;
-	CHECK( oss.str() == "<div><div></div></div>" );
-
-	oss.str("");
-	Httag t2( HT_DIV, Httag( HT_P, "text" ) );
-	oss << t2;
-	CHECK( oss.str() == "<div><p>text</p></div>" );
-
-	oss.str("");
-	CHECK_THROWS( Httag( HT_P ).setContent( Httag( HT_P ) ) );  // can't put a <p> inside a <p>
-}
-
-TEST_CASE( "content test", "[ct1]" ) // testing for allowed content
-{
-	std::ostringstream oss;
-	Httag p( oss, HT_P );
-	p.openTag();
-
-	Httag li( oss, HT_LI );
-	CHECK_THROWS( li.openTag() );  // <li> not allowed in <p>
-
-	CHECK_THROWS( p << Httag( oss, HT_LI ) );  // <li> not allowed in <p>
-	oss << p;
-}
-
 
