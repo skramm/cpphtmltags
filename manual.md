@@ -69,7 +69,7 @@ This will only happen when you call either one of these on the variable:
 - `printWithContent( "something" )`
 
 Once it is opened, you can explicitly close it with `closeTag()`.
-But this also called automatically by the destructor, that is called when the variable goes out of scope.
+But this also called automatically by the destructor, which is called when the variable goes out of scope.
 
 #### A.1.c - Which one should I use ?
 
@@ -131,7 +131,10 @@ Httag p( HT_P );
 p.setContent( "say " ).addContent( hello );
 std::cout << p;  // <p>say hello</p>
 ```
-
+Or, as a one-liner:
+```C++
+f << Httag ( HT_P ).setContent( "say " ).addContent( hello );
+```
 - But you can also directly stream something **into** the tag.
 This will produce the same as above:
 ```C++
@@ -232,7 +235,7 @@ For example:
 
 An example of usefulness of this features is for the `<a>` tag.
 As you know, you can add the attribute `target="_blank"` to make the link open in another tab/window of the browser.
-So if you want all of you generated links to have automatically this feature, just add this in you code:
+So if you want all of your generated links to have automatically this feature, just add this in you code:
 ```
 Httag::setGlobalAttrib( HT_A, AT_TARGET, "_blank" );
 ```
@@ -346,10 +349,10 @@ Open a tag inside a context where it is not allowed | fatal | `Httag p( f, HT_P 
 
 
 <hr>
+
 ### Developer information
 
 Check out [Developer information](dev_info.md).
 
-Check out dev_info.md.
 
 Copyright Sebastien Kramm - 2018-2020

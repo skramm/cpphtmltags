@@ -113,6 +113,11 @@ SECTION( "tag inside a tag" )
 		oss << li;
 		CHECK( oss.str() == "<li><a href=\"https://somewhere.com\">a link</a></li>\n" );
 	}
+	{
+		std::ostringstream oss;
+		oss << Httag ( HT_P ).setContent( "say " ).addContent( "hello" );
+		CHECK( oss.str() == "<p>say hello</p>" );
+	}
 }
 
 	SECTION( "iterative adding of attributes" )
