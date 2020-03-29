@@ -502,6 +502,26 @@ TEST_CASE( "boolean attributes", "[t10]" )
 	CHECK( oss.str() == "<input checked>" );
 }
 
+TEST_CASE( "embedded tags", "[t11]" )
+{
+	Httag::setClosingTagClearsContent( true );
+	Httag::setLineFeedMode( LF_None );
+	std::ostringstream oss;
+
+//	Httag t( HT_DIV, setContent( Httag( HT_DIV ) );
+	Httag t( HT_DIV, Httag( HT_DIV ) );
+	oss << t;
+	CHECK( oss.str() == "<div><div></div></div>" );
+
+	oss.str("");
+	Httag t2( HT_DIV, Httag( HT_P, "text" ) );
+	oss << t2;
+	CHECK( oss.str() == "<div><p>text</p></div>" );
+
+	oss.str("");
+	CHECK_THROWS( Httag( HT_P ).setContent( Httag( HT_P ) ) );  // can't put a <p> inside a <p>
+}
+
 TEST_CASE( "content test", "[ct1]" ) // testing for allowed content
 {
 	std::ostringstream oss;
@@ -514,4 +534,5 @@ TEST_CASE( "content test", "[ct1]" ) // testing for allowed content
 	CHECK_THROWS( p << Httag( oss, HT_LI ) );  // <li> not allowed in <p>
 	oss << p;
 }
+
 

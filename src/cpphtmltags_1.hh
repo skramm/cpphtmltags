@@ -48,6 +48,7 @@ Refs:
 #include <cassert>
 #include <iostream>
 #include <algorithm>
+#include <fstream>
 
 /*#define HTTAG_PRINT_ERROR_LOCATION( msg, f, l )\
 		std::cerr << "\nhttag: error: " \

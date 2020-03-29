@@ -634,6 +634,23 @@ template<>
 Httag&
 Httag::addContent<Httag>( Httag content )
 {
+// first, make sure the tag we what to insert is allowed
+	auto res = priv::tagIsAllowed(
+		content.getTag(),
+		getTag(),
+		Httag::p_getAllowedContentMap()
+	);
+	
+	if( !res.first )
+		HTTAG_FATAL_ERROR( std::string("attempting to insert <")
+			+ getString( content.getTag() )
+			+ "> as content of <"
+			+ getString( getTag() )
+			+ ">, which is forbidden (reason: "
+			+ getString( res.second )
+			+ ")"
+		);
+
 	std::ostringstream oss;
 	oss << content;
 	addContent<std::string>( oss.str() );
@@ -1363,10 +1380,13 @@ Httag::printSupportedHtml( std::ostream& f )
 	h << css;
 	h.printTag();
 
-
+	Httag::setClosingTagClearsContent( true );
 	Httag t2( f, HT_BODY );
 	t2.openTag();
 	f << Httag( HT_P, "This list is automatically generated from reference data" );
+	std::ifstream external( "misc/supported.txt" );
+	f << external.rdbuf();
+
 	{
 		Httag ul( f, HT_UL );
 		ul.openTag();
