@@ -13,6 +13,7 @@ TEST_CASE( "test1", "[t1]" )
 {
 	std::cout << "Running tests with catch " << CATCH_VERSION_MAJOR << '.' << CATCH_VERSION_MINOR << '.' << CATCH_VERSION_PATCH << '\n';
 
+	Httag::setLineFeedMode( LF_None );
 	SECTION( "creation of tag and streaming in two steps" ) {
 	{
 		std::ostringstream oss;
@@ -104,14 +105,14 @@ SECTION( "tag inside a tag" )
 		Httag a( HT_A, "a link", AT_HREF, "https://somewhere.com" );
 		Httag li( HT_LI, a );
 		oss << li;
-		CHECK( oss.str() == "<li><a href=\"https://somewhere.com\">a link</a></li>\n" );
+		CHECK( oss.str() == "<li><a href=\"https://somewhere.com\">a link</a></li>" );
 	}
 	{
 		std::ostringstream oss;
 		Httag li( HT_LI );
 		li << Httag( HT_A, "a link", AT_HREF, "https://somewhere.com" );
 		oss << li;
-		CHECK( oss.str() == "<li><a href=\"https://somewhere.com\">a link</a></li>\n" );
+		CHECK( oss.str() == "<li><a href=\"https://somewhere.com\">a link</a></li>" );
 	}
 	{
 		std::ostringstream oss;
@@ -157,7 +158,7 @@ SECTION( "tag inside a tag" )
 		}
 
 		oss2 << Httag( HT_LI, "this is li" );                // but only for the tag it was assigned too, others are unaffected
-		CHECK( oss2.str() == "<li>this is li</li>\n" );
+		CHECK( oss2.str() == "<li>this is li</li>" );
 
 
 		Httag::clearGlobalAttrib( HT_P ); // clear global attribute for <p>
@@ -230,7 +231,7 @@ TEST_CASE( "Global attributes handling", "[t1b]" )
 
 		oss.str("");
 		oss << Httag( HT_LI, "inside", AT_CLASS, "c3" );     // but other tags dont have it
-		CHECK( oss.str() == "<li class=\"c3\">inside</li>\n" );
+		CHECK( oss.str() == "<li class=\"c3\">inside</li>" );
 
 		oss.str("");
 		oss << Httag( HT_P, "aaa", AT_CLASS, "c1" );
@@ -310,7 +311,8 @@ TEST_CASE( "File type tags", "[t3]" )
 	{
 		std::ostringstream oss, oss1;
 
-		Httag t0( oss, HT_P );                        // adding content to a tag
+//		Httag t0( oss, HT_P );                        // adding content to a tag
+		Httag t0( HT_P );                        // adding content to a tag
 		t0 << "content";
 		oss << t0;
 		CHECK( oss.str() == "<p>content</p>" );
@@ -322,7 +324,6 @@ TEST_CASE( "File type tags", "[t3]" )
 		CHECK( oss1.str() == "<p>this is text</p>" );
 */
 	}
-#if 0
 	SECTION( "File type tags 2" )
 	{
 		std::ostringstream oss, oss1, oss2, oss3, oss4;
@@ -349,7 +350,6 @@ TEST_CASE( "File type tags", "[t3]" )
 		CHECK( oss4.str() == "<p class=\"abc\"></p>" );
 	}
 	CHECK( Httag::printOpenedTags( std::cout ) == 0 );
-#endif
 }
 
 TEST_CASE( "tag closure", "[t4]" )
@@ -461,10 +461,25 @@ TEST_CASE( "test_void", "[t7]" ) // testing void elements
 	CHECK( priv::isVoidElement(HT_BR) );
 	CHECK( priv::isVoidElement(HT_HR) );
 	CHECK( priv::isVoidElement(HT_INPUT) );
+
+	std::ostringstream oss;
+	Httag t( HT_COMMENT );
+	t << "something";
+	oss << t;
+	CHECK( oss.str() == "<!-- something -->" );
+
+	oss.str("");
+	Httag t2( oss, HT_COMMENT );
+	t2.openTag();
+	oss << "else";
+	t2.closeTag();
+	CHECK( oss.str() == "<!-- else -->" );
 }
 
 TEST_CASE( "chained functions", "[t8]" )
 {
+	Httag::setClosingTagClearsContent( false );
+
 	std::ostringstream oss;
 	oss << Httag( HT_P ).addAttrib( AT_CLASS, "aaa" ).addAttrib( AT_ID, "bbb" );
 	CHECK( oss.str() == "<p class=\"aaa\" id=\"bbb\"></p>" );

@@ -121,9 +121,14 @@ class OpenedTags
 		}
 		void pullTag( En_Httag tag )
 		{
+#if 1
+			if( _v_ot.size() == 0 )
+				return;
+#else
 			assert( _v_ot.size() > 0 );
+#endif
 			if( _v_ot.back() != tag )
-				HTTAG_FATAL_ERROR( std::string( "asking to close tag '") + getString(tag) + "' but tag '" +  getString(_v_ot.back()) + "' still open" );
+				HTTAG_FATAL_ERROR( std::string( "asking to close tag <") + getString(tag) + "> but tag <" +  getString(_v_ot.back()) + "> still open" );
 			_v_ot.pop_back();
 		}
 //		void print( std::ostream& ) const;
@@ -750,10 +755,10 @@ void
 Httag::p_checkValidFileType( std::string action )
 {
 	if( !_isFileType )
-		HTTAG_FATAL_ERROR( std::string("object tag '") + getString(_tag_en) + "' is not a \"file type\" object" );
+		HTTAG_FATAL_ERROR( std::string("object tag <") + getString(_tag_en) + "> is not a \"file type\" object" );
 
 	if( !_file )
-		HTTAG_FATAL_ERROR( std::string("object tag '") + getString(_tag_en) + "': asked to " + action + " but file not available" );
+		HTTAG_FATAL_ERROR( std::string("object tag <") + getString(_tag_en) + ">: asked to " + action + " but file not available" );
 
 #if 0
 	if( !_file->is_open() )
@@ -825,8 +830,8 @@ Httag::closeTag( std::string __file, int __line, bool linefeed )
 //	p_checkValidFileType( "close" );
 
 	if( priv::isVoidElement( _tag_en ) )
-		return;
-//		HTTAG_FATAL_ERROR_FL( std::string( "asked to close tag <" ) + getString(_tag_en) + "> but is void-element" );
+		if( _isFileType )
+			HTTAG_FATAL_ERROR_FL( std::string( "asked to close tag <" ) + getString(_tag_en) + "> but is void-element" );
 
 	if( !_tagIsOpen )
 		HTTAG_FATAL_ERROR_FL( std::string( "tag <" ) + getString(_tag_en) + ">: asked to close but was already closed" );
@@ -834,7 +839,7 @@ Httag::closeTag( std::string __file, int __line, bool linefeed )
 	if( _isFileType )
 	{
 		if( _tag_en == HT_COMMENT )
-			*_file << "-->";
+			*_file << " -->";
 		else
 			*_file << "</" << getString(_tag_en) << '>';
 
@@ -1163,7 +1168,7 @@ operator << ( std::ostream& s, const Httag& h )
 	{
 		s << h._content;
 		if( h._tag_en == HT_COMMENT )
-			s << " -->\n";
+			s << " -->";
 		else
 			s << "</" << getString( h._tag_en ) << '>';
 	}
@@ -1182,7 +1187,8 @@ inline
 std::ostream&
 operator << ( std::ostream& s, /*const*/ Httag& h )
 {
-	h._tagIsOpen = true;
+//	std::cout << "operator <<: _isFileType=" << h._isFileType << "\n";
+//	h._tagIsOpen = true;
 	switch( h._tag_en )
 	{
 		case HT_COMMENT: s << "<!-- "; break;
@@ -1195,14 +1201,17 @@ operator << ( std::ostream& s, /*const*/ Httag& h )
 	{
 		s << h._content;
 		if( h._tag_en == HT_COMMENT )
-			s << " -->\n";
+			s << " -->";
 		else
 			s << "</" << getString( h._tag_en ) << '>';
 	}
-#if 0
+#if 1
 //    if( h._isFileType )
 		if( h.p_doLineFeed() )
 			s << '\n';
+	if( h.p_getCTCC() )       // if option set, clear content
+		h.clearContent();
+
 #else
 	h.closeTag();
 #endif
