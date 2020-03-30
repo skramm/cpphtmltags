@@ -22,19 +22,19 @@ struct AllowedContent
 	std::vector<En_Httag>  _v_forbiddenTags;
 	std::vector<En_TagCat> _v_allowedCats;
 	std::vector<En_TagCat> _v_forbiddenCats;
-	bool _isVoid = false;
-	bool _isText = false;
+//	bool _isVoid = false;
+//	bool _isText = false;
 
 /// Type of tag
-	enum En_TagType{ TT_NEITHER, TT_VOID, TT_TEXT };
+//	enum En_TagType{ TT_NEITHER, TT_VOID, TT_TEXT };
 
 	/// Constructor
-	AllowedContent( En_TagType tt=TT_NEITHER )
+	AllowedContent() // En_TagType tt=TT_NEITHER )
 	{
-		if( tt == TT_VOID )
+/*		if( tt == TT_VOID )
 			_isVoid = true;
 		if( tt == TT_TEXT )
-			_isText = true;
+			_isText = true; */
 	}
 	void addForbiddenTag( En_Httag en )
 	{
@@ -52,12 +52,19 @@ struct AllowedContent
 	{
 		_v_allowedCats.push_back( en );
 	}
+#if 0
 	bool isEmpty() const
 	{
+#if 1
 		if( _isVoid == true )
 			return false;
 		if( _isText == true )
 			return false;
+#else
+		if( isVoidElement(tt) )
+			return false;
+#endif
+
 		if( _v_allowedTags.size() )
 			return false;
 		if( _v_allowedCats.size() )
@@ -68,6 +75,7 @@ struct AllowedContent
 			return false;
 		return true;
 	}
+#endif
 };
 
 //--- END: TEMPLATE FILE cpphtmltags_2.hh

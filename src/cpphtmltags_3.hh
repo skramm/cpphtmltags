@@ -243,12 +243,14 @@ AllowedContentMap::print( std::ostream& f ) const
 	{
 		const auto& s = elem.second;
 		f << ++c << ": tag <" << getString(elem.first) << ">:\n";
+#if 0
 		if( s.isEmpty() )
 		{
 			nbEmpty++;
 			f << " : EMPTY !!!\n";
 		}
 		else
+#endif
 		{
 			printAllowedContent( f, "allows",  "categorie", s._v_allowedCats );
 			printAllowedContent( f, "allows",  "tag",       s._v_allowedTags );
@@ -1227,13 +1229,13 @@ print_A( std::ostream& f, const AllowedContent& ac )
 {
 	Httag::setClosingTagClearsContent( true );
 	Httag td( f, HT_TD );
-	if( ac.isEmpty() )
+/*	if( ac.isEmpty() )
 	{
 		td << "EMTPY";
 		f << td << td << td << td;
 		return;
 	}
-
+*/
 	for( auto e: ac._v_allowedCats )
 	{
 		Httag ta( HT_A, getString( e ), AT_HREF, std::string("#c_") + getString( e ) );

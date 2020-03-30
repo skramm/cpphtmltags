@@ -62,17 +62,19 @@ do
 	if [ "${a:0:1}" != "#" ]; then                         # if not a comment
 		if [ ${#a} -ne 0 ]; then                           # if not empty line
 			at=$(echo $a | tr '[:lower:]' '[:upper:]')
+			echo -e "\t\t{\n\t\t\tAllowedContent ac;">> $file_out
+
 			if [ "${b:0:2}" = "E_" ]; then                 # if either "void" or "text content" type
 				if [ "$b" = "E_VOID" ]; then
-					echo -e "\t\t{\n\t\t\tAllowedContent ac(AllowedContent::TT_VOID);">> $file_out
+#					echo -e "\t\t{\n\t\t\tAllowedContent ac(AllowedContent::TT_VOID);">> $file_out
 					echo -e "\t\tcase HT_$at:">> $file_out2
 				fi
 				if [ "$b" = "E_TEXT" ]; then
-					echo -e "\t\t{\n\t\t\tAllowedContent ac(AllowedContent::TT_TEXT);">> $file_out
+#					echo -e "\t\t{\n\t\t\tAllowedContent ac(AllowedContent::TT_TEXT);">> $file_out
 					echo -e "\t\tcase HT_$at:">> $file_out3
 				fi
 			else                                          # if not, just default-instanciate
-				echo -e "\t\t{\n\t\t\tAllowedContent ac;">> $file_out
+#				echo -e "\t\t{\n\t\t\tAllowedContent ac;">> $file_out
 				IFS=',' read -ra TAG <<< "$b"
 #				echo "a=$a b=$b, processing $TAG"
 				for t in "${TAG[@]}";

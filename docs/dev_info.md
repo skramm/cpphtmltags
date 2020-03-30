@@ -19,12 +19,12 @@ The final file is build according to this diagram:
 
 The generated content is build by the bash scripts `build.sh` (and 2 others).
 It takes as input the html reference material that is located in the files located in the `ref` subfolder:
-- `global_attribs.ref` holds the list of global attributes (the one that can be used with any html element).
-- `bool_attribs.ref` holds the list of boolean attributes (attributes that have no value, see [manual](manual.md#boolean-attributes)).
-- `valid_attribs.ref` holds the list of authorized tags for a given attribute, in the form `attrib:tag1,tag2,tag3`.
+- `global_attribs.ref`:  holds the list of global attributes (the one that can be used with any html element).
+- `bool_attribs.ref`: holds the list of boolean attributes (attributes that have no value, see [manual](manual.md#boolean-attributes)).
+- `valid_attribs.ref`: holds the list of authorized tags for a given attribute, in the form `attrib:tag1,tag2,tag3`.
 It is used along with `global_attribs.ref` to generate a file holding all the attributes, that is used to generate the code.
-- `tag_content.ref` :processed by script `bcontent.sh`, will generate the class httag::priv::AllowedContentMap
-- `element_cat.ref` :processed by script `bcat.sh`, will generate
+- `tag_content.ref`: processed by script `bcontent.sh`, will generate the class httag::priv::AllowedContentMap
+- `element_cat.ref`: processed by script `bcat.sh`, will generate
 
 See <a href="../supported.html">supported tags</a> (page available only on locally-build doc pages).
 
@@ -34,7 +34,7 @@ Four steps:
 - build c++ code to initialize a map holding for each attribute the tags where they are allowed.
 - concatenate first part of header, this generated code, and final part of header to generate the main header file.
 
-The advantage of such an approach is that in case new tags or attributes are integrated into the standard, only these files need to be edited.
+The advantage of such an approach is that in case new tags or attributes are integrated into the standard, only these files need to be edited, before rebuilding the library with the shell scripts.
 
 
 ## Static variables

@@ -274,7 +274,7 @@ TEST_CASE( "Error checking", "[t2]" )
 		CHECK( Httag::printOpenedTags( std::cout ) == 2 );
 
 		t3b << "paragraph";
-		CHECK_THROWS( t3a.closeTag() );
+		CHECK_THROWS( t3a.closeTag() ); // cannot close t3a, need to close t3b first
 	}
 
 	SECTION( "Errors-2" )
