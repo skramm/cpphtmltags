@@ -1222,13 +1222,11 @@ operator << ( std::ostream& s, /*const*/ Httag& h )
 namespace priv {
 
 /// Helper function for p_printTable_1()
-/// \todo Finish this
 void
 print_A( std::ostream& f, const AllowedContent& ac )
 {
 	Httag::setClosingTagClearsContent( true );
 	Httag td( f, HT_TD );
-//	td.openTag();
 	if( ac.isEmpty() )
 	{
 		td << "EMTPY";
@@ -1242,22 +1240,27 @@ print_A( std::ostream& f, const AllowedContent& ac )
 		td << ta << "-";
 	}
 	f << td;
-	td.clearContent();
 
 	for( auto e: ac._v_allowedTags )
-		td << getString(e) << "-";
+	{
+		Httag ta( HT_A, getString( e ), AT_HREF, std::string("#t_") + getString( e ) );
+		td << ta << "-";
+	}
 	f << td;
-	td.clearContent();
 
 	for( auto e: ac._v_forbiddenCats )
-		td << getString(e) << "-";
+	{
+		Httag ta( HT_A, getString( e ), AT_HREF, std::string("#c_") + getString( e ) );
+		td << ta << "-";
+	}
 	f << td;
-	td.clearContent();
 
 	for( auto e: ac._v_forbiddenTags )
-		td << getString(e) << "-";
+	{
+		Httag ta( HT_A, getString( e ), AT_HREF, std::string("#t_") + getString( e ) );
+		td << ta << "-";
+	}
 	f << td;
-	td.clearContent();
 }
 //-----------------------------------------------------------------------------------
 /// Prints HTML table of tag
@@ -1273,7 +1276,7 @@ p_printTable_1( std::ostream& f, std::string table_id )
 		{
 			Httag tr( f, HT_TR );
 
-			tr  << Httag(  HT_TH,                       AT_ROWSPAN, 2 ).addAttrib( AT_CLASS, "col1" )
+			tr  << Httag( HT_TH,                       AT_ROWSPAN, 2 ).addAttrib( AT_CLASS, "col1" )
 				<< Httag( HT_TH, "Tags",               AT_ROWSPAN, 2 ).addAttrib( AT_CLASS, "col2" )
 				<< Httag( HT_TH, "Is void",            AT_ROWSPAN, 2 ).addAttrib( AT_CLASS, "col3" )
 				<< Httag( HT_TH, "Belongs to",         AT_ROWSPAN, 2 ).addAttrib( AT_CLASS, "col4" )
