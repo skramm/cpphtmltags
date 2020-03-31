@@ -1,5 +1,5 @@
 // -------- GENERATED CODE ! --------
-// timestamp: 20200326-1159
+// timestamp: 20200331-1625
 
 //--- START: TEMPLATE FILE cpphtmltags_1.hh
 /*
@@ -45,11 +45,13 @@ Refs:
 #define HG_CPPHTMLTAGS_HPP
 
 #include <vector>
+#include <set>
 #include <sstream>
 #include <map>
 #include <cassert>
 #include <iostream>
 #include <algorithm>
+#include <fstream>
 
 /*#define HTTAG_PRINT_ERROR_LOCATION( msg, f, l )\
 		std::cerr << "\nhttag: error: " \
@@ -66,7 +68,6 @@ Refs:
 //#ifdef HTTAG_SILENT_WARNINGS
 //	#define HTTAG_WARNING if(0) std::cerr
 //#else
-
 	#define HTTAG_WARNING(msg) \
 	{ \
 		std::cerr << "\nhttag: Warning: " << (msg) \
@@ -74,40 +75,20 @@ Refs:
 			<< "\n - line: " << __LINE__ \
 			<< '\n'; \
 	}
-
-/*
 //#endif
-*/
-//#ifdef HTTAG_SILENT_ERRORS
-//	#define HTTAG_ERROR( msg ) \
-//		{ \
-//			throw std::runtime_error( std::string("httag: fatal error: ") + msg ); \
-//		}
-//#else
-/*
-		msg = msg \
-		+ "\n -file: " \
-		+ __FILE__ \
-		+ "\n -line: " \
-		+ std::to_string(__LINE__) \
-		+ "\n -func: " \
-		+ __FUNCTION__ \
-		+ '\n'; \
-		std::cout << "MACRO 1: " << msg << " s=" << msg.size() << "\n"; \
-		out = in + " -file: "; \
-		std::cout << "MACRO 2: " << msg << " s=" << msg.size() << "\n"; \
 
-*/
+//		out = std::string(in) \
+
 #define HTTAG_ADD_ERROR_LOCATION( in, out ) \
 	{ \
-		out = in \
+		out = (std::string(in) \
 		+ "\n -file: " \
 		+ __FILE__ \
 		+ "\n -line: " \
 		+ std::to_string(__LINE__) \
 		+ "\n -func: " \
 		+ __FUNCTION__ \
-		+ '\n'; \
+		+ "()\n"); \
 	}
 
 #define HTTAG_FATAL_ERROR( msg ) \
@@ -164,13 +145,12 @@ namespace httag {
 //--- END: TEMPLATE FILE cpphtmltags_1.hh
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200326-1159
+// timestamp: 20200331-1625
 
 enum En_Httag
 {
 	HT_ABBR,
 	HT_A,
-	HT_ACRONYM,
 	HT_ADDRESS,
 	HT_AREA,
 	HT_ARTICLE,
@@ -217,6 +197,7 @@ enum En_Httag
 	HT_H6,
 	HT_HEAD,
 	HT_HEADER,
+	HT_HGROUP,
 	HT_HR,
 	HT_HTML,
 	HT_I,
@@ -287,7 +268,7 @@ enum En_Httag
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200326-1159
+// timestamp: 20200331-1625
 
 enum En_Attrib
 {
@@ -348,6 +329,7 @@ enum En_Attrib
 	AT_MULTIPLE,
 	AT_MUTED,
 	AT_NAME,
+	AT_NOMODULE,
 	AT_NOVALIDATE,
 	AT_ONABORT,
 	AT_ONAFTERPRINT,
@@ -392,10 +374,12 @@ enum En_Attrib
 	AT_OPEN,
 	AT_OPTIMUM,
 	AT_PATTERN,
+	AT_PING,
 	AT_PLACEHOLDER,
 	AT_POSTER,
 	AT_PRELOAD,
 	AT_READONLY,
+	AT_REFERRERPOLICY,
 	AT_REL,
 	AT_REQUIRED,
 	AT_REVERSED,
@@ -430,7 +414,7 @@ enum En_Attrib
 };
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200326-1159
+// timestamp: 20200331-1625
 
 std::string
 getString( En_Httag a )
@@ -440,7 +424,6 @@ getString( En_Httag a )
 	{
 		case HT_ABBR: n = "abbr"; break;
 		case HT_A: n = "a"; break;
-		case HT_ACRONYM: n = "acronym"; break;
 		case HT_ADDRESS: n = "address"; break;
 		case HT_AREA: n = "area"; break;
 		case HT_ARTICLE: n = "article"; break;
@@ -487,6 +470,7 @@ getString( En_Httag a )
 		case HT_H6: n = "h6"; break;
 		case HT_HEAD: n = "head"; break;
 		case HT_HEADER: n = "header"; break;
+		case HT_HGROUP: n = "hgroup"; break;
 		case HT_HR: n = "hr"; break;
 		case HT_HTML: n = "html"; break;
 		case HT_I: n = "i"; break;
@@ -559,7 +543,7 @@ getString( En_Httag a )
 }
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200326-1159
+// timestamp: 20200331-1625
 
 std::string
 getString( En_Attrib a )
@@ -624,6 +608,7 @@ getString( En_Attrib a )
 		case AT_MULTIPLE: n = "multiple"; break;
 		case AT_MUTED: n = "muted"; break;
 		case AT_NAME: n = "name"; break;
+		case AT_NOMODULE: n = "nomodule"; break;
 		case AT_NOVALIDATE: n = "novalidate"; break;
 		case AT_ONABORT: n = "onabort"; break;
 		case AT_ONAFTERPRINT: n = "onafterprint"; break;
@@ -668,10 +653,12 @@ getString( En_Attrib a )
 		case AT_OPEN: n = "open"; break;
 		case AT_OPTIMUM: n = "optimum"; break;
 		case AT_PATTERN: n = "pattern"; break;
+		case AT_PING: n = "ping"; break;
 		case AT_PLACEHOLDER: n = "placeholder"; break;
 		case AT_POSTER: n = "poster"; break;
 		case AT_PRELOAD: n = "preload"; break;
 		case AT_READONLY: n = "readonly"; break;
+		case AT_REFERRERPOLICY: n = "referrerpolicy"; break;
 		case AT_REL: n = "rel"; break;
 		case AT_REQUIRED: n = "required"; break;
 		case AT_REVERSED: n = "reversed"; break;
@@ -751,20 +738,20 @@ getString( En_TagCat a )
 //--- START: TEMPLATE FILE cpphtmltags_2.hh
 
 /// Maps attributes to tags that allow them
-typedef std::map<En_Attrib,std::vector<En_Httag>> MapAttribs_t;
+using MapAttribs_t = std::map<En_Attrib,std::vector<En_Httag>>;
 
 /// Maps tag categories to tags that belong to it
-typedef std::map<En_TagCat,std::vector<En_Httag>> MapTagCat_t;
+using MapTagCat_t = std::map<En_TagCat,std::vector<En_Httag>>;
 
 /// See GlobAttribMap_t
-typedef std::pair<En_Attrib,std::string>       PairAttribString_t;
+using AttribMap_t = std::map<En_Attrib,std::string>;
 
 /// Holds for some tags (that have a global attribute) the pair (attribute, string-value)
 /** See \link global_attribute */
-typedef std::map<En_Httag, PairAttribString_t> GlobAttribMap_t;
+using GlobAttribMap_t = std::map<En_Httag, AttribMap_t>;
 
 
-/// holds for a given tag what content is allowed inside.
+/// Holds for a given tag what content is allowed inside.
 /// See related type AllowedContentMap
 struct AllowedContent
 {
@@ -772,20 +759,7 @@ struct AllowedContent
 	std::vector<En_Httag>  _v_forbiddenTags;
 	std::vector<En_TagCat> _v_allowedCats;
 	std::vector<En_TagCat> _v_forbiddenCats;
-	bool _isVoid = false;
-	bool _isText = false;
 
-/// Type of tag
-	enum En_TagType{ TT_NEITHER, TT_VOID, TT_TEXT };
-
-	/// Constructor
-	AllowedContent( En_TagType tt=TT_NEITHER )
-	{
-		if( tt == TT_VOID )
-			_isVoid = true;
-		if( tt == TT_TEXT )
-			_isText = true;
-	}
 	void addForbiddenTag( En_Httag en )
 	{
 		_v_forbiddenTags.push_back( en );
@@ -802,12 +776,19 @@ struct AllowedContent
 	{
 		_v_allowedCats.push_back( en );
 	}
+#if 0
 	bool isEmpty() const
 	{
+#if 1
 		if( _isVoid == true )
 			return false;
 		if( _isText == true )
 			return false;
+#else
+		if( isVoidElement(tt) )
+			return false;
+#endif
+
 		if( _v_allowedTags.size() )
 			return false;
 		if( _v_allowedCats.size() )
@@ -818,12 +799,13 @@ struct AllowedContent
 			return false;
 		return true;
 	}
+#endif
 };
 
 //--- END: TEMPLATE FILE cpphtmltags_2.hh
 
 // -------- GENERATED CODE ! --------
-// timestamp: 20200326-1159
+// timestamp: 20200331-1625
 
 /// Private class, holds map of allowed tags (value) for a given attribute (key)
 struct MapAttribs
@@ -881,6 +863,7 @@ struct MapAttribs
 		_map[AT_MULTIPLE]	=	 { HT_INPUT, HT_SELECT };
 		_map[AT_MUTED]	=	 { HT_VIDEO, HT_AUDIO };
 		_map[AT_NAME]	=	 { HT_BUTTON, HT_FIELDSET, HT_FORM, HT_IFRAME, HT_INPUT, HT_MAP, HT_META, HT_OBJECT, HT_OUTPUT, HT_PARAM, HT_SELECT, HT_TEXTAREA };
+		_map[AT_NOMODULE]	=	 { HT_SCRIPT };
 		_map[AT_NOVALIDATE]	=	 { HT_FORM };
 		_map[AT_ONABORT]	=	 { HT_AUDIO, HT_EMBED, HT_IMG, HT_OBJECT, HT_VIDEO };
 		_map[AT_ONAFTERPRINT]	=	 { HT_BODY };
@@ -925,11 +908,13 @@ struct MapAttribs
 		_map[AT_OPEN]	=	 { HT_DETAILS };
 		_map[AT_OPTIMUM]	=	 { HT_METER };
 		_map[AT_PATTERN]	=	 { HT_INPUT };
+		_map[AT_PING]	=	 { HT_A, HT_AREA };
 		_map[AT_PLACEHOLDER]	=	 { HT_INPUT, HT_TEXTAREA };
 		_map[AT_POSTER]	=	 { HT_VIDEO };
 		_map[AT_PRELOAD]	=	 { HT_AUDIO, HT_VIDEO };
 		_map[AT_READONLY]	=	 { HT_INPUT, HT_TEXTAREA };
 		_map[AT_REL]	=	 { HT_A, HT_AREA, HT_LINK };
+		_map[AT_REFERRERPOLICY]	=	 { HT_A, HT_AREA, HT_IFRAME, HT_IMG, HT_LINK, HT_SCRIPT };
 		_map[AT_REQUIRED]	=	 { HT_INPUT, HT_SELECT, HT_TEXTAREA };
 		_map[AT_REVERSED]	=	 { HT_OL };
 		_map[AT_ROWS]	=	 { HT_TEXTAREA };
@@ -948,7 +933,7 @@ struct MapAttribs
 		_map[AT_START]	=	 { HT_OL };
 		_map[AT_STEP]	=	 { HT_INPUT };
 		_map[AT_TARGET]	=	 { HT_A, HT_AREA, HT_BASE, HT_FORM };
-		_map[AT_TYPE]	=	 { HT_BUTTON, HT_EMBED, HT_INPUT, HT_LINK, HT_MENU, HT_OBJECT, HT_SCRIPT, HT_SOURCE, HT_STYLE };
+		_map[AT_TYPE]	=	 { HT_BUTTON, HT_EMBED, HT_INPUT, HT_LINK, HT_MENU, HT_OBJECT, HT_SCRIPT, HT_SOURCE, HT_STYLE, HT_AREA };
 		_map[AT_USEMAP]	=	 { HT_IMG, HT_OBJECT };
 		_map[AT_VALUE]	=	 { HT_BUTTON, HT_INPUT, HT_LI, HT_OPTION, HT_METER, HT_PROGRESS, HT_PARAM };
 		_map[AT_WIDTH]	=	 { HT_CANVAS, HT_EMBED, HT_IFRAME, HT_IMG, HT_INPUT, HT_OBJECT, HT_VIDEO };
@@ -956,29 +941,29 @@ struct MapAttribs
 	}
 };
 /// Private class, holds map of categories of tags
-struct TagCat
+struct TagCategory
 {
 	MapTagCat_t _map_cat;
 	const MapTagCat_t& get() {
 		return _map_cat;
 	}
-	TagCat()
+	TagCategory()
 	{
 		_map_cat[C_METADATA]	=	 { HT_BASE, HT_LINK, HT_META, HT_NOSCRIPT, HT_SCRIPT, HT_STYLE, HT_TEMPLATE, HT_TITLE };
-		_map_cat[C_FLOW]	=	 { HT_A, HT_ABBR, HT_ADDRESS, HT_AREA, HT_ARTICLE, HT_ASIDE, HT_AUDIO, HT_B, HT_BDI, HT_BDO, HT_BLOCKQUOTE, HT_BR, HT_BUTTON, HT_CANVAS, HT_CITE, HT_CODE, HT_DATA, HT_DATALIST, HT_DEL, HT_DETAILS, HT_DFN, HT_DIALOG, HT_DIV, HT_DL, HT_EM, HT_EMBED, HT_FIELDSET, HT_FIGURE, HT_FOOTER, HT_FORM, HT_H1, HT_H2, HT_H3, HT_H4, HT_H5, HT_H6, HT_HEADER, HT_HR, HT_I, HT_IFRAME, HT_IMG, HT_INPUT, HT_INS, HT_KBD, HT_LABEL, HT_LINK, HT_MAIN, HT_MAP, HT_MARK, HT_METER, HT_NAV, HT_NOSCRIPT, HT_OBJECT, HT_OL, HT_OUTPUT, HT_P, HT_PICTURE, HT_PRE, HT_PROGRESS, HT_Q, HT_RUBY, HT_S, HT_SAMP, HT_SCRIPT, HT_SECTION, HT_SELECT, HT_SMALL, HT_SPAN, HT_STRONG, HT_STYLE, HT_SUB, HT_SUP, HT_SVG, HT_TABLE, HT_TEMPLATE, HT_TEXTAREA, HT_TIME, HT_U, HT_UL, HT_VAR, HT_VIDEO, HT_WBR };
+		_map_cat[C_FLOW]	=	 { HT_A, HT_ABBR, HT_ADDRESS, HT_AREA, HT_ARTICLE, HT_ASIDE, HT_AUDIO, HT_B, HT_BDI, HT_BDO, HT_BLOCKQUOTE, HT_BR, HT_BUTTON, HT_CANVAS, HT_CITE, HT_CODE, HT_DATA, HT_DATALIST, HT_DEL, HT_DETAILS, HT_DFN, HT_DIALOG, HT_DIV, HT_DL, HT_EM, HT_EMBED, HT_FIELDSET, HT_FIGURE, HT_FOOTER, HT_FORM, HT_H1, HT_H2, HT_H3, HT_H4, HT_H5, HT_H6, HT_HEADER, HT_HGROUP, HT_HR, HT_I, HT_IFRAME, HT_IMG, HT_INPUT, HT_INS, HT_KBD, HT_LABEL, HT_LINK, HT_MAIN, HT_MAP, HT_MARK, HT_METER, HT_NAV, HT_NOSCRIPT, HT_OBJECT, HT_OL, HT_OUTPUT, HT_P, HT_PICTURE, HT_PRE, HT_PROGRESS, HT_Q, HT_RUBY, HT_S, HT_SAMP, HT_SCRIPT, HT_SECTION, HT_SELECT, HT_SMALL, HT_SPAN, HT_STRONG, HT_STYLE, HT_SUB, HT_SUP, HT_SVG, HT_TABLE, HT_TEMPLATE, HT_TEXTAREA, HT_TIME, HT_U, HT_UL, HT_VAR, HT_VIDEO, HT_WBR };
 		_map_cat[C_SECTIONING]	=	 { HT_ARTICLE, HT_ASIDE, HT_NAV, HT_SECTION };
-		_map_cat[C_HEADING]	=	 { HT_H1, HT_H2, HT_H3, HT_H4, HT_H5, HT_H6 };
+		_map_cat[C_HEADING]	=	 { HT_H1, HT_H2, HT_H3, HT_H4, HT_H5, HT_H6, HT_HGROUP };
 		_map_cat[C_PHRASING]	=	 { HT_A, HT_ABBR, HT_AREA, HT_AUDIO, HT_B, HT_BDI, HT_BDO, HT_BR, HT_BUTTON, HT_CANVAS, HT_CITE, HT_CODE, HT_DATA, HT_DATALIST, HT_DEL, HT_DFN, HT_EM, HT_EMBED, HT_I, HT_IFRAME, HT_IMG, HT_INPUT, HT_INS, HT_KBD, HT_LABEL, HT_LINK, HT_MAP, HT_MARK, HT_METER, HT_NOSCRIPT, HT_OBJECT, HT_OUTPUT, HT_PICTURE, HT_PROGRESS, HT_Q, HT_RUBY, HT_S, HT_SAMP, HT_SCRIPT, HT_SELECT, HT_SMALL, HT_SPAN, HT_STRONG, HT_SUB, HT_SUP, HT_SVG, HT_TEMPLATE, HT_TEXTAREA, HT_TIME, HT_U, HT_VAR, HT_VIDEO, HT_WBR };
 		_map_cat[C_EMBEDDED]	=	 { HT_AUDIO, HT_CANVAS, HT_EMBED, HT_IFRAME, HT_IMG, HT_OBJECT, HT_PICTURE, HT_SVG, HT_VIDEO };
 		_map_cat[C_INTERACTIVE]	=	 { HT_A, HT_AUDIO, HT_BUTTON, HT_DETAILS, HT_EMBED, HT_IFRAME, HT_IMG, HT_INPUT, HT_LABEL, HT_SELECT, HT_TEXTAREA, HT_VIDEO };
-		_map_cat[C_PALPABLE]	=	 {  };
+		_map_cat[C_PALPABLE]	=	 { HT_A, HT_ABBR, HT_ADDRESS, HT_ARTICLE, HT_ASIDE, HT_AUDIO, HT_B, HT_BDI, HT_BDO, HT_BLOCKQUOTE, HT_BUTTON, HT_CANVAS, HT_CITE, HT_CODE, HT_DATA, HT_DETAILS, HT_DFN, HT_DIV, HT_DL, HT_EM, HT_EMBED, HT_FIELDSET, HT_FIGURE, HT_FOOTER, HT_FORM, HT_H1, HT_H2, HT_H3, HT_H4, HT_H5, HT_H6, HT_HEADER, HT_HGROUP, HT_I, HT_IFRAME, HT_IMG, HT_INPUT, HT_INS, HT_KBD, HT_LABEL, HT_MAIN, HT_MAP, HT_MARK, HT_MENU, HT_METER, HT_NAV, HT_OBJECT, HT_OL, HT_OUTPUT, HT_P, HT_PRE, HT_PROGRESS, HT_Q, HT_RUBY, HT_S, HT_SAMP, HT_SECTION, HT_SELECT, HT_SMALL, HT_SPAN, HT_STRONG, HT_SUB, HT_SUP, HT_SVG, HT_TABLE, HT_TEXTAREA, HT_TIME, HT_U, HT_UL, HT_VAR, HT_VIDEO };
 		_map_cat[C_FORM]	=	 { HT_BUTTON, HT_FIELDSET, HT_INPUT, HT_LABEL, HT_METER, HT_OBJECT, HT_OUTPUT, HT_PROGRESS, HT_SELECT, HT_TEXTAREA };
 		_map_cat[C_SCRIPT]	=	 { HT_SCRIPT, HT_TEMPLATE };
 		_map_cat[C_TRANSP]	=	 { HT_DEL, HT_INS };
 	}
 };
 // -------- GENERATED CODE ! --------
-// timestamp: 20200326-1159
+// timestamp: 20200331-1625
 
 /// Returns true if the tag is a void-element
 inline
@@ -987,26 +972,52 @@ isVoidElement( En_Httag tag )
 {
 	switch( tag )
 	{
-		case HT_DOCTYPE:
 		case HT_AREA:
 		case HT_BASE:
 		case HT_BR:
 		case HT_COL:
+		case HT_DOCTYPE:
 		case HT_EMBED:
 		case HT_HR:
+		case HT_IFRAME:
 		case HT_IMG:
 		case HT_INPUT:
 		case HT_LINK:
 		case HT_META:
 		case HT_PARAM:
 		case HT_SOURCE:
+		case HT_TEMPLATE:
 		case HT_TRACK:
 		case HT_WBR:
 			return true;
-		default: break;
+		default:
+			break;
 	}
 	return false;
 }
+// -------- GENERATED CODE ! --------
+// timestamp: 20200331-1625
+
+/// Returns true if the tag is a text-only element
+inline
+bool
+isTextOnly( En_Httag tag )
+{
+	switch( tag )
+	{
+		case HT_OPTION:
+		case HT_RP:
+		case HT_STYLE:
+		case HT_TEXTAREA:
+		case HT_TITLE:
+			return true;
+		default:
+			break;
+	}
+	return false;
+}
+// -------- GENERATED CODE ! --------
+// timestamp: 20200331-1625
 
 /// Holds for each tag its allowed content. Build-time generated type.
 /// See related type AllowedContent.
@@ -1025,10 +1036,10 @@ struct AllowedContentMap
 	}
 
 	void print( std::ostream& ) const;
-
-// Constructor
 	AllowedContentMap()
 	{
+
+/// Constructor
 		{
 			AllowedContent ac;
 			ac.addCat(C_PHRASING);
@@ -1036,20 +1047,17 @@ struct AllowedContentMap
 		}
 		{
 			AllowedContent ac;
+			ac.addCat(C_TRANSP);
 			ac.addForbiddenCat(C_INTERACTIVE);
-			ac.addForbiddenTag(HT_A);
 			_map_AllowedContent[HT_A] = ac;
 		}
 		{
 			AllowedContent ac;
-			_map_AllowedContent[HT_ACRONYM] = ac;
-		}
-		{
-			AllowedContent ac;
+			ac.addCat(C_FLOW);
 			_map_AllowedContent[HT_ADDRESS] = ac;
 		}
 		{
-			AllowedContent ac(AllowedContent::TT_VOID);
+			AllowedContent ac;
 			_map_AllowedContent[HT_AREA] = ac;
 		}
 		{
@@ -1059,14 +1067,16 @@ struct AllowedContentMap
 		}
 		{
 			AllowedContent ac;
+			ac.addCat(C_FLOW);
 			_map_AllowedContent[HT_ASIDE] = ac;
 		}
 		{
 			AllowedContent ac;
+			ac.addCat(C_TRANSP);
 			_map_AllowedContent[HT_AUDIO] = ac;
 		}
 		{
-			AllowedContent ac(AllowedContent::TT_VOID);
+			AllowedContent ac;
 			_map_AllowedContent[HT_BASE] = ac;
 		}
 		{
@@ -1091,10 +1101,11 @@ struct AllowedContentMap
 		}
 		{
 			AllowedContent ac;
+			ac.addCat(C_FLOW);
 			_map_AllowedContent[HT_BODY] = ac;
 		}
 		{
-			AllowedContent ac(AllowedContent::TT_VOID);
+			AllowedContent ac;
 			_map_AllowedContent[HT_BR] = ac;
 		}
 		{
@@ -1105,6 +1116,7 @@ struct AllowedContentMap
 		}
 		{
 			AllowedContent ac;
+			ac.addCat(C_TRANSP);
 			_map_AllowedContent[HT_CANVAS] = ac;
 		}
 		{
@@ -1123,7 +1135,7 @@ struct AllowedContentMap
 			_map_AllowedContent[HT_CODE] = ac;
 		}
 		{
-			AllowedContent ac(AllowedContent::TT_VOID);
+			AllowedContent ac;
 			_map_AllowedContent[HT_COL] = ac;
 		}
 		{
@@ -1143,10 +1155,14 @@ struct AllowedContentMap
 		}
 		{
 			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			ac.addCat(C_SCRIPT);
+			ac.addTag(HT_OPTION);
 			_map_AllowedContent[HT_DATALIST] = ac;
 		}
 		{
 			AllowedContent ac;
+			ac.addCat(C_FLOW);
 			_map_AllowedContent[HT_DD] = ac;
 		}
 		{
@@ -1168,6 +1184,7 @@ struct AllowedContentMap
 		}
 		{
 			AllowedContent ac;
+			ac.addCat(C_FLOW);
 			_map_AllowedContent[HT_DIALOG] = ac;
 		}
 		{
@@ -1179,10 +1196,12 @@ struct AllowedContentMap
 			AllowedContent ac;
 			ac.addTag(HT_DIV);
 			ac.addTag(HT_DT);
+			ac.addTag(HT_DD);
+			ac.addCat(C_SCRIPT);
 			_map_AllowedContent[HT_DL] = ac;
 		}
 		{
-			AllowedContent ac(AllowedContent::TT_VOID);
+			AllowedContent ac;
 			_map_AllowedContent[HT_DOCTYPE] = ac;
 		}
 		{
@@ -1195,7 +1214,7 @@ struct AllowedContentMap
 			_map_AllowedContent[HT_DT] = ac;
 		}
 		{
-			AllowedContent ac(AllowedContent::TT_VOID);
+			AllowedContent ac;
 			_map_AllowedContent[HT_EMBED] = ac;
 		}
 		{
@@ -1269,6 +1288,7 @@ struct AllowedContentMap
 			ac.addTag(HT_META);
 			ac.addTag(HT_SCRIPT);
 			ac.addTag(HT_BASE);
+			ac.addTag(HT_LINK);
 			_map_AllowedContent[HT_HEAD] = ac;
 		}
 		{
@@ -1279,7 +1299,12 @@ struct AllowedContentMap
 			_map_AllowedContent[HT_HEADER] = ac;
 		}
 		{
-			AllowedContent ac(AllowedContent::TT_VOID);
+			AllowedContent ac;
+			ac.addCat(C_HEADING);
+			_map_AllowedContent[HT_HGROUP] = ac;
+		}
+		{
+			AllowedContent ac;
 			_map_AllowedContent[HT_HR] = ac;
 		}
 		{
@@ -1294,15 +1319,15 @@ struct AllowedContentMap
 			_map_AllowedContent[HT_I] = ac;
 		}
 		{
-			AllowedContent ac(AllowedContent::TT_VOID);
+			AllowedContent ac;
 			_map_AllowedContent[HT_IFRAME] = ac;
 		}
 		{
-			AllowedContent ac(AllowedContent::TT_VOID);
+			AllowedContent ac;
 			_map_AllowedContent[HT_IMG] = ac;
 		}
 		{
-			AllowedContent ac(AllowedContent::TT_VOID);
+			AllowedContent ac;
 			_map_AllowedContent[HT_INPUT] = ac;
 		}
 		{
@@ -1323,6 +1348,8 @@ struct AllowedContentMap
 		}
 		{
 			AllowedContent ac;
+			ac.addCat(C_PHRASING);
+			ac.addCat(C_HEADING);
 			_map_AllowedContent[HT_LEGEND] = ac;
 		}
 		{
@@ -1331,7 +1358,7 @@ struct AllowedContentMap
 			_map_AllowedContent[HT_LI] = ac;
 		}
 		{
-			AllowedContent ac(AllowedContent::TT_VOID);
+			AllowedContent ac;
 			_map_AllowedContent[HT_LINK] = ac;
 		}
 		{
@@ -1341,6 +1368,7 @@ struct AllowedContentMap
 		}
 		{
 			AllowedContent ac;
+			ac.addCat(C_TRANSP);
 			_map_AllowedContent[HT_MAP] = ac;
 		}
 		{
@@ -1355,11 +1383,12 @@ struct AllowedContentMap
 			_map_AllowedContent[HT_MENU] = ac;
 		}
 		{
-			AllowedContent ac(AllowedContent::TT_VOID);
+			AllowedContent ac;
 			_map_AllowedContent[HT_META] = ac;
 		}
 		{
 			AllowedContent ac;
+			ac.addCat(C_PHRASING);
 			_map_AllowedContent[HT_METER] = ac;
 		}
 		{
@@ -1369,10 +1398,16 @@ struct AllowedContentMap
 		}
 		{
 			AllowedContent ac;
+			ac.addCat(C_TRANSP);
+			ac.addTag(HT_LINK);
+			ac.addTag(HT_STYLE);
+			ac.addTag(HT_META);
 			_map_AllowedContent[HT_NOSCRIPT] = ac;
 		}
 		{
 			AllowedContent ac;
+			ac.addCat(C_TRANSP);
+			ac.addTag(HT_PARAM);
 			_map_AllowedContent[HT_OBJECT] = ac;
 		}
 		{
@@ -1382,10 +1417,12 @@ struct AllowedContentMap
 		}
 		{
 			AllowedContent ac;
+			ac.addCat(C_SCRIPT);
+			ac.addTag(HT_OPTION);
 			_map_AllowedContent[HT_OPTGROUP] = ac;
 		}
 		{
-			AllowedContent ac(AllowedContent::TT_TEXT);
+			AllowedContent ac;
 			_map_AllowedContent[HT_OPTION] = ac;
 		}
 		{
@@ -1394,7 +1431,7 @@ struct AllowedContentMap
 			_map_AllowedContent[HT_OUTPUT] = ac;
 		}
 		{
-			AllowedContent ac(AllowedContent::TT_VOID);
+			AllowedContent ac;
 			_map_AllowedContent[HT_PARAM] = ac;
 		}
 		{
@@ -1415,6 +1452,7 @@ struct AllowedContentMap
 		}
 		{
 			AllowedContent ac;
+			ac.addCat(C_PHRASING);
 			_map_AllowedContent[HT_PROGRESS] = ac;
 		}
 		{
@@ -1423,7 +1461,7 @@ struct AllowedContentMap
 			_map_AllowedContent[HT_Q] = ac;
 		}
 		{
-			AllowedContent ac(AllowedContent::TT_TEXT);
+			AllowedContent ac;
 			_map_AllowedContent[HT_RP] = ac;
 		}
 		{
@@ -1469,7 +1507,7 @@ struct AllowedContentMap
 			_map_AllowedContent[HT_SMALL] = ac;
 		}
 		{
-			AllowedContent ac(AllowedContent::TT_VOID);
+			AllowedContent ac;
 			_map_AllowedContent[HT_SOURCE] = ac;
 		}
 		{
@@ -1483,7 +1521,7 @@ struct AllowedContentMap
 			_map_AllowedContent[HT_STRONG] = ac;
 		}
 		{
-			AllowedContent ac(AllowedContent::TT_TEXT);
+			AllowedContent ac;
 			_map_AllowedContent[HT_STYLE] = ac;
 		}
 		{
@@ -1561,11 +1599,11 @@ struct AllowedContentMap
 			_map_AllowedContent[HT_TIME] = ac;
 		}
 		{
-			AllowedContent ac(AllowedContent::TT_TEXT);
+			AllowedContent ac;
 			_map_AllowedContent[HT_TITLE] = ac;
 		}
 		{
-			AllowedContent ac(AllowedContent::TT_VOID);
+			AllowedContent ac;
 			_map_AllowedContent[HT_TRACK] = ac;
 		}
 		{
@@ -1599,16 +1637,15 @@ struct AllowedContentMap
 			_map_AllowedContent[HT_VIDEO] = ac;
 		}
 		{
-			AllowedContent ac(AllowedContent::TT_VOID);
+			AllowedContent ac;
 			_map_AllowedContent[HT_WBR] = ac;
 		}
 	}
 };
 /// Returns true if \c attr if global
-/** For a list, see: https://www.w3schools.com/tags/ref_standardattributes.asp */
 inline bool
 isGlobalAttr( En_Attrib attr )
-	{
+{
 	assert( attr != AT_DUMMY );
 	switch( attr )
 	{
@@ -1627,7 +1664,39 @@ isGlobalAttr( En_Attrib attr )
 		case AT_TABINDEX:
 		case AT_TITLE:
 		case AT_TRANSLATE:
-		return true;
+			return true;
+		default:
+			return false;
+	}
+	return false;
+}
+/// Returns true if \c attr if boolean
+inline bool
+isBoolAttr( En_Attrib attr )
+{
+	assert( attr != AT_DUMMY );
+	switch( attr )
+	{
+		case AT_ASYNC:
+		case AT_AUTOFOCUS:
+		case AT_AUTOPLAY:
+		case AT_CHECKED:
+		case AT_CONTROLS:
+		case AT_DEFAULT:
+		case AT_DEFER:
+		case AT_DISABLED:
+		case AT_HIDDEN:
+		case AT_ISMAP:
+		case AT_LOOP:
+		case AT_MULTIPLE:
+		case AT_MUTED:
+		case AT_NOVALIDATE:
+		case AT_OPEN:
+		case AT_READONLY:
+		case AT_REQUIRED:
+		case AT_REVERSED:
+		case AT_SELECTED:
+			return true;
 		default:
 			return false;
 	}
@@ -1635,16 +1704,20 @@ isGlobalAttr( En_Attrib attr )
 }
 //--- START: TEMPLATE FILE cpphtmltags_3.hh
 
+std::string g_lt{ "&lt;" };
+std::string g_gt{ "&gt;" };
+
 //-----------------------------------------------------------------------------------
 /// Returns true if \c tag belong to category \c cat
+inline
 bool
 tagBelongsToCat( En_Httag tag, En_TagCat cat )
 {
 	assert( cat != C_DUMMY );
 	assert( tag != HT_DUMMY );
 
-	static TagCat tagcat;
-	const auto& v_cat = tagcat.get().at(cat);
+	static TagCategory s_tagcat;
+	const auto& v_cat = s_tagcat.get().at(cat);
 
 	auto it = std::find(
 				std::begin(v_cat),
@@ -1665,12 +1738,12 @@ attribIsAllowed( En_Attrib attr, En_Httag tag )
 	assert( tag  != HT_DUMMY );
 	assert( attr != AT_DUMMY );
 
-	static MapAttribs mapAllowedAttribs;
-	if( mapAllowedAttribs.get().count(attr) ) // if it is there
+	static MapAttribs s_mapAllowedAttribs;
+	if( s_mapAllowedAttribs.get().count(attr) ) // if it is there
 	{
-		const auto& vec = mapAllowedAttribs.get().at(attr);
+		const auto& vec = s_mapAllowedAttribs.get().at(attr);
 		auto res = std::find( std::begin( vec ), std::end( vec ), tag );
-		if( res == std::end( mapAllowedAttribs.get().at(attr) ) )
+		if( res == std::end( s_mapAllowedAttribs.get().at(attr) ) )
 			return false;
 	}
 	return true;
@@ -1752,9 +1825,14 @@ class OpenedTags
 		}
 		void pullTag( En_Httag tag )
 		{
+#if 1
+			if( _v_ot.size() == 0 )
+				return;
+#else
 			assert( _v_ot.size() > 0 );
+#endif
 			if( _v_ot.back() != tag )
-				HTTAG_FATAL_ERROR( std::string( "asking to close tag '") + getString(tag) + "' but tag '" +  getString(_v_ot.back()) + "' still open" );
+				HTTAG_FATAL_ERROR( std::string( "asking to close tag <") + getString(tag) + "> but tag <" +  getString(_v_ot.back()) + "> still open" );
 			_v_ot.pop_back();
 		}
 //		void print( std::ostream& ) const;
@@ -1773,71 +1851,27 @@ class OpenedTags
 		}
 };
 
-enum En_UnallowedTag { UT_Undef, UT_ForbiddenTag, UT_ForbiddenCat, UT_NotAllowed };
 
-inline
-std::string
-getString( En_UnallowedTag cause )
-{
-	switch( cause )
-	{
-		case UT_ForbiddenTag:  return "ForbiddenTag";
-		case UT_ForbiddenCat:  return "ForbiddenCat";
-		case UT_Undef:         return "Undefined";
-		case UT_NotAllowed:    return "NotAllowed";
-		default: assert(0);
-	}
-	return std::string(); // to avoid a build warning
-}
+// forward declaration
+//class Httag;
+
+
 
 //-----------------------------------------------------------------------------------
-/// Returns true if \c tag is allowed inside tag chain
-inline
-std::pair<bool,En_UnallowedTag>
-tagIsAllowed(
-	En_Httag                 tag,   ///< the tag
-	const OpenedTags&        ot,    ///< current context
-	const AllowedContentMap& acm    ///< reference data
-)
-{
-	if( tag == HT_DOCTYPE )
-		return std::make_pair(true,UT_Undef);
-
-	const auto& ac = acm.get( ot.current() ); // allowed content of currently (latest) opened tag
-
-	for( auto e: ac._v_forbiddenTags )
-		if( e == tag )
-			return std::make_pair(false,UT_ForbiddenTag);
-
-	for( auto cat: ac._v_forbiddenCats )
-		if( tagBelongsToCat( tag, cat ) )
-			return std::make_pair(false,UT_ForbiddenCat);
-
-	if( ac._v_allowedCats.empty() && ac._v_allowedTags.empty() )
-		return std::make_pair(true,UT_Undef);
-	else
-	{
-		for( auto cat: ac._v_allowedCats )
-			if( tagBelongsToCat( tag, cat ) )
-				return std::make_pair(true,UT_Undef);
-
-		for( auto e: ac._v_allowedTags )
-			if( e == tag )
-				return std::make_pair(true,UT_Undef);
-	}
-	return std::make_pair(false,UT_NotAllowed);
-}
-//-----------------------------------------------------------------------------------
+/// Helper function for AllowedContentMap::print()
 template<typename T>
 void
 printAllowedContent( std::ostream& f, std::string af, std::string type, std::vector<T> vec )
 {
 	if( vec.size() )
 	{
-		f << "\n -" << af << ' ' << vec.size() << ' ' << type << "(s): ";
+		f << " -" << af << ' ' << vec.size() << ' ' << type << "(s): ";
 		for( const auto& e: vec )
 			f << getString(e) << ' ';
+		f << '\n';
 	}
+	else
+		f << " -" << af << "/" << type << ": empty\n";
 }
 //-----------------------------------------------------------------------------------
 /// Prints some details about allowed tags content
@@ -1848,29 +1882,28 @@ AllowedContentMap::print( std::ostream& f ) const
 	f << "* List of allowed content in a tag:\n";
 
 	size_t c = 0;
-	size_t nbEmpty = 0;
 	for( const auto& elem: _map_AllowedContent )
 	{
 		const auto& s = elem.second;
-		f << ++c << ": tag <" << getString(elem.first) << '>';
-		if( s.isEmpty() )
-		{
-			nbEmpty++;
-			f << " : EMPTY !!!";
-		}
-		else
-		{
-			printAllowedContent( f, "allows",  "categorie", s._v_allowedCats );
-			printAllowedContent( f, "allows",  "tag",       s._v_allowedTags );
-			printAllowedContent( f, "forbids", "categorie", s._v_forbiddenCats );
-			printAllowedContent( f, "forbids", "tag",       s._v_forbiddenTags );
-		}
+		f << ++c << ": tag <" << getString(elem.first) << ">:\n";
+		printAllowedContent( f, "allows",  "categorie", s._v_allowedCats );
+		printAllowedContent( f, "allows",  "tag",       s._v_allowedTags );
+		printAllowedContent( f, "forbids", "categorie", s._v_forbiddenCats );
+		printAllowedContent( f, "forbids", "tag",       s._v_forbiddenTags );
 		f << '\n';
 	}
-	f << "\n -Nb empty tags: = " << nbEmpty;
 	f << "\n -Nb tags = " << _map_AllowedContent.size() << '\n';
 }
 //-----------------------------------------------------------------------------------
+
+enum En_UnallowedTag { UT_Undef, UT_ForbiddenTag, UT_ForbiddenCat, UT_NotAllowed };
+
+
+// forward declaration, needed because it gets declared as friend in Httag but is in a sub-namespace
+void p_printTable_1( std::ostream&, std::string id );
+
+// forward declaration, needed because it gets declared as friend in Httag but is in a sub-namespace
+std::pair<bool,En_UnallowedTag> tagIsAllowed( En_Httag, En_Httag );
 
 } // namespace priv
 
@@ -1881,6 +1914,7 @@ enum En_LineFeedMode
 	LF_None, LF_Always, LF_Default
 };
 
+//#define FACTORIZATION_ATTEMPT
 //-----------------------------------------------------------------------------------
 /// HTML tag
 /**
@@ -1889,8 +1923,20 @@ Main class, see homepage for details
 class Httag
 {
 	template<typename T>
-	friend Httag&        operator << ( Httag&        tag,    const T& );
+	friend Httag&        operator << ( Httag&, const T& );
+
+#ifdef FACTORIZATION_ATTEMPT
+	template<typename T1,typename T2>
+	friend T1 streamTagInTag( T1 tag, T2 t2 );
+#else
+	friend Httag&        operator << ( Httag&, const Httag& );
+	friend Httag&        operator << ( Httag&,       Httag& );
+#endif
 	friend std::ostream& operator << ( std::ostream& stream, const Httag& );
+	friend std::ostream& operator << ( std::ostream& stream,       Httag& );
+
+	friend void priv::p_printTable_1( std::ostream&, std::string id );
+	friend std::pair<bool,priv::En_UnallowedTag> priv::tagIsAllowed( En_Httag, En_Httag );
 
 	public:
 /// \name Constructors & destructors
@@ -1919,10 +1965,18 @@ class Httag
 		void openTag(  std::string file=std::string(), int line=0 );
 		void closeTag( std::string file=std::string(), int line=0, bool linefeed=false );
 		void closeTag( bool linefeed );
+
 		template<typename T>
-		void addAttrib( En_Attrib, T, std::string f=std::string(), int line=0 );
-		void removeAttrib( En_Attrib );
-		void clearAttribs() { _attr_map.clear(); }
+		Httag& addAttrib( En_Attrib, T, std::string f=std::string(), int line=0 );
+
+		Httag& addAttrib( En_Attrib );
+
+		Httag& removeAttrib( En_Attrib );
+		Httag& clearAttribs()
+		{
+			_attr_map.clear();
+			return *this;
+		}
 
 //		void PrintAttributes( bool b ) { _printAttribs = b; }
 
@@ -1936,38 +1990,73 @@ class Httag
 /// \name Global attributes handling
 ///@{
 		static void setGlobalAttrib( En_Httag tag, En_Attrib att, const std::string& value );
-		static std::string getGlobalAttrib( En_Httag tag );
+
+//		static std::string getGlobalAttrib( En_Httag tag );
 
 		/// Remove the global attribute for \c tag
-		/**
-			ref: see https://en.cppreference.com/w/cpp/container/map/erase
-		*/
 		static void clearGlobalAttrib( En_Httag tag )
 		{
-			globalAttrib().erase( tag );
+			p_globalAttrib().erase( tag );
 		}
+		static void clearGlobalAttrib( En_Httag tag, En_Attrib attrib )
+		{
+			auto& ga = p_globalAttrib();
+			if( ga.count(tag) )            // if we have that tag in the map
+			{
+				auto& atrm = ga[tag];      // then we fetch the associated map,
+				if( atrm.count(attrib) )   // check if it holds the key "attrib",
+					atrm.erase( attrib );  // and if so, erase it
+			}
+
+		}
+#if 0
+		static void clearGlobalAttrib( En_Attrib attrib )
+		{
+			auto& gam = globalAttrib();
+//			for( auto& pa: gam )
+ /// odo finish this !
+		}
+#endif
 		/// Remove all global attributes
 		static void clearGlobalAttribs()
 		{
-			globalAttrib().clear();
+			p_globalAttrib().clear();
 		}
 ///@}
 
 /// \name Tag content related functions
 ///@{
-		template<typename T> void addContent( T content );
-		template<typename T> void setContent( T content )
+		template<typename T> Httag& addContent( T content );
+
+		template<typename T>
+		Httag& setContent( T content )
 		{
 			clearContent();
-			addContent( content );
-		}	
-		void clearContent() { _content.clear(); }
+			return addContent( content );
+		}
+
+		Httag& clearContent()
+		{
+			_content.clear();
+			return *this;
+		}
+
+		Httag& clear()
+		{
+			return clearContent().clearAttribs();
+		}
 ///@}
 
 		static void setLineFeedMode( En_LineFeedMode mode )
 		{
-			lf_mode() = mode;
+			p_LF_mode() = mode;
 		}
+		/// Defines the behavior on closing a tag: does it clear the content ?
+		static void setClosingTagClearsContent( bool b )
+		{
+			p_getCTCC() = b;
+		}
+
 		static void printSupported( std::ostream& );
 		static void printSupportedHtml( std::ostream& );
 		static size_t printOpenedTags( std::ostream&, const char* msg=0 );
@@ -1989,16 +2078,24 @@ class Httag
 			static priv::AllowedContentMap s_allowed_tags;
 			return s_allowed_tags;
 		}
-		static priv::GlobAttribMap_t& globalAttrib()
+		static priv::GlobAttribMap_t& p_globalAttrib()
 		{
 			static priv::GlobAttribMap_t s_global_attrib;
 			return s_global_attrib;
 		}
-		static En_LineFeedMode& lf_mode()
+		static En_LineFeedMode& p_LF_mode()
 		{
 			static En_LineFeedMode s_lfMode = LF_Default;
 			return s_lfMode;
 		}
+
+		static bool& p_getCTCC()
+		{
+			static bool s_option_COC = false;
+			return s_option_COC;
+		}
+
+
 	private:
 		En_Httag        _tag_en;
 		std::ostream*   _file;
@@ -2008,6 +2105,76 @@ class Httag
 		bool            _tagIsOpen     = false;
 		std::map<En_Attrib,std::string> _attr_map;
 };
+
+
+
+namespace priv {
+
+inline
+std::string
+getString( En_UnallowedTag cause )
+{
+	switch( cause )
+	{
+		case UT_ForbiddenTag:  return "ForbiddenTag";
+		case UT_ForbiddenCat:  return "ForbiddenCat";
+		case UT_Undef:         return "Undefined";
+		case UT_NotAllowed:    return "NotAllowed";
+		default: assert(0);
+	}
+	return std::string(); // to avoid a build warning
+}
+
+//-----------------------------------------------------------------------------------
+/// Returns true if \c tag is allowed inside tag \c parent
+inline
+std::pair<bool,En_UnallowedTag>
+tagIsAllowed(
+	En_Httag tag,    ///< the tag
+	En_Httag parent  ///< parent tag
+)
+{
+	if( tag == HT_DOCTYPE )
+		return std::make_pair(true,UT_Undef);
+
+	const auto& acm = Httag::p_getAllowedContentMap(); // allowed content of currently (latest) opened tag
+	const auto& ac = acm.get( parent ); // allowed content of currently (latest) opened tag
+
+	for( auto e: ac._v_forbiddenTags )
+		if( e == tag )
+			return std::make_pair(false,UT_ForbiddenTag);
+
+	for( auto cat: ac._v_forbiddenCats )
+		if( tagBelongsToCat( tag, cat ) )
+			return std::make_pair(false,UT_ForbiddenCat);
+
+	if( ac._v_allowedCats.empty() && ac._v_allowedTags.empty() )
+		return std::make_pair(true,UT_Undef);
+	else
+	{
+		for( auto cat: ac._v_allowedCats )
+			if( tagBelongsToCat( tag, cat ) )
+				return std::make_pair(true,UT_Undef);
+
+		for( auto e: ac._v_allowedTags )
+			if( e == tag )
+				return std::make_pair(true,UT_Undef);
+	}
+	return std::make_pair(false,UT_NotAllowed);
+}
+//-----------------------------------------------------------------------------------
+/// Returns true if \c tag is allowed inside current tag chain
+inline
+std::pair<bool,En_UnallowedTag>
+tagIsAllowed(
+	En_Httag                 tag,    ///< the tag
+	const OpenedTags&        otags  ///< current context
+)
+{
+	return tagIsAllowed( tag, otags.current() ); //, acm );
+}
+
+} // namespace priv
 
 
 //-----------------------------------------------------------------------------------
@@ -2093,7 +2260,7 @@ Httag::Httag(
 	setContent( content );
 
 	if( attr != AT_DUMMY )
-		p_addAttrib( attr, attribvalue );
+		addAttrib( attr, attribvalue );
 }
 //-----------------------------------------------------------------------------------
 /// generic constructor 3b
@@ -2105,7 +2272,7 @@ Httag::Httag(
 ) : Httag( tag )
 {
 	if( attr != AT_DUMMY )
-		p_addAttrib( attr, attribvalue );
+		addAttrib( attr, attribvalue );
 }
 //-----------------------------------------------------------------------------------
 #if 1
@@ -2168,59 +2335,112 @@ Httag::Httag(
 //-----------------------------------------------------------------------------------
 /// specialization for std::string
 template<>
-void
+Httag&
 Httag::addContent<std::string>( std::string content )
 {
 	if( priv::isVoidElement( _tag_en ) )
 		HTTAG_FATAL_ERROR( std::string("attempting to store content '") + content + "' into a void-element tag <" + getString( _tag_en ) + ">" );
 	_content += content;
+	return *this;
 }
-#if 1
+
 /// specialization for const char*
 template<>
-void
+Httag&
 Httag::addContent<const char*>( const char* content )
 {
 	addContent<std::string>( std::string(content) );
+	return *this;
 }
-#endif
+
+/// specialization for Httag
+template<>
+Httag&
+Httag::addContent<Httag>( Httag content )
+{
+// first, make sure the tag we what to insert is allowed
+	auto res = priv::tagIsAllowed( content.getTag(), getTag() );
+
+	if( !res.first )
+		HTTAG_FATAL_ERROR( std::string("attempting to insert <")
+			+ getString( content.getTag() )
+			+ "> as content of <"
+			+ getString( getTag() )
+			+ ">, which is forbidden (reason: "
+			+ getString( res.second )
+			+ ")"
+		);
+
+	std::ostringstream oss;
+	oss << content;
+	addContent<std::string>( oss.str() );
+	return *this;
+}
+
 /// default implementation
 template<typename T>
-void
+Httag&
 Httag::addContent( T content )
 {
 	addContent<std::string>( std::to_string(content) );
+	return *this;
 }
 //-----------------------------------------------------------------------------------
 void Httag::printTag()
 {
 	printWithContent( "" );
 }
+
+namespace priv {
+
+
+bool
+isNotEmpty( const char* stuff )
+{
+	return !std::string(stuff).empty();
+}
+
+template<typename T>
+bool
+isNotEmpty( T stuff )
+{
+	return !stuff.empty();
+}
+
+
+}  // namespace priv
+
 //-----------------------------------------------------------------------------------
 /// Prints whole tag:
 /**
 - opens it (if not already done),
-- prints content \c c (added to content that might have been already added)
+- prints content \c stuff (added to content that might have been already added)
 - close tag,
-- clear content (so object can be reused)
+
+Requirement on type \c T: must be streamable
 */
 template<typename T>
-void Httag::printWithContent( T c )
+void Httag::printWithContent( T stuff )
 {
 	if( !isOpen() )
 		openTag();
 
-	if( !_content.empty() )
-		*_file << _content;
-	*_file << c;
+	if( !_content.empty()  || priv::isNotEmpty(stuff) )
+	{
+		if( !priv::isVoidElement( _tag_en ) )
+			*_file << _content << stuff;
+		else
+			HTTAG_FATAL_ERROR( std::string("attempting to add content '") + _content + "' to void tag <" + getString(_tag_en) + ">" );
+	}
+//	*_file << c;
 //	_printAttribs = false;
 
 	if( !priv::isVoidElement( _tag_en ) )
 		closeTag();
 	else
 		p_getOpenedTags().pullTag( _tag_en );
-	clearContent();
-	clearAttribs();
+//	clearContent();
+//	clearAttribs();
 }
 //-----------------------------------------------------------------------------------
 /// Destructor, automatically closes tag if needed
@@ -2246,10 +2466,10 @@ void
 Httag::p_checkValidFileType( std::string action )
 {
 	if( !_isFileType )
-		HTTAG_FATAL_ERROR( std::string("object tag '") + getString(_tag_en) + "' is not a \"file type\" object." );
+		HTTAG_FATAL_ERROR( std::string("object tag <") + getString(_tag_en) + "> is not a \"file type\" object" );
 
 	if( !_file )
-		HTTAG_FATAL_ERROR( std::string("object tag '") + getString(_tag_en) + "': asked to " + action + " but file not available." );
+		HTTAG_FATAL_ERROR( std::string("object tag <") + getString(_tag_en) + ">: asked to " + action + " but file not available" );
 
 #if 0
 	if( !_file->is_open() )
@@ -2268,19 +2488,17 @@ Httag::openTag( std::string __file, int __line )
 	p_checkValidFileType( "open" );
 	if( _tagIsOpen )
 	{
-		HTTAG_FATAL_ERROR_FL( std::string( "tag '" ) + getString(_tag_en) + std::string( "': asked to open but was already open." ) );
-	}	
+		HTTAG_FATAL_ERROR_FL( std::string( "tag '" ) + getString(_tag_en) + std::string( "': asked to open but was already open" ) );
+	}
 	else
 	{
 		if( p_getOpenedTags().size() )
 		{
 			if( p_getOpenedTags().current() == _tag_en )
-			{
 				HTTAG_FATAL_ERROR_FL( std::string("attempt to open tag <") + getString(_tag_en) + "> but currently opened tag is identical" );
-			}
-			auto check = tagIsAllowed( _tag_en, p_getOpenedTags(), p_getAllowedContentMap() );
+
+			auto check = priv::tagIsAllowed( _tag_en, p_getOpenedTags() );
 			if( !check.first )
-			{
 				HTTAG_FATAL_ERROR_FL(
 					std::string("attempt to open tag <")
 					+ getString(_tag_en)
@@ -2289,7 +2507,6 @@ Httag::openTag( std::string __file, int __line )
 					+ "\n-because: "
 					+ getString( check.second )
 				);
-			}
 		}
 		switch( _tag_en )
 		{
@@ -2321,34 +2538,128 @@ inline
 void
 Httag::closeTag( std::string __file, int __line, bool linefeed )
 {
-	p_checkValidFileType( "close" );
+//	p_checkValidFileType( "close" );
 
 	if( priv::isVoidElement( _tag_en ) )
-		HTTAG_FATAL_ERROR_FL( std::string( "asked to close tag <" ) + getString(_tag_en) + "> but is void-element" );
+		if( _isFileType )
+			HTTAG_FATAL_ERROR_FL( std::string( "asked to close tag <" ) + getString(_tag_en) + "> but is void-element" );
 
 	if( !_tagIsOpen )
-		HTTAG_FATAL_ERROR_FL( std::string( "tag <" ) + getString(_tag_en) + ">: asked to close but was already closed." );
+		HTTAG_FATAL_ERROR_FL( std::string( "tag <" ) + getString(_tag_en) + ">: asked to close but was already closed" );
 
-	if( _tag_en == HT_COMMENT )
-		*_file << "-->";
-	else
-		*_file << "</" << getString(_tag_en) << '>';
+	if( _isFileType )
+	{
+		if( _tag_en == HT_COMMENT )
+			*_file << " -->";
+		else
+			*_file << "</" << getString(_tag_en) << '>';
 
-	if( _tagIsOpen )
-		p_getOpenedTags().pullTag( _tag_en );
-
+		if( _tagIsOpen )
+			p_getOpenedTags().pullTag( _tag_en );
+	}
 	_tagIsOpen = false;
-	if( p_doLineFeed( linefeed ) )
-		*_file << '\n';
 
+	if( _isFileType )
+		if( p_doLineFeed( linefeed ) )
+			*_file << '\n';
+
+	if( p_getCTCC() )       // if option set, clear content
+		clearContent();
+}
+
+//-----------------------------------------------------------------------------------
+#ifdef FACTORIZATION_ATTEMPT
+/// Helper function for operator << for 2 tags
+template<typename T1,typename T2>
+T1
+streamTagInTag( T1 tag, T2 t2 )
+{
+//	assert( !tag._isFileType );
+	std::ostringstream oss;
+
+	auto check = priv::tagIsAllowed( t2.getTag(), tag.getTag() );
+	if( check.first )
+		oss << tag._content << t2;
+	else
+		HTTAG_FATAL_ERROR(
+			std::string("tag <")
+			+ getString( t2._tag_en )
+			+ "> not allowed as content inside tag <"
+			+ getString( tag._tag_en )
+			+ ">, cause: "
+			+ getString(check.second)
+		);
+
+	tag._content = oss.str();
+	return tag;
+}
+#endif
+//-----------------------------------------------------------------------------------
+/// Insert tag \c t2 and its content into \c tag. Will get printed later. const version
+Httag&
+operator << ( Httag& tag, const Httag& t2 )
+{
+#ifndef FACTORIZATION_ATTEMPT
+//	assert( !tag._isFileType );
+	std::ostringstream oss;
+
+	auto check = priv::tagIsAllowed( t2.getTag(), tag.getTag() );
+	if( check.first )
+		oss << tag._content << t2;
+	else
+		HTTAG_FATAL_ERROR(
+			std::string("tag <")
+			+ getString( t2._tag_en )
+			+ "> not allowed as content inside tag <"
+			+ getString( tag._tag_en )
+			+ ">, cause: "
+			+ getString(check.second)
+		);
+
+	tag._content = oss.str();
+	return tag;
+#else
+	return streamTagInTag( tag, t2 )	;
+#endif
 }
 //-----------------------------------------------------------------------------------
-/// Insert some content into the tag, that will get printed later
+/// Insert tag \c t2 and its content into \c tag. Will get printed later. NOT const version
+Httag&
+operator << ( Httag& tag, Httag& t2 )
+{
+#ifndef FACTORIZATION_ATTEMPT
+//	assert( !tag._isFileType );
+	std::ostringstream oss;
+
+	auto check = priv::tagIsAllowed( t2.getTag(), tag.getTag() );
+	if( check.first )
+//		oss << t2;
+		oss << tag._content << t2;
+	else
+		HTTAG_FATAL_ERROR(
+			std::string("tag <")
+			+ getString( t2._tag_en )
+			+ "> not allowed as content inside tag <"
+			+ getString( tag._tag_en )
+			+ ">, cause: "
+			+ getString(check.second)
+		);
+
+	tag._content = oss.str();
+	return tag;
+#else
+	return streamTagInTag( tag, t2 )	;
+#endif
+}
+
+//-----------------------------------------------------------------------------------
+/// Insert some content into \c tag. Will get printed later
 template<typename T>
 Httag&
 operator << ( Httag& tag, const T& str )
 {
 //	assert( !tag._isFileType );
+
 	std::ostringstream oss;
 	oss << tag._content << str;
 	tag._content = oss.str();
@@ -2363,31 +2674,35 @@ Httag::setGlobalAttrib( En_Httag tag, En_Attrib att, const std::string& value )
 	assert( tag != HT_DUMMY );
 	assert( att != AT_DUMMY );
 
-	globalAttrib()[tag] = std::make_pair( att, value );
+//	globalAttrib()[tag] = std::make_pair( att, value );
+	p_globalAttrib()[tag][att] = value;
 }
-
 //-----------------------------------------------------------------------------------
+#if 0
 /// Returns the global pair "attribute=string" for \c tag, if any
+/// DEPRECATED (no use)
 inline
 std::string
 Httag::getGlobalAttrib( En_Httag tag )
 {
 	assert( tag != HT_DUMMY );
 
-	if( globalAttrib().count(tag) )
-		return std::string( getString( globalAttrib()[tag].first )) + '=' + globalAttrib()[tag].second;
+	if( p_globalAttrib().count(tag) )
+		return std::string( getString( p_globalAttrib()[tag].first )) + '=' + p_globalAttrib()[tag].second;
 	return std::string();
 }
+#endif
 //-----------------------------------------------------------------------------------
 /// Add an HTML attribute to the tag (specialized templated version for \c std::string)
 /**
 If the attribute is already present, then the value will be concatenated to the previous value
 */
 template<>
-void
+Httag&
 Httag::addAttrib<std::string>( En_Attrib attr, std::string value, std::string __file, int __line )
 {
 	p_addAttrib( attr, value, __file, __line );
+	return *this;
 }
 //-----------------------------------------------------------------------------------
 /// Add an HTML attribute to the tag (specialized templated version for <tt>const char*</tt>)
@@ -2395,10 +2710,11 @@ Httag::addAttrib<std::string>( En_Attrib attr, std::string value, std::string __
 If the attribute is already present, then the value will be concatenated to the previous value
 */
 template<>
-void
+Httag&
 Httag::addAttrib<const char*>( En_Attrib attr, const char* value, std::string __file, int __line )
 {
 	p_addAttrib( attr, value, __file, __line );
+	return *this;
 }
 //-----------------------------------------------------------------------------------
 /// Add an HTML attribute to the tag (templated generic version)
@@ -2406,11 +2722,23 @@ Httag::addAttrib<const char*>( En_Attrib attr, const char* value, std::string __
 If the attribute is already present, then the value will be concatenated to the previous value
 */
 template<typename T>
-void
+Httag&
 Httag::addAttrib( En_Attrib attr, T value, std::string __file, int __line )
 {
 	p_addAttrib( attr, std::to_string(value), __file, __line );
+	return *this;
 }
+
+//-----------------------------------------------------------------------------------
+/// Add a boolean attribute (no value)
+Httag&
+Httag::addAttrib( En_Attrib attr )
+{
+	p_addAttrib( attr, std::string(), "", 0 );
+	return *this;
+}
+
+
 //-----------------------------------------------------------------------------------
 /// Add an HTML attribute to the tag
 /**
@@ -2423,24 +2751,44 @@ Httag::p_addAttrib( En_Attrib attr, std::string value, std::string __file, int _
 	assert( attr != AT_DUMMY );
 
 	if( _tagIsOpen ) // because if it is already opened, then we can't add an attribute !
-		HTTAG_FATAL_ERROR_FL( std::string("unable to add attribute '") + getString(attr) + "' with value '" + value + "', tag is already opened." );
+		HTTAG_FATAL_ERROR_FL(
+			std::string("unable to add attribute '")
+			+ getString(attr) + "' with value '"
+			+ value
+			+ "' to tag <"
+			+ getString( _tag_en )
+			+ ">, tag is already opened"
+		);
 
-	if( value.empty() ) // empty string => nothing to add
+	if( value.empty() && !priv::isBoolAttr(attr) ) // empty string => nothing to add
 	{
-		HTTAG_WARNING( std::string( "warning: asking to add tag attribute '" ) + getString(attr) + std::string( "' but string is empty." ) );
+		HTTAG_WARNING(
+			std::string( "warning: asking to add tag attribute '" )
+			+ getString(attr)
+			+ "' to tag <"
+			+ getString( _tag_en )
+			+ ">, but string is empty"
+		);
 		return;
 	}
+
 #ifndef HTTAG_NO_CHECK
 	if( !priv::attribIsAllowed( attr, _tag_en ) )
-		HTTAG_FATAL_ERROR_FL( std::string( "attempt to assign attribute '") + getString(attr) + "' to tag '" + getString( _tag_en )+  "': invalid with html5" );
+		HTTAG_FATAL_ERROR_FL(
+			std::string( "attempt to assign attribute '")
+			+ getString(attr)
+			+ "' to tag <"
+			+ getString( _tag_en )
+			+  ">: invalid"
+		);
 #endif
 
 // check for unneeded pairs attribute/value
-		if( ( attr == AT_COLSPAN && value == "1" ) || ( attr == AT_ROWSPAN && value == "1" ) )
-		{
-			HTTAG_WARNING( std::string( "asking to add unnecessary attribute/value: '" ) + getString(attr) + std::string( "'=" ) + value );
-			return;
-		}
+	if( ( attr == AT_COLSPAN && value == "1" ) || ( attr == AT_ROWSPAN && value == "1" ) )
+	{
+		HTTAG_WARNING( std::string( "asking to add unnecessary attribute/value: '" ) + getString(attr) + "'=" + value );
+		return;
+	}
 
 	if( _attr_map.find(attr) != _attr_map.end() )   // check if element is already present or not
 	{
@@ -2453,33 +2801,30 @@ Httag::p_addAttrib( En_Attrib attr, std::string value, std::string __file, int _
 }
 //-----------------------------------------------------------------------------------
 /// Remove attribute
-/**
-\todo instead of storing an empty string, remove the element (see map ref).<br>
-Comment on this (20200322): NO: erasing in a map requires to first search for that element, then remove it.
-It is probably more efficient to just store an empty string (as we do at present)
-*/
 inline
-void
+Httag&
 Httag::removeAttrib( En_Attrib attr )
 {
 	assert( attr != AT_DUMMY );
 
-/// \todo (20200322): why are these 2 lines commented ? They make sense...
-//	if( _tagIsOpen ); // because if it is open, then we can't remove it!
-//		HTTAG_FATAL_ERROR( "asking to remove attribute on open tag" );
+	if( _tagIsOpen ) // because if it is open, then we can't remove it!
+		HTTAG_FATAL_ERROR( "asking to remove attribute on open tag" );
 
-	if( _attr_map.find(attr) == _attr_map.end() )   // check if element is already present or not
+	auto it = _attr_map.find(attr);
+	if( it == _attr_map.end() )   // check if element is already present or not
 	{
 		HTTAG_WARNING(
 			std::string( "asked to remove attribute " )
 			+ getString( attr )
-			+ std::string( " to tag ") 
+			+ std::string( " of tag <")
 			+ getString( _tag_en )
-			+ std::string( " but attribute not present." )
+			+ std::string( "> but attribute not present" )
 		);
 	}
 	else
-		_attr_map.at(attr) = std::string();
+		_attr_map.erase(attr);
+
+	return *this;
 }
 //-----------------------------------------------------------------------------------
 /// Returns a string holding the attributes
@@ -2487,10 +2832,11 @@ inline
 std::string
 Httag::p_getAttribs() const
 {
-	priv::GlobAttribMap_t& gattr = globalAttrib();  // check is there is a global attribute for that tag
-	const priv::PairAttribString_t* gpatst = 0;
-	if( gattr.count(_tag_en) )
-		gpatst = &gattr.at(_tag_en);
+	const auto& gattr = p_globalAttrib();
+	const priv::AttribMap_t* gpatm = 0;
+	if( gattr.count(_tag_en) )              // check if there is a global attribute for that tag
+		gpatm = &gattr.at(_tag_en);
+	std::set<En_Attrib> flags;
 
 	std::string out;
 //	if( _printAttribs && _attr_map.size() )
@@ -2500,31 +2846,33 @@ Httag::p_getAttribs() const
 		{
 			out += ' ';
 			out += getString( it->first );
-			out += "=\"" + it->second;
-			if( gpatst )
-			{                                          // IF we found a global attribute for that tag
-				if( it->first == gpatst->first )       // then add its value
-					out += ' '+ gpatst->second;
+			if( !priv::isBoolAttr( it->first) )
+			{
+				out += "=\"" + it->second;
+				if( gpatm )
+				{                                          // IF we found a global attribute map for that tag
+					if( gpatm->count( it->first ) ) // if that attribute is found in global map for that tag
+					{
+						flags.insert( it->first );
+						out += ' ' + gpatm->at( it->first );
+					}
 				}
-			out += '"';
+				out += '"';
+			}
 		}
 	}
-	else // if no local attributes, then check for global
-	{
-		if( gpatst )
-			out += std::string(" ") + getString( gpatst->first ) + "=\"" + gpatst->second + '\"';
+	else // if no local attributes, then check for global and and the
+	{    // ones that have not been added now (this is stored in "flags").
+		if( gpatm )
+		{
+			for( const auto& at: *gpatm )
+			{
+				if( !flags.count( at.first) )
+					out += ' ' + getString( at.first ) + "=\"" + at.second + '\"';
+			}
+		}
 	}
 
-// check for a global attribute for the current tag
-/*
-		GlobAttribMap_t& gattr = globalAttrib();
-		if( gattr.count(_tag_en) )
-		{
-			const auto& p = gattr.at(_tag_en);
-			out += " " + std::string(getString( p.first )) + "=\"" + p.second + '"';
-		}
-	}
-*/
 	return out;
 }
 //-----------------------------------------------------------------------------------
@@ -2534,7 +2882,7 @@ bool
 Httag::p_doLineFeed( bool linefeed ) const
 {
 	bool doIt = false;
-	switch( lf_mode() )
+	switch( p_LF_mode() )
 	{
 		case LF_Always: doIt = true; break;
 		case LF_None: break;
@@ -2547,6 +2895,10 @@ Httag::p_doLineFeed( bool linefeed ) const
 }
 //-----------------------------------------------------------------------------------
 /// Streams into \c s the opening tag (with attributes), the content, and the closing tag
+/**
+\warning: as the streamed tag (\c h) is const, the automatic content clearing
+(see \ref run_time_option) can not happen!
+*/
 inline
 std::ostream&
 operator << ( std::ostream& s, const Httag& h )
@@ -2563,37 +2915,125 @@ operator << ( std::ostream& s, const Httag& h )
 	{
 		s << h._content;
 		if( h._tag_en == HT_COMMENT )
-			s << " -->\n";
+			s << " -->";
 		else
 			s << "</" << getString( h._tag_en ) << '>';
 	}
-
+#if 1
 //    if( h._isFileType )
 		if( h.p_doLineFeed() )
 			s << '\n';
+#else
+	h.closeTag();
+#endif
+	return s;
+}
+
+// NOT CONST VERSION
+inline
+std::ostream&
+operator << ( std::ostream& s, Httag& h )
+{
+//	std::cout << "operator <<: _isFileType=" << h._isFileType << "\n";
+//	h._tagIsOpen = true;
+	switch( h._tag_en )
+	{
+		case HT_COMMENT: s << "<!-- "; break;
+		case HT_DOCTYPE: s << "<!DOCTYPE html>\n"; break;
+		default:
+			s << '<' << getString( h._tag_en )
+				<< h.p_getAttribs() << '>';
+	}
+	if( !priv::isVoidElement( h.getTag() ) )
+	{
+		s << h._content;
+		if( h._tag_en == HT_COMMENT )
+			s << " -->";
+		else
+			s << "</" << getString( h._tag_en ) << '>';
+	}
+#if 1
+//    if( h._isFileType )
+		if( h.p_doLineFeed() )
+			s << '\n';
+	if( h.p_getCTCC() )       // if option set, clear content
+		h.clearContent();
+
+#else
+	h.closeTag();
+#endif
 	return s;
 }
 
 //-----------------------------------------------------------------------------------
 namespace priv {
 
+/// Helper function for p_printTable_1()
+void
+print_A( std::ostream& f, const AllowedContent& ac )
+{
+	Httag::setClosingTagClearsContent( true );
+	Httag td( f, HT_TD );
+
+	for( auto e: ac._v_allowedCats )
+	{
+		Httag ta( HT_A, getString( e ), AT_HREF, std::string("#c_") + getString( e ) );
+		td << ta << "-";
+	}
+	f << td;
+
+	for( auto e: ac._v_allowedTags )
+	{
+		Httag ta( HT_A, getString( e ), AT_HREF, std::string("#t_") + getString( e ) );
+		td << ta << "-";
+	}
+	f << td;
+
+	for( auto e: ac._v_forbiddenCats )
+	{
+		Httag ta( HT_A, getString( e ), AT_HREF, std::string("#c_") + getString( e ) );
+		td << ta << "-";
+	}
+	f << td;
+
+	for( auto e: ac._v_forbiddenTags )
+	{
+		Httag ta( HT_A, getString( e ), AT_HREF, std::string("#t_") + getString( e ) );
+		td << ta << "-";
+	}
+	f << td;
+}
 //-----------------------------------------------------------------------------------
-/// Helper function, called by Httag::printSupportedHtml()
+/// Prints HTML table of tag
+/** Helper function, called by Httag::printSupportedHtml() */
 void
 p_printTable_1( std::ostream& f, std::string table_id )
 {
+	Httag::setClosingTagClearsContent( true );
 	f << Httag( HT_H2, "Supported tags and categories" );
 	{
 		Httag table( f, HT_TABLE, AT_ID, table_id );
 		table.openTag();
 		{
 			Httag tr( f, HT_TR );
-			tr << Httag( HT_TH,                        AT_CLASS, "col1" )
-				<< Httag( HT_TH, "Tag",                AT_CLASS, "col2" )
-				<< Httag( HT_TH, "Category",           AT_CLASS, "col3" )
-				<< Httag( HT_TH, "Allowed attributes", AT_CLASS, "col4" );
-			tr.printTag();			
+
+			tr  << Httag( HT_TH,                       AT_ROWSPAN, 2 ).addAttrib( AT_CLASS, "col1" )
+				<< Httag( HT_TH, "Tags",               AT_ROWSPAN, 2 ).addAttrib( AT_CLASS, "col2" )
+				<< Httag( HT_TH, "Is void",            AT_ROWSPAN, 2 ).addAttrib( AT_CLASS, "col3" )
+				<< Httag( HT_TH, "Belongs to",         AT_ROWSPAN, 2 ).addAttrib( AT_CLASS, "col4" )
+				<< Httag( HT_TH, "Allowed content",    AT_COLSPAN, 2 ).addAttrib( AT_CLASS, "col5" )
+				<< Httag( HT_TH, "Forbidden content",  AT_COLSPAN, 2 ).addAttrib( AT_CLASS, "col6" )
+				<< Httag( HT_TH, "Allowed attributes", AT_ROWSPAN, 2 ).addAttrib( AT_CLASS, "col7" );
+			tr.printTag();
+
+			tr  << Httag( HT_TH, "Tag category", AT_CLASS, "col5a" )
+				<< Httag( HT_TH, "Tags",         AT_CLASS, "col5b" )
+				<< Httag( HT_TH, "Tag category", AT_CLASS, "col6a" )
+				<< Httag( HT_TH, "Tags",         AT_CLASS, "col6b" );
+			tr.printTag();
 		}
+
+		std::string ext{"https://www.w3schools.com/tags/tag_"};
 
 		for( size_t i=0; i<HT_DUMMY; i++ )
 		{
@@ -2601,28 +3041,51 @@ p_printTable_1( std::ostream& f, std::string table_id )
 			tr.openTag();
 			auto tag = static_cast<En_Httag>(i);
 
-			f << Httag( HT_TD, i+1 ) << Httag( HT_TD, getString( tag ) );
+			f << Httag( HT_TD, i+1, AT_CLASS, "cent" );
+
+			Httag a( HT_A, g_lt+getString( tag )+g_gt );
+			a.addAttrib( AT_HREF, ext + getString( tag ) + ".asp" ).addAttrib( AT_TARGET, "_blank" );
+			Httag td2( HT_TD, a, AT_CLASS, "cent" );
+			td2.addAttrib( AT_ID, std::string("t_") + getString( tag ) );
+			f << td2;
+
+			f << Httag( HT_TD, ( isVoidElement(tag) ? "Y" : "N" ), AT_CLASS, "cent" );
+
 			Httag td( f, HT_TD );
-			td.openTag();
+			td.openTag();                                 // column: "belongs to category"
 			for( size_t j=0; j<priv::C_DUMMY; j++)
 			{
 				auto cat = static_cast<priv::En_TagCat>(j);
 				if( tagBelongsToCat( tag, cat ) )
-					f << getString( cat ) << ',';
+				{
+					Httag ta( HT_A, getString( cat ), AT_HREF, std::string("#c_") + getString( cat ) );
+					f << ta << ',';
+				}
+
 			}
 			td.closeTag();
+
+// column "allowed content"
+			const auto& acm = Httag::p_getAllowedContentMap();
+			print_A( f, acm.get( tag ) );
+
+// column: "allowed attributes"
 			td.openTag();
 			for( size_t j=0; j<AT_DUMMY; j++)
 			{
 				auto attrib = static_cast<En_Attrib>(j);
 				if( priv::attribIsAllowed( attrib, tag ) && !priv::isGlobalAttr( attrib ) )
-					f << getString( attrib ) << ',';
+				{
+					Httag ta( HT_A, getString( attrib ), AT_HREF, std::string("#a_") + getString( attrib ) );
+					f << ta << ',';
+				}
 			}
 		}
 	}
 }
 //-----------------------------------------------------------------------------------
-/// Helper function, called by Httag::printSupportedHtml()
+/// Prints HTML table of attributes
+/** Helper function, called by Httag::printSupportedHtml() */
 void
 p_printTable_2( std::ostream& f, std::string table_id )
 {
@@ -2635,39 +3098,45 @@ p_printTable_2( std::ostream& f, std::string table_id )
 			tr <<  Httag( HT_TH,                 AT_CLASS, "col1" )
 				<< Httag( HT_TH, "Attributes",   AT_CLASS, "col2" )
 				<< Httag( HT_TH, "Global",       AT_CLASS, "col3" )
-				<< Httag( HT_TH, "Allowed tags", AT_CLASS, "col4" );
-			tr.printTag();			
+				<< Httag( HT_TH, "Boolean",      AT_CLASS, "col4" )
+				<< Httag( HT_TH, "Allowed tags", AT_CLASS, "col5" );
+			tr.printTag();
 		}
 
+		std::string ext{"https://www.w3schools.com/tags/att_"};
 		for( size_t i=0; i<AT_DUMMY; i++ )
 		{
 			Httag tr( f, HT_TR );
 			tr.openTag();
 			auto attrib = static_cast<En_Attrib>(i);
 
-			f << Httag( HT_TD, i+1 ) << Httag( HT_TD, getString( attrib ) );
+			f << Httag( HT_TD, i+1, AT_CLASS, "cent" );
 
-			Httag td( f, HT_TD );
-			//td.openTag();
-			if( isGlobalAttr( attrib ) )				
-				f << Httag( f, HT_TD, "Y" ) << Httag( f, HT_TD);
+			Httag a( HT_A, getString( attrib ) );
+			a.addAttrib( AT_HREF, ext + getString( attrib ) + ".asp" ).addAttrib( AT_TARGET, "_blank" );
+			f << Httag( HT_TD, a, AT_ID, std::string("a_") + getString( attrib ) );
+
+			if( isGlobalAttr( attrib ) )
+				f << Httag( HT_TD, "Y", AT_CLASS, "cent" ) << Httag( HT_TD ) << Httag( HT_TD );
 			else
 			{
-				f << Httag( f, HT_TD, "N" );
+				f << Httag( HT_TD, "N", AT_CLASS, "cent" );
+				f << Httag( HT_TD, (isBoolAttr(attrib)?"Y":"N"), AT_CLASS, "cent" );
 				Httag td( f, HT_TD );
 				td.openTag();
 				for( size_t j=0; j<HT_DUMMY; j++ )
 				{
 					auto tag = static_cast<En_Httag>(j);
 					if( priv::attribIsAllowed( attrib, tag ) )
-						f << getString( tag ) << ',';
+						f << Httag( HT_A, g_lt+getString( tag )+g_gt, AT_HREF, std::string("#t_") + getString( tag ) );
 				}
 			}
 		}
 	}
 }
 //-----------------------------------------------------------------------------------
-/// Helper function, called by Httag::printSupportedHtml()
+/// Prints HTML table of tag categories
+/** Helper function, called by Httag::printSupportedHtml() */
 void
 p_printTable_3( std::ostream& f, std::string table_id )
 {
@@ -2680,14 +3149,15 @@ p_printTable_3( std::ostream& f, std::string table_id )
 			tr <<  Httag( HT_TH,                       AT_CLASS, "col1" )
 				<< Httag( HT_TH, "Tag category",       AT_CLASS, "col2" )
 				<< Httag( HT_TH, "Corresponding tags", AT_CLASS, "col3" );
-			tr.printTag();			
+			tr.printTag();
 		}
 		for( size_t i=0; i<priv::C_DUMMY; i++ )
 		{
 			Httag tr( f, HT_TR );
 			tr.openTag();
 			auto cat = static_cast<En_TagCat>(i);
-			f << Httag( HT_TD, i+1 ) << Httag( HT_TD, getString( cat ) );
+			f << Httag( HT_TD, i+1, AT_CLASS, "cent" )
+				<< Httag( HT_TD, getString( cat ), AT_ID, std::string("c_") + getString( cat ) );
 
 			Httag td( f, HT_TD );
 			td.openTag();
@@ -2695,7 +3165,10 @@ p_printTable_3( std::ostream& f, std::string table_id )
 			{
 				auto tag = static_cast<En_Httag>(j);
 				if( tagBelongsToCat( tag, cat ) )
-					f << getString( tag ) << ',';
+				{
+					Httag ta( HT_A, g_lt+getString( tag )+g_gt, AT_HREF, std::string("#t_") + getString( tag ) );
+					f << ta << ',';
+				}
 			}
 		}
 	}
@@ -2725,25 +3198,29 @@ Httag::printSupportedHtml( std::ostream& f )
 	h << css;
 	h.printTag();
 
-
+	Httag::setClosingTagClearsContent( true );
 	Httag t2( f, HT_BODY );
 	t2.openTag();
 	f << Httag( HT_P, "This list is automatically generated from reference data" );
+	std::ifstream external( "misc/supported.txt" );
+	f << external.rdbuf();
+
 	{
 		Httag ul( f, HT_UL );
 		ul.openTag();
 		Httag li( f, HT_LI );
-		li << Httag( HT_A, "tags", AT_HREF, "#t1" );
+		li << Httag( HT_A, "Tag list", AT_HREF, "#t1" );
 		li.printTag();
-		li << Httag( HT_A, "attributes", AT_HREF, "#t2" );
+		li << Httag( HT_A, "Attribute list", AT_HREF, "#t2" );
 		li.printTag();
-		li << Httag( HT_A, "Tag categories", AT_HREF, "#t3" );
+		li << Httag( HT_A, "Tag categories list", AT_HREF, "#t3" );
 		li.printTag();
 	}
 	priv::p_printTable_1( f, "t1" );
 	priv::p_printTable_2( f, "t2" );
 	priv::p_printTable_3( f, "t3" );
 }
+//-----------------------------------------------------------------------------------
 
 
 } // namespace httag end
