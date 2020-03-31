@@ -42,11 +42,13 @@ Refs:
 #define HG_CPPHTMLTAGS_HPP
 
 #include <vector>
+#include <set>
 #include <sstream>
 #include <map>
 #include <cassert>
 #include <iostream>
 #include <algorithm>
+#include <fstream>
 
 /*#define HTTAG_PRINT_ERROR_LOCATION( msg, f, l )\
 		std::cerr << "\nhttag: error: " \
@@ -63,7 +65,6 @@ Refs:
 //#ifdef HTTAG_SILENT_WARNINGS
 //	#define HTTAG_WARNING if(0) std::cerr
 //#else
-
 	#define HTTAG_WARNING(msg) \
 	{ \
 		std::cerr << "\nhttag: Warning: " << (msg) \
@@ -71,40 +72,20 @@ Refs:
 			<< "\n - line: " << __LINE__ \
 			<< '\n'; \
 	}
-
-/*
 //#endif
-*/
-//#ifdef HTTAG_SILENT_ERRORS
-//	#define HTTAG_ERROR( msg ) \
-//		{ \
-//			throw std::runtime_error( std::string("httag: fatal error: ") + msg ); \
-//		}
-//#else
-/*
-		msg = msg \
-		+ "\n -file: " \
-		+ __FILE__ \
-		+ "\n -line: " \
-		+ std::to_string(__LINE__) \
-		+ "\n -func: " \
-		+ __FUNCTION__ \
-		+ '\n'; \
-		std::cout << "MACRO 1: " << msg << " s=" << msg.size() << "\n"; \
-		out = in + " -file: "; \
-		std::cout << "MACRO 2: " << msg << " s=" << msg.size() << "\n"; \
 
-*/
+//		out = std::string(in) \
+
 #define HTTAG_ADD_ERROR_LOCATION( in, out ) \
 	{ \
-		out = in \
+		out = (std::string(in) \
 		+ "\n -file: " \
 		+ __FILE__ \
 		+ "\n -line: " \
 		+ std::to_string(__LINE__) \
 		+ "\n -func: " \
 		+ __FUNCTION__ \
-		+ '\n'; \
+		+ "()\n"); \
 	}
 
 #define HTTAG_FATAL_ERROR( msg ) \

@@ -10,13 +10,13 @@
 C_metadata:base,link,meta,noscript,script,style,template,title
 
 # 2 - Flow content
-C_flow:a,abbr,address,area,article,aside,audio,b,bdi,bdo,blockquote,br,button,canvas,cite,code,data,datalist,del,details,dfn,dialog,div,dl,em,embed,fieldset,figure,footer,form,h1,h2,h3,h4,h5,h6,header,hr,i,iframe,img,input,ins,kbd,label,link, main,map,mark,meter,nav,noscript,object,ol,output,p,picture,pre,progress,q,ruby,s,samp,script,section,select,small,span,strong,style,sub,sup,svg,table,template,textarea,time,u,ul,var,video,wbr
+C_flow:a,abbr,address,area,article,aside,audio,b,bdi,bdo,blockquote,br,button,canvas,cite,code,data,datalist,del,details,dfn,dialog,div,dl,em,embed,fieldset,figure,footer,form,h1,h2,h3,h4,h5,h6,header,hgroup,hr,i,iframe,img,input,ins,kbd,label,link, main,map,mark,meter,nav,noscript,object,ol,output,p,picture,pre,progress,q,ruby,s,samp,script,section,select,small,span,strong,style,sub,sup,svg,table,template,textarea,time,u,ul,var,video,wbr
 
 # 3 - Sectioning content
 C_sectioning:article,aside,nav,section
 
 # 4 - Heading content
-C_heading:h1,h2,h3,h4,h5,h6
+C_heading:h1,h2,h3,h4,h5,h6,hgroup
 
 # 5 - Phrasing content
 C_phrasing:a,abbr,area,audio,b,bdi,bdo,br,button,canvas,cite,code,data,datalist,del,dfn,em,embed,i,iframe,img,input,ins,kbd,label,link,map,mark,meter,noscript,object,output,picture,progress,q,ruby,s,samp,script,select,small,span,strong,sub,sup,svg,template,textarea,time,u,var,video,wbr
@@ -28,13 +28,12 @@ C_embedded:audio,canvas,embed,iframe,img,object,picture,svg,video
 C_interactive:a,audio,button,details,embed,iframe,img,input,label,select,textarea,video
 
 
-# other categories: (?)
+# other categories:
 
-C_palpable:
+C_palpable:a,abbr,address,article,aside,audio,b,bdi,bdo,blockquote,button,canvas,cite,code,data,details,dfn,div,dl,em,embed,fieldset,figure,footer,form,h1,h2,h3,h4,h5,h6,header,hgroup,i,iframe,img,input,ins,kbd,label,main,map,mark,menu,meter,nav,object,ol,output,p,pre,progress,q,ruby,s,samp,section,select,small,span,strong,sub,sup,svg,table,textarea,time,u,ul,var,video
 
 # Form-associated content
 C_Form:button,fieldset,input,label,meter,object,output,progress,select,textarea
-
 
 C_script:script,template
 

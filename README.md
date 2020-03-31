@@ -82,6 +82,8 @@ will produce:
 <p class="abc">paragraph</p>
 ```
 
+For more details, see [manual](docs/manual.md).
+
 For more details, see [manual](manual.md).
 
 ## HTML 5 coverage
@@ -103,7 +105,8 @@ This code is an attempt to tackle this complexity but (as usual) no warranty is 
 - C++:
   - https://github.com/SRombauts/HtmlBuilder/
  Main difference: this one seems to have one class per tag. Here the tags are handled through an enum.
-  - https://github.com/tinfoilboy/CTML
+  - https://github.com/tinfoilboy/CTML . This one uses strings to define tags, content and attributes, thus error prone.
+  - http://ctpp.havoc.ru/en/ (seems dead)
 
 ## References
 

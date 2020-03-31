@@ -46,6 +46,7 @@ Or both, at creation time:
 ```C++
 Httag mytag( HT_TD, "my cell", AT_COLSPAN, 2 );
 ```
+
 #### A.1.b - Type 2 constructor ("file-type" object)
 
 You can specify the stream where the html code must be generated.
@@ -68,7 +69,7 @@ This will only happen when you call either one of these on the variable:
 - `printWithContent( "something" )`
 
 Once it is opened, you can explicitly close it with `closeTag()`.
-But this also called automatically by the destructor, that is called when the variable goes out of scope.
+But this also called automatically by the destructor, which is called when the variable goes out of scope.
 
 #### A.1.c - Which one should I use ?
 
@@ -108,6 +109,11 @@ p.openTag();
 std::cout << "a paragraph";
 p.closeTag();
 ```
+If `p` is not used afterwards, it would be faster to write:
+```C++
+std::cout << Httag( std::cout, HT_P, "a paragraph" );
+```
+
 
 - Or you can use the provided functions (can be used with the two types of tags):
 ```C++
@@ -115,6 +121,19 @@ Httag p( HT_P );
 p.setContent( "a paragraph" );
 p.addContent( " of text" );
 std::cout << p;  // <p>a paragraph of text</p>
+```
+
+These function can be used in a chained way.
+For example:
+```C++
+std::string hello{"hello"};
+Httag p( HT_P );
+p.setContent( "say " ).addContent( hello );
+std::cout << p;  // <p>say hello</p>
+```
+Or, as a one-liner:
+```C++
+f << Httag ( HT_P ).setContent( "say " ).addContent( hello );
 ```
 - But you can also directly stream something **into** the tag.
 This will produce the same as above:
@@ -125,9 +144,35 @@ p << " of text";
 std::cout << p;
 ```
 
+But there is more: the content can be another tag!
+You can stream a tag inside a tag, or use it as a content.
+For example:
+```C++
+Httag a( HT_A, "a link", AT_HREF, "https://somewhere.com" );
+Httag li( HT_LI, a );
+f << li;
+```
+will produce:<br>
+`<li><a href="https://somewhere.com">a link</a></li>`
+
+Another way of achieving this would be:
+```C++
+Httag li( HT_LI );
+li << Httag( HT_A, "a link", AT_HREF, "https://somewhere.com" );
+f << li;
+```
+
+Even this is possible! :
+```C++
+	Httag t( HT_DIV, Httag( HT_DIV, "aaa" ) );
+```
+and will produce (after `t` is streamed): `<div><div>aaa</div></div>`
+
+
+
 ### A.3 - Attributes
 
-#### Adding attributes
+#### A.3.1 - Adding attributes
 Tag attributes can be added to the tag at creation time (see above) or afterwards:
 ```C++
 Httag p( HT_P );
@@ -152,14 +197,36 @@ A specific attribute can be removed from a variable, for example:
 ```C++
 td.removeAttrib( AT_COLSPAN );
 ```
-You can also clear all attributes with;
+This can also be chained with other member functions:
 ```C++
-td.clearAttribs() 
+td.removeAttrib( AT_COLSPAN ).addAttrib( AT_ID, "myid" );
+td.addAttrib( AT_ID, "myid" ).removeAttrib( AT_COLSPAN ); //does the same as above !
 ```
 
+You can clear all attributes with:
+```C++
+td.clearAttribs();
+```
+
+#### A.3.2 - Boolean attributes
+
+These are attributes that have no value.
+They are perfectly handled, for exemple the tag `<input>` allows the boolean attribute `checked`.
+So you can write
+```C++
+f << Httag( HT_INPUT ).addAttrib( AT_CHECKED);
+```
+which will produce: `<input checked>`.
+
+The only difference is that, for technical considerations due to the way C++ does the template resolution, you cannot add a boolean attribute with the constructor.
+This:<br>`f << Httag( HT_INPUT, AT_CHECKED);`<br>will fail.
+But you can use an empty value.
+This:<br>
+`f << Httag( HT_INPUT, AT_CHECKED, "" );`<br>
+is fine.
 
 <a name="global_attribute"></a>
-####  Tag global attributes
+#### A.3.3 - Tag global attributes
 
 It is possible to add to a given tag a "global attribute", that is each time you will output that tag, this attribute-value pair will be automatically added.
 For example, at one point you want to add to all the tags `li` the attribute `class="my_class"`.
@@ -170,13 +237,21 @@ To remove, you can:
 - remove all global attributes:<br>
 `Httag::clearGlobalAttribs()`
 - remove the global attribute on a given tag:<br>
-`Httag::clearGlobalAttrib( <tag id> )`
+`Httag::clearGlobalAttrib( <tag id> )`<br>
 For example:
 `Httag::clearGlobalAttrib( HT_LI )`
 
-These are static function, thus the `Httag::` prefix.
+An example of usefulness of this features is for the `<a>` tag.
+As you know, you can add the attribute `target="_blank"` to make the link open in another tab/window of the browser.
+So if you want all of your generated links to have automatically this feature, just add this in you code:
+```
+Httag::setGlobalAttrib( HT_A, AT_TARGET, "_blank" );
+```
 
-#### Attributes uniqueness enforcement
+
+All these are static function, thus the `Httag::` prefix.
+
+#### A.3.4 - Attributes uniqueness enforcement
 
 HTML 5 mandates that no attribute shall be present more than once.
 This is enforced here, and adding attributes will end up as a concatenation of the values, space separated.
@@ -192,8 +267,13 @@ will printout: `<p class="abc cde">text</p>`
 For global attributes, it works the same.
 Please note that the global attribute will always be added at the end of the string.
 
+
+### A.4 - Run-time options
+
+Different settings can be set at run-time, using static functions.
+
 <a name="linefeed"></a>
-### A.4 - Line feeds
+#### A.4.1 - Line feeds
 
 In order to be human readable, it may be a good idea to have here and then some line feeds in the output html code.
 On the other side, for large files it may be wanted to have "compact" html code, by removing all the unnecessary linefeeds.
@@ -211,6 +291,16 @@ For example:
 ```C++
 Httag::setLineFeedMode( LF_Always );
 ```
+
+#### A.4.2 - Behavior on tag closing
+
+Two different behaviors can be selected, globally.
+Either the tag content is cleared automatically, either it is retained.
+This can be selected with:
+```C++
+Httag::setClosingTagClearsContent( bool );
+```
+The default value is `false`.
 
 ### A.5 - Error handling
 
@@ -259,7 +349,6 @@ Error  | Outcome  |  Example
 -------|---------------------------------------|----------------
 Open a tag that is not a file-type tag | fatal | `Httag t( HT_P );`<br>`t.openTag();`
 Open a tag that is already open  | fatal | `Httag t( f, HT_P );`<br>`t.openTag();`<br>`t.openTag();`
-Open a tag `<x>` inside an identical tag.<br>(whatever the tag, `<x><x>content</x></x>` is invalid) | fatal | `Httag ta( f, HT_P ), tb( f, HT_P );`<br>`ta.openTag(); tb.openTag();`
 Add an attribute to a tag where that attribute is not allowed | fatal | `Httag t( HT_TD );`<br>`t.addAttrib( AT_DATA, "abc" );`<br>or<br>`Httag t( HT_TD, AT_DATA, "abc" );`
 Add content to a void tag | fatal | `Httag t( HT_BR );`<br>`t.addContent( "abc" );`
 Add an attribute to a file-type tag already opened | fatal | `Httag t( f, HT_H2 );`<br>`t.openTag();`<br>`t.addAttrib( AT_CLASS, "abc" )`
@@ -267,10 +356,10 @@ Open a tag inside a context where it is not allowed | fatal | `Httag p( f, HT_P 
 
 
 <hr>
+
 ### Developer information
 
 Check out [Developer information](dev_info.md).
 
-Check out dev_info.md.
 
 Copyright Sebastien Kramm - 2018-2020

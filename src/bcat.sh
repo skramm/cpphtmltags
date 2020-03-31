@@ -3,27 +3,27 @@
 # file: bcat.sh
 # author: S. Kramm
 
+# This file is part of cpphtmltags
 # generation of C++ code
 # builds map of categories of tags
 # this script takes as input one file and generates three files
 
-echo "Running bcat.sh"
+echo "Running $(basename $0)"
 
-# Input 
+# Input
 file_input=ref/element_cat.ref
 
 # output 1: holds the enum declaration httag::priv::En_TagCat
 file_out1=build/tmp/cat_enum.src
 
-# output 2: holds the declaration of class httag::priv::TagCat that holds a map of categories of tags
-file_out2=build/tmp/element_cat.src
+# output 2: holds the declaration of class httag::priv::TagCategory that holds a map of categories of tags
+file_out2=build/tmp/cat_element.src
 
 # output 3: holds the getString( En_TagCat ) function
 file_out3=build/tmp/cat_switch.src
 
 # START
 set +x
-mkdir -p tmp
 
 echo -e "namespace priv {\n"> $file_out1
 
@@ -33,11 +33,11 @@ echo -e "enum En_TagCat\n{">> $file_out1
 
 
 echo "/// Private class, holds map of categories of tags"> $file_out2
-echo -e "struct TagCat\n{">> $file_out2
+echo -e "struct TagCategory\n{">> $file_out2
 echo -e "\tMapTagCat_t _map_cat;">> $file_out2
 echo -e "\tconst MapTagCat_t& get() {">> $file_out2
 echo -e "\t\treturn _map_cat;\n\t}">> $file_out2
-echo -e "\tTagCat()\n\t{" >>$file_out2
+echo -e "\tTagCategory()\n\t{" >>$file_out2
 
 while IFS=$':' read a b
 do

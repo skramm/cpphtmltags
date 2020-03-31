@@ -1,20 +1,20 @@
 //--- START: TEMPLATE FILE cpphtmltags_2.hh
 
 /// Maps attributes to tags that allow them
-typedef std::map<En_Attrib,std::vector<En_Httag>> MapAttribs_t;
+using MapAttribs_t = std::map<En_Attrib,std::vector<En_Httag>>;
 
 /// Maps tag categories to tags that belong to it
-typedef std::map<En_TagCat,std::vector<En_Httag>> MapTagCat_t;
+using MapTagCat_t = std::map<En_TagCat,std::vector<En_Httag>>;
 
 /// See GlobAttribMap_t
-typedef std::pair<En_Attrib,std::string>       PairAttribString_t;
+using AttribMap_t = std::map<En_Attrib,std::string>;
 
 /// Holds for some tags (that have a global attribute) the pair (attribute, string-value)
 /** See \link global_attribute */
-typedef std::map<En_Httag, PairAttribString_t> GlobAttribMap_t;
+using GlobAttribMap_t = std::map<En_Httag, AttribMap_t>;
 
 
-/// holds for a given tag what content is allowed inside.
+/// Holds for a given tag what content is allowed inside.
 /// See related type AllowedContentMap
 struct AllowedContent
 {
@@ -22,20 +22,7 @@ struct AllowedContent
 	std::vector<En_Httag>  _v_forbiddenTags;
 	std::vector<En_TagCat> _v_allowedCats;
 	std::vector<En_TagCat> _v_forbiddenCats;
-	bool _isVoid = false;
-	bool _isText = false;
 
-/// Type of tag
-	enum En_TagType{ TT_NEITHER, TT_VOID, TT_TEXT };
-
-	/// Constructor
-	AllowedContent( En_TagType tt=TT_NEITHER )
-	{
-		if( tt == TT_VOID )
-			_isVoid = true;
-		if( tt == TT_TEXT )
-			_isText = true;
-	}
 	void addForbiddenTag( En_Httag en )
 	{
 		_v_forbiddenTags.push_back( en );
@@ -52,12 +39,19 @@ struct AllowedContent
 	{
 		_v_allowedCats.push_back( en );
 	}
+#if 0
 	bool isEmpty() const
 	{
+#if 1
 		if( _isVoid == true )
 			return false;
 		if( _isText == true )
 			return false;
+#else
+		if( isVoidElement(tt) )
+			return false;
+#endif
+
 		if( _v_allowedTags.size() )
 			return false;
 		if( _v_allowedCats.size() )
@@ -68,6 +62,7 @@ struct AllowedContent
 			return false;
 		return true;
 	}
+#endif
 };
 
 //--- END: TEMPLATE FILE cpphtmltags_2.hh

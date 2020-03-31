@@ -45,6 +45,7 @@ int main()
 		body.openTag();
 		body.closeTag();
 	}
+	cout << '\n';
 // EXAMPLE 3
 	{
 		Httag html( HT_HTML );
@@ -56,6 +57,6 @@ int main()
 		div2 << Httag( HT_P, "Some text" );
 		body << div2;
 		html << head << body;
-		std::cout << html;
+		std::cout << Httag( HT_DOCTYPE ) << html;
 	}
 }
