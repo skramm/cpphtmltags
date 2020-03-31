@@ -178,28 +178,16 @@ AllowedContentMap::print( std::ostream& f ) const
 	f << "* List of allowed content in a tag:\n";
 
 	size_t c = 0;
-	size_t nbEmpty = 0;
 	for( const auto& elem: _map_AllowedContent )
 	{
 		const auto& s = elem.second;
 		f << ++c << ": tag <" << getString(elem.first) << ">:\n";
-#if 0
-		if( s.isEmpty() )
-		{
-			nbEmpty++;
-			f << " : EMPTY !!!\n";
-		}
-		else
-#endif
-		{
-			printAllowedContent( f, "allows",  "categorie", s._v_allowedCats );
-			printAllowedContent( f, "allows",  "tag",       s._v_allowedTags );
-			printAllowedContent( f, "forbids", "categorie", s._v_forbiddenCats );
-			printAllowedContent( f, "forbids", "tag",       s._v_forbiddenTags );
-		}
+		printAllowedContent( f, "allows",  "categorie", s._v_allowedCats );
+		printAllowedContent( f, "allows",  "tag",       s._v_allowedTags );
+		printAllowedContent( f, "forbids", "categorie", s._v_forbiddenCats );
+		printAllowedContent( f, "forbids", "tag",       s._v_forbiddenTags );
 		f << '\n';
 	}
-	f << "\n -Nb empty tags: = " << nbEmpty;
 	f << "\n -Nb tags = " << _map_AllowedContent.size() << '\n';
 }
 //-----------------------------------------------------------------------------------
@@ -210,9 +198,8 @@ enum En_UnallowedTag { UT_Undef, UT_ForbiddenTag, UT_ForbiddenCat, UT_NotAllowed
 // forward declaration, needed because it gets declared as friend in Httag but is in a sub-namespace
 void p_printTable_1( std::ostream&, std::string id );
 
-// forward declaration
+// forward declaration, needed because it gets declared as friend in Httag but is in a sub-namespace
 std::pair<bool,En_UnallowedTag> tagIsAllowed( En_Httag, En_Httag );
-
 
 } // namespace priv
 
@@ -223,8 +210,7 @@ enum En_LineFeedMode
 	LF_None, LF_Always, LF_Default
 };
 
-
-
+//#define FACTORIZATION_ATTEMPT
 //-----------------------------------------------------------------------------------
 /// HTML tag
 /**
@@ -233,15 +219,19 @@ Main class, see homepage for details
 class Httag
 {
 	template<typename T>
-	friend Httag&        operator << ( Httag&        tag,    const T& );
+	friend Httag&        operator << ( Httag&, const T& );
 
-	friend Httag&        operator << ( Httag&        tag,    const Httag& );
-	friend Httag&        operator << ( Httag&        tag,    /*const*/ Httag& );
-
+#ifdef FACTORIZATION_ATTEMPT
+	template<typename T1,typename T2>
+	friend T1 streamTagInTag( T1 tag, T2 t2 );
+#else
+	friend Httag&        operator << ( Httag&, const Httag& );
+	friend Httag&        operator << ( Httag&,       Httag& );
+#endif
 	friend std::ostream& operator << ( std::ostream& stream, const Httag& );
-	friend std::ostream& operator << ( std::ostream& stream, /*const*/ Httag& );
-	friend void priv::p_printTable_1( std::ostream&, std::string id );
+	friend std::ostream& operator << ( std::ostream& stream,       Httag& );
 
+	friend void priv::p_printTable_1( std::ostream&, std::string id );
 	friend std::pair<bool,priv::En_UnallowedTag> priv::tagIsAllowed( En_Httag, En_Httag );
 
 	public:
@@ -431,15 +421,13 @@ getString( En_UnallowedTag cause )
 	return std::string(); // to avoid a build warning
 }
 
-
 //-----------------------------------------------------------------------------------
 /// Returns true if \c tag is allowed inside tag \c parent
 inline
 std::pair<bool,En_UnallowedTag>
 tagIsAllowed(
-	En_Httag                 tag,    ///< the tag
-	En_Httag                 parent ///< parent tag
-//	const AllowedContentMap& acm     ///< reference data
+	En_Httag tag,    ///< the tag
+	En_Httag parent  ///< parent tag
 )
 {
 	if( tag == HT_DOCTYPE )
@@ -477,7 +465,6 @@ std::pair<bool,En_UnallowedTag>
 tagIsAllowed(
 	En_Httag                 tag,    ///< the tag
 	const OpenedTags&        otags  ///< current context
-//	const AllowedContentMap& acm     ///< reference data
 )
 {
 	return tagIsAllowed( tag, otags.current() ); //, acm );
@@ -668,11 +655,7 @@ Httag&
 Httag::addContent<Httag>( Httag content )
 {
 // first, make sure the tag we what to insert is allowed
-	auto res = priv::tagIsAllowed(
-		content.getTag(),
-		getTag()
-//		Httag::p_getAllowedContentMap()
-	);
+	auto res = priv::tagIsAllowed( content.getTag(), getTag() );
 
 	if( !res.first )
 		HTTAG_FATAL_ERROR( std::string("attempting to insert <")
@@ -810,7 +793,7 @@ Httag::openTag( std::string __file, int __line )
 			if( p_getOpenedTags().current() == _tag_en )
 				HTTAG_FATAL_ERROR_FL( std::string("attempt to open tag <") + getString(_tag_en) + "> but currently opened tag is identical" );
 
-			auto check = priv::tagIsAllowed( _tag_en, p_getOpenedTags() ); //, p_getAllowedContentMap() );
+			auto check = priv::tagIsAllowed( _tag_en, p_getOpenedTags() );
 			if( !check.first )
 				HTTAG_FATAL_ERROR_FL(
 					std::string("attempt to open tag <")
@@ -879,52 +862,90 @@ Httag::closeTag( std::string __file, int __line, bool linefeed )
 	if( p_getCTCC() )       // if option set, clear content
 		clearContent();
 }
+
 //-----------------------------------------------------------------------------------
-/// Insert tag \c t2 and its content into \c tag. Will get printed later
-Httag&
-operator << ( Httag& tag, const Httag& t2 )
+#ifdef FACTORIZATION_ATTEMPT
+/// Helper function for operator << for 2 tags
+template<typename T1,typename T2>
+T1
+streamTagInTag( T1 tag, T2 t2 )
 {
 //	assert( !tag._isFileType );
 	std::ostringstream oss;
-	oss << tag._content;
 
-	auto check = priv::tagIsAllowed( t2.getTag(), tag.getTag() ); //, Httag::p_getAllowedContentMap() );
+	auto check = priv::tagIsAllowed( t2.getTag(), tag.getTag() );
 	if( check.first )
-		oss << t2;
+		oss << tag._content << t2;
 	else
 		HTTAG_FATAL_ERROR(
 			std::string("tag <")
 			+ getString( t2._tag_en )
 			+ "> not allowed as content inside tag <"
 			+ getString( tag._tag_en )
-			+ ">"
+			+ ">, cause: "
+			+ getString(check.second)
 		);
 
 	tag._content = oss.str();
 	return tag;
 }
-/// V2: NOT CONST. Insert tag \c t2 and its content into \c tag. Will get printed later
+#endif
+//-----------------------------------------------------------------------------------
+/// Insert tag \c t2 and its content into \c tag. Will get printed later. const version
 Httag&
-operator << ( Httag& tag, /* const*/ Httag& t2 )
+operator << ( Httag& tag, const Httag& t2 )
 {
+#ifndef FACTORIZATION_ATTEMPT
 //	assert( !tag._isFileType );
 	std::ostringstream oss;
-	oss << tag._content;
 
-	auto check = priv::tagIsAllowed( t2.getTag(), tag.getTag() ); //, Httag::p_getAllowedContentMap() );
+	auto check = priv::tagIsAllowed( t2.getTag(), tag.getTag() );
 	if( check.first )
-		oss << t2;
+		oss << tag._content << t2;
 	else
 		HTTAG_FATAL_ERROR(
 			std::string("tag <")
 			+ getString( t2._tag_en )
 			+ "> not allowed as content inside tag <"
 			+ getString( tag._tag_en )
-			+ ">"
+			+ ">, cause: "
+			+ getString(check.second)
 		);
 
 	tag._content = oss.str();
 	return tag;
+#else
+	return streamTagInTag( tag, t2 )	;
+#endif
+}
+//-----------------------------------------------------------------------------------
+/// Insert tag \c t2 and its content into \c tag. Will get printed later. NOT const version
+Httag&
+operator << ( Httag& tag, Httag& t2 )
+{
+#ifndef FACTORIZATION_ATTEMPT
+//	assert( !tag._isFileType );
+	std::ostringstream oss;
+
+	auto check = priv::tagIsAllowed( t2.getTag(), tag.getTag() );
+	if( check.first )
+//		oss << t2;
+		oss << tag._content << t2;
+	else
+		HTTAG_FATAL_ERROR(
+			std::string("tag <")
+			+ getString( t2._tag_en )
+			+ "> not allowed as content inside tag <"
+			+ getString( tag._tag_en )
+			+ ">, cause: "
+			+ getString(check.second)
+		);
+
+	tag._content = oss.str();
+	return tag;
+#else
+	return streamTagInTag( tag, t2 )	;
+#endif
 }
 
 //-----------------------------------------------------------------------------------
@@ -972,7 +993,6 @@ Httag::getGlobalAttrib( En_Httag tag )
 /**
 If the attribute is already present, then the value will be concatenated to the previous value
 */
-#if 1
 template<>
 Httag&
 Httag::addAttrib<std::string>( En_Attrib attr, std::string value, std::string __file, int __line )
@@ -992,7 +1012,6 @@ Httag::addAttrib<const char*>( En_Attrib attr, const char* value, std::string __
 	p_addAttrib( attr, value, __file, __line );
 	return *this;
 }
-#endif
 //-----------------------------------------------------------------------------------
 /// Add an HTML attribute to the tag (templated generic version)
 /**
@@ -1209,7 +1228,7 @@ operator << ( std::ostream& s, const Httag& h )
 // NOT CONST VERSION
 inline
 std::ostream&
-operator << ( std::ostream& s, /*const*/ Httag& h )
+operator << ( std::ostream& s, Httag& h )
 {
 //	std::cout << "operator <<: _isFileType=" << h._isFileType << "\n";
 //	h._tagIsOpen = true;
@@ -1251,13 +1270,7 @@ print_A( std::ostream& f, const AllowedContent& ac )
 {
 	Httag::setClosingTagClearsContent( true );
 	Httag td( f, HT_TD );
-/*	if( ac.isEmpty() )
-	{
-		td << "EMTPY";
-		f << td << td << td << td;
-		return;
-	}
-*/
+
 	for( auto e: ac._v_allowedCats )
 	{
 		Httag ta( HT_A, getString( e ), AT_HREF, std::string("#c_") + getString( e ) );

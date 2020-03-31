@@ -53,13 +53,15 @@ TEST_CASE( "test1", "[t1]" )
 		std::ostringstream oss1, oss2;
 		Httag t1( HT_P );
 		t1 << "some";
-		t1 << " text";
+		t1 << " text ";
+		t1 << 42;
 		oss1 << t1;
-		CHECK( oss1.str() == "<p>some text</p>" );
+		CHECK( oss1.str() == "<p>some text 42</p>" );
 
 		Httag t2( HT_P );
 		t2.setContent( "some " );
-		t2.addContent( "text" );
+		t2.addContent( "text " );
+		t2.addContent( 42 );
 		oss2 << t2;
 		CHECK( oss1.str() == oss2.str() );
 	}
