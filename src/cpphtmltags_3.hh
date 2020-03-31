@@ -191,7 +191,6 @@ AllowedContentMap::print( std::ostream& f ) const
 	f << "\n -Nb tags = " << _map_AllowedContent.size() << '\n';
 }
 //-----------------------------------------------------------------------------------
-
 enum En_UnallowedTag { UT_Undef, UT_ForbiddenTag, UT_ForbiddenCat, UT_NotAllowed };
 
 
@@ -200,6 +199,35 @@ void p_printTable_1( std::ostream&, std::string id );
 
 // forward declaration, needed because it gets declared as friend in Httag but is in a sub-namespace
 std::pair<bool,En_UnallowedTag> tagIsAllowed( En_Httag, En_Httag );
+
+/// Helper function for operator << for 2 tags
+/// \todo replace oss << tag._content << t2; with oss << t2; and tag._content = oss.str(); with tag._content += oss.str();
+template<typename T1,typename T2>
+T1&
+streamTagInTag( T1& tag, T2& t2 )
+{
+//	assert( !tag._isFileType );
+	std::ostringstream oss;
+
+	auto check = priv::tagIsAllowed( t2.getTag(), tag.getTag() );
+	if( check.first )
+	{
+		oss << tag._content;
+		oss << t2;
+	}
+	else
+		HTTAG_FATAL_ERROR(
+			std::string("tag <")
+			+ getString( t2._tag_en )
+			+ "> not allowed as content inside tag <"
+			+ getString( tag._tag_en )
+			+ ">, cause: "
+			+ getString(check.second)
+		);
+
+	tag._content = oss.str();
+	return tag;
+}
 
 } // namespace priv
 
@@ -210,7 +238,6 @@ enum En_LineFeedMode
 	LF_None, LF_Always, LF_Default
 };
 
-//#define FACTORIZATION_ATTEMPT
 //-----------------------------------------------------------------------------------
 /// HTML tag
 /**
@@ -218,16 +245,12 @@ Main class, see homepage for details
 */
 class Httag
 {
+	template<typename T1,typename T2>
+	friend T1& priv::streamTagInTag( T1& tag, T2& t2 );
+
 	template<typename T>
 	friend Httag&        operator << ( Httag&, const T& );
 
-#ifdef FACTORIZATION_ATTEMPT
-	template<typename T1,typename T2>
-	friend T1 streamTagInTag( T1 tag, T2 t2 );
-#else
-	friend Httag&        operator << ( Httag&, const Httag& );
-	friend Httag&        operator << ( Httag&,       Httag& );
-#endif
 	friend std::ostream& operator << ( std::ostream& stream, const Httag& );
 	friend std::ostream& operator << ( std::ostream& stream,       Httag& );
 
@@ -863,89 +886,20 @@ Httag::closeTag( std::string __file, int __line, bool linefeed )
 		clearContent();
 }
 
-//-----------------------------------------------------------------------------------
-#ifdef FACTORIZATION_ATTEMPT
-/// Helper function for operator << for 2 tags
-template<typename T1,typename T2>
-T1
-streamTagInTag( T1 tag, T2 t2 )
-{
-//	assert( !tag._isFileType );
-	std::ostringstream oss;
 
-	auto check = priv::tagIsAllowed( t2.getTag(), tag.getTag() );
-	if( check.first )
-		oss << tag._content << t2;
-	else
-		HTTAG_FATAL_ERROR(
-			std::string("tag <")
-			+ getString( t2._tag_en )
-			+ "> not allowed as content inside tag <"
-			+ getString( tag._tag_en )
-			+ ">, cause: "
-			+ getString(check.second)
-		);
-
-	tag._content = oss.str();
-	return tag;
-}
-#endif
 //-----------------------------------------------------------------------------------
 /// Insert tag \c t2 and its content into \c tag. Will get printed later. const version
 Httag&
 operator << ( Httag& tag, const Httag& t2 )
 {
-#ifndef FACTORIZATION_ATTEMPT
-//	assert( !tag._isFileType );
-	std::ostringstream oss;
-
-	auto check = priv::tagIsAllowed( t2.getTag(), tag.getTag() );
-	if( check.first )
-		oss << tag._content << t2;
-	else
-		HTTAG_FATAL_ERROR(
-			std::string("tag <")
-			+ getString( t2._tag_en )
-			+ "> not allowed as content inside tag <"
-			+ getString( tag._tag_en )
-			+ ">, cause: "
-			+ getString(check.second)
-		);
-
-	tag._content = oss.str();
-	return tag;
-#else
-	return streamTagInTag( tag, t2 )	;
-#endif
+	return priv::streamTagInTag( tag, t2 );
 }
 //-----------------------------------------------------------------------------------
-/// Insert tag \c t2 and its content into \c tag. Will get printed later. NOT const version
+/// Insert tag \c t2 and its content into \c tag. Will get printed later. NON const version
 Httag&
 operator << ( Httag& tag, Httag& t2 )
 {
-#ifndef FACTORIZATION_ATTEMPT
-//	assert( !tag._isFileType );
-	std::ostringstream oss;
-
-	auto check = priv::tagIsAllowed( t2.getTag(), tag.getTag() );
-	if( check.first )
-//		oss << t2;
-		oss << tag._content << t2;
-	else
-		HTTAG_FATAL_ERROR(
-			std::string("tag <")
-			+ getString( t2._tag_en )
-			+ "> not allowed as content inside tag <"
-			+ getString( tag._tag_en )
-			+ ">, cause: "
-			+ getString(check.second)
-		);
-
-	tag._content = oss.str();
-	return tag;
-#else
-	return streamTagInTag( tag, t2 )	;
-#endif
+	return priv::streamTagInTag( tag, t2 );
 }
 
 //-----------------------------------------------------------------------------------
@@ -1194,6 +1148,7 @@ Httag::p_doLineFeed( bool linefeed ) const
 /**
 \warning: as the streamed tag (\c h) is const, the automatic content clearing
 (see \ref run_time_option) can not happen!
+\todo Needs to be factorized !
 */
 inline
 std::ostream&
@@ -1225,7 +1180,8 @@ operator << ( std::ostream& s, const Httag& h )
 	return s;
 }
 
-// NOT CONST VERSION
+//-----------------------------------------------------------------------------------
+// NON CONST VERSION
 inline
 std::ostream&
 operator << ( std::ostream& s, Httag& h )

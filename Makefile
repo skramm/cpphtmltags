@@ -17,6 +17,8 @@ TEST_FILE      :=test_A.cpp
 #CFLAGS := -std=c++11 -g
 CFLAGS := -std=c++11 -s
 
+all: test demo doc
+
 # -s option: also prints successful tests
 test: build/testapp
 	@echo "-Start test"
@@ -48,7 +50,7 @@ doc: build/html/index.html
 
 cleandoc:
 	-rm build/html/*
-	
+
 build/html/index.html:$(SRC_FILE) build/supported $(MD_FILES)
 	cp misc/supported.css build/
 	build/supported -html >build/supported.html
@@ -66,4 +68,4 @@ show:
 diff:
 	git diff ':!$(SRC_FILE)' | colordiff | aha>/tmp/diff.html
 	xdg-open /tmp/diff.html
-	
+

@@ -39,30 +39,6 @@ struct AllowedContent
 	{
 		_v_allowedCats.push_back( en );
 	}
-#if 0
-	bool isEmpty() const
-	{
-#if 1
-		if( _isVoid == true )
-			return false;
-		if( _isText == true )
-			return false;
-#else
-		if( isVoidElement(tt) )
-			return false;
-#endif
-
-		if( _v_allowedTags.size() )
-			return false;
-		if( _v_allowedCats.size() )
-			return false;
-		if( _v_forbiddenTags.size() )
-			return false;
-		if( _v_forbiddenCats.size() )
-			return false;
-		return true;
-	}
-#endif
 };
 
 //--- END: TEMPLATE FILE cpphtmltags_2.hh
