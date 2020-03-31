@@ -147,71 +147,11 @@ class OpenedTags
 		}
 };
 
-enum En_UnallowedTag { UT_Undef, UT_ForbiddenTag, UT_ForbiddenCat, UT_NotAllowed };
 
-inline
-std::string
-getString( En_UnallowedTag cause )
-{
-	switch( cause )
-	{
-		case UT_ForbiddenTag:  return "ForbiddenTag";
-		case UT_ForbiddenCat:  return "ForbiddenCat";
-		case UT_Undef:         return "Undefined";
-		case UT_NotAllowed:    return "NotAllowed";
-		default: assert(0);
-	}
-	return std::string(); // to avoid a build warning
-}
-//-----------------------------------------------------------------------------------
-/// Returns true if \c tag is allowed inside tag \c parent
-inline
-std::pair<bool,En_UnallowedTag>
-tagIsAllowed(
-	En_Httag                 tag,    ///< the tag
-	En_Httag                 parent, ///< parent tag
-	const AllowedContentMap& acm     ///< reference data
-)
-{
-	if( tag == HT_DOCTYPE )
-		return std::make_pair(true,UT_Undef);
+// forward declaration
+//class Httag;
 
-	const auto& ac = acm.get( parent ); // allowed content of currently (latest) opened tag
 
-	for( auto e: ac._v_forbiddenTags )
-		if( e == tag )
-			return std::make_pair(false,UT_ForbiddenTag);
-
-	for( auto cat: ac._v_forbiddenCats )
-		if( tagBelongsToCat( tag, cat ) )
-			return std::make_pair(false,UT_ForbiddenCat);
-
-	if( ac._v_allowedCats.empty() && ac._v_allowedTags.empty() )
-		return std::make_pair(true,UT_Undef);
-	else
-	{
-		for( auto cat: ac._v_allowedCats )
-			if( tagBelongsToCat( tag, cat ) )
-				return std::make_pair(true,UT_Undef);
-
-		for( auto e: ac._v_allowedTags )
-			if( e == tag )
-				return std::make_pair(true,UT_Undef);
-	}
-	return std::make_pair(false,UT_NotAllowed);
-}
-//-----------------------------------------------------------------------------------
-/// Returns true if \c tag is allowed inside current tag chain
-inline
-std::pair<bool,En_UnallowedTag>
-tagIsAllowed(
-	En_Httag                 tag,    ///< the tag
-	const OpenedTags&        otags,  ///< current context
-	const AllowedContentMap& acm     ///< reference data
-)
-{
-	return tagIsAllowed( tag, otags.current(), acm );
-}
 
 //-----------------------------------------------------------------------------------
 /// Helper function for AllowedContentMap::print()
@@ -264,8 +204,15 @@ AllowedContentMap::print( std::ostream& f ) const
 }
 //-----------------------------------------------------------------------------------
 
+enum En_UnallowedTag { UT_Undef, UT_ForbiddenTag, UT_ForbiddenCat, UT_NotAllowed };
+
+
 // forward declaration, needed because it gets declared as friend in Httag but is in a sub-namespace
 void p_printTable_1( std::ostream&, std::string id );
+
+// forward declaration
+std::pair<bool,En_UnallowedTag> tagIsAllowed( En_Httag, En_Httag );
+
 
 } // namespace priv
 
@@ -294,6 +241,8 @@ class Httag
 	friend std::ostream& operator << ( std::ostream& stream, const Httag& );
 	friend std::ostream& operator << ( std::ostream& stream, /*const*/ Httag& );
 	friend void priv::p_printTable_1( std::ostream&, std::string id );
+
+	friend std::pair<bool,priv::En_UnallowedTag> priv::tagIsAllowed( En_Httag, En_Httag );
 
 	public:
 /// \name Constructors & destructors
@@ -462,6 +411,79 @@ class Httag
 		bool            _tagIsOpen     = false;
 		std::map<En_Attrib,std::string> _attr_map;
 };
+
+
+
+namespace priv {
+
+inline
+std::string
+getString( En_UnallowedTag cause )
+{
+	switch( cause )
+	{
+		case UT_ForbiddenTag:  return "ForbiddenTag";
+		case UT_ForbiddenCat:  return "ForbiddenCat";
+		case UT_Undef:         return "Undefined";
+		case UT_NotAllowed:    return "NotAllowed";
+		default: assert(0);
+	}
+	return std::string(); // to avoid a build warning
+}
+
+
+//-----------------------------------------------------------------------------------
+/// Returns true if \c tag is allowed inside tag \c parent
+inline
+std::pair<bool,En_UnallowedTag>
+tagIsAllowed(
+	En_Httag                 tag,    ///< the tag
+	En_Httag                 parent ///< parent tag
+//	const AllowedContentMap& acm     ///< reference data
+)
+{
+	if( tag == HT_DOCTYPE )
+		return std::make_pair(true,UT_Undef);
+
+	const auto& acm = Httag::p_getAllowedContentMap(); // allowed content of currently (latest) opened tag
+	const auto& ac = acm.get( parent ); // allowed content of currently (latest) opened tag
+
+	for( auto e: ac._v_forbiddenTags )
+		if( e == tag )
+			return std::make_pair(false,UT_ForbiddenTag);
+
+	for( auto cat: ac._v_forbiddenCats )
+		if( tagBelongsToCat( tag, cat ) )
+			return std::make_pair(false,UT_ForbiddenCat);
+
+	if( ac._v_allowedCats.empty() && ac._v_allowedTags.empty() )
+		return std::make_pair(true,UT_Undef);
+	else
+	{
+		for( auto cat: ac._v_allowedCats )
+			if( tagBelongsToCat( tag, cat ) )
+				return std::make_pair(true,UT_Undef);
+
+		for( auto e: ac._v_allowedTags )
+			if( e == tag )
+				return std::make_pair(true,UT_Undef);
+	}
+	return std::make_pair(false,UT_NotAllowed);
+}
+//-----------------------------------------------------------------------------------
+/// Returns true if \c tag is allowed inside current tag chain
+inline
+std::pair<bool,En_UnallowedTag>
+tagIsAllowed(
+	En_Httag                 tag,    ///< the tag
+	const OpenedTags&        otags  ///< current context
+//	const AllowedContentMap& acm     ///< reference data
+)
+{
+	return tagIsAllowed( tag, otags.current() ); //, acm );
+}
+
+} // namespace priv
 
 
 //-----------------------------------------------------------------------------------
@@ -648,8 +670,8 @@ Httag::addContent<Httag>( Httag content )
 // first, make sure the tag we what to insert is allowed
 	auto res = priv::tagIsAllowed(
 		content.getTag(),
-		getTag(),
-		Httag::p_getAllowedContentMap()
+		getTag()
+//		Httag::p_getAllowedContentMap()
 	);
 
 	if( !res.first )
@@ -788,7 +810,7 @@ Httag::openTag( std::string __file, int __line )
 			if( p_getOpenedTags().current() == _tag_en )
 				HTTAG_FATAL_ERROR_FL( std::string("attempt to open tag <") + getString(_tag_en) + "> but currently opened tag is identical" );
 
-			auto check = tagIsAllowed( _tag_en, p_getOpenedTags(), p_getAllowedContentMap() );
+			auto check = priv::tagIsAllowed( _tag_en, p_getOpenedTags() ); //, p_getAllowedContentMap() );
 			if( !check.first )
 				HTTAG_FATAL_ERROR_FL(
 					std::string("attempt to open tag <")
@@ -866,7 +888,7 @@ operator << ( Httag& tag, const Httag& t2 )
 	std::ostringstream oss;
 	oss << tag._content;
 
-	auto check = tagIsAllowed( t2.getTag(), tag.getTag(), Httag::p_getAllowedContentMap() );
+	auto check = priv::tagIsAllowed( t2.getTag(), tag.getTag() ); //, Httag::p_getAllowedContentMap() );
 	if( check.first )
 		oss << t2;
 	else
@@ -889,7 +911,7 @@ operator << ( Httag& tag, /* const*/ Httag& t2 )
 	std::ostringstream oss;
 	oss << tag._content;
 
-	auto check = tagIsAllowed( t2.getTag(), tag.getTag(), Httag::p_getAllowedContentMap() );
+	auto check = priv::tagIsAllowed( t2.getTag(), tag.getTag() ); //, Httag::p_getAllowedContentMap() );
 	if( check.first )
 		oss << t2;
 	else
