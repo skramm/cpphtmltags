@@ -22,20 +22,7 @@ struct AllowedContent
 	std::vector<En_Httag>  _v_forbiddenTags;
 	std::vector<En_TagCat> _v_allowedCats;
 	std::vector<En_TagCat> _v_forbiddenCats;
-//	bool _isVoid = false;
-//	bool _isText = false;
 
-/// Type of tag
-//	enum En_TagType{ TT_NEITHER, TT_VOID, TT_TEXT };
-
-	/// Constructor
-	AllowedContent() // En_TagType tt=TT_NEITHER )
-	{
-/*		if( tt == TT_VOID )
-			_isVoid = true;
-		if( tt == TT_TEXT )
-			_isText = true; */
-	}
 	void addForbiddenTag( En_Httag en )
 	{
 		_v_forbiddenTags.push_back( en );

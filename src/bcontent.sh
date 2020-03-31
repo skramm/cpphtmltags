@@ -3,9 +3,14 @@
 # file: bcontent.sh
 # author: S. Kramm
 
+# This file is part of cpphtmltags
 # generation of C++ code
 # builds map of content allowed into a tag
 # build class httag::priv::AllowedContentMap
+
+
+echo "Running $(basename $0)"
+
 
 #**************************************************
 function print_header()
@@ -17,8 +22,6 @@ function print_header()
 #**************************************************
 
 
-echo "Running bcontent.sh"
-
 file_input=ref/tag_content.ref
 file_out=build/tmp/tag_content.src
 file_out2=build/tmp/is_void.src
@@ -26,7 +29,7 @@ file_out3=build/tmp/is_text.src
 
 # START
 set +x
-mkdir -p build/tmp
+
 
 print_header $file_out
 echo "/// Holds for each tag its allowed content. Build-time generated type.">> $file_out
@@ -66,17 +69,13 @@ do
 
 			if [ "${b:0:2}" = "E_" ]; then                 # if either "void" or "text content" type
 				if [ "$b" = "E_VOID" ]; then
-#					echo -e "\t\t{\n\t\t\tAllowedContent ac(AllowedContent::TT_VOID);">> $file_out
 					echo -e "\t\tcase HT_$at:">> $file_out2
 				fi
 				if [ "$b" = "E_TEXT" ]; then
-#					echo -e "\t\t{\n\t\t\tAllowedContent ac(AllowedContent::TT_TEXT);">> $file_out
 					echo -e "\t\tcase HT_$at:">> $file_out3
 				fi
 			else                                          # if not, just default-instanciate
-#				echo -e "\t\t{\n\t\t\tAllowedContent ac;">> $file_out
 				IFS=',' read -ra TAG <<< "$b"
-#				echo "a=$a b=$b, processing $TAG"
 				for t in "${TAG[@]}";
 				do
 					t2=$(echo $t | tr '[:lower:]' '[:upper:]')
