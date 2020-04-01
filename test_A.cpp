@@ -450,7 +450,7 @@ TEST_CASE( "test_ac", "[t6]" ) // testing allowed content in a tag
 		Httag li( oss, HT_LI );
 		CHECK_THROWS( li.openTag() );  // <li> not allowed in <p>
 
-		CHECK_THROWS( p << Httag( oss, HT_LI ) );  // <li> not allowed in <p>
+		CHECK_THROWS( p << Httag( HT_LI ) );  // <li> not allowed in <p>
 		oss << p;
 	}
 }

@@ -148,11 +148,6 @@ class OpenedTags
 };
 
 
-// forward declaration
-//class Httag;
-
-
-
 //-----------------------------------------------------------------------------------
 /// Helper function for AllowedContentMap::print()
 template<typename T>
@@ -202,7 +197,7 @@ std::pair<bool,En_UnallowedTag> tagIsAllowed( En_Httag, En_Httag );
 
 /// Helper function for operator << for 2 tags
 /// \todo replace oss << tag._content << t2; with oss << t2; and tag._content = oss.str(); with tag._content += oss.str();
-template<typename T1,typename T2>
+template<typename T1, typename T2>
 T1&
 streamTagInTag( T1& tag, T2& t2 )
 {
@@ -229,7 +224,9 @@ streamTagInTag( T1& tag, T2& t2 )
 	return tag;
 }
 
+//############################
 } // namespace priv
+//############################
 
 //-----------------------------------------------------------------------------------
 /// Line Feed Mode. See [manual](md_manual.html#linefeed)
@@ -377,7 +374,8 @@ class Httag
 		}
 
 		static void printSupported( std::ostream& );
-		static void printSupportedHtml( std::ostream& );
+		template<typename T>
+		static void printSupportedHtml( std::ostream&, T );
 		static size_t printOpenedTags( std::ostream&, const char* msg=0 );
 
 	private:
@@ -425,10 +423,20 @@ class Httag
 		std::map<En_Attrib,std::string> _attr_map;
 };
 
+template<typename T>
+Httag&
+operator << ( Httag& tag, T& t2 )
+{
+	return priv::streamTagInTag( tag, t2 );
+}
 
 
+//-----------------------------------------------------------------------------------
+//############################
 namespace priv {
+//############################
 
+//-----------------------------------------------------------------------------------
 inline
 std::string
 getString( En_UnallowedTag cause )
@@ -493,7 +501,9 @@ tagIsAllowed(
 	return tagIsAllowed( tag, otags.current() ); //, acm );
 }
 
+//############################
 } // namespace priv
+//############################
 
 
 //-----------------------------------------------------------------------------------
@@ -710,7 +720,9 @@ void Httag::printTag()
 	printWithContent( "" );
 }
 
+//############################
 namespace priv {
+//############################
 
 
 bool
@@ -727,7 +739,9 @@ isNotEmpty( T stuff )
 }
 
 
+//############################
 }  // namespace priv
+//############################
 
 //-----------------------------------------------------------------------------------
 /// Prints whole tag:
@@ -886,7 +900,7 @@ Httag::closeTag( std::string __file, int __line, bool linefeed )
 		clearContent();
 }
 
-
+#if 0
 //-----------------------------------------------------------------------------------
 /// Insert tag \c t2 and its content into \c tag. Will get printed later. const version
 Httag&
@@ -901,7 +915,7 @@ operator << ( Httag& tag, Httag& t2 )
 {
 	return priv::streamTagInTag( tag, t2 );
 }
-
+#endif
 //-----------------------------------------------------------------------------------
 /// Insert some content into \c tag. Will get printed later
 template<typename T>
@@ -1218,8 +1232,11 @@ operator << ( std::ostream& s, Httag& h )
 }
 
 //-----------------------------------------------------------------------------------
+//############################
 namespace priv {
+//############################
 
+#ifndef HTTAG_NO_REFERENCE_TABLES
 /// Helper function for p_printTable_1()
 void
 print_A( std::ostream& f, const AllowedContent& ac )
@@ -1262,9 +1279,9 @@ void
 p_printTable_1( std::ostream& f, std::string table_id )
 {
 	Httag::setClosingTagClearsContent( true );
-	f << Httag( HT_H2, "Supported tags and categories" );
+	f << Httag( HT_H2, "Supported tags and categories", AT_ID, table_id );
 	{
-		Httag table( f, HT_TABLE, AT_ID, table_id );
+		Httag table( f, HT_TABLE );
 		table.openTag();
 		{
 			Httag tr( f, HT_TR );
@@ -1341,9 +1358,9 @@ p_printTable_1( std::ostream& f, std::string table_id )
 void
 p_printTable_2( std::ostream& f, std::string table_id )
 {
-	f << Httag( HT_H2, "Supported attributes" );
+	f << Httag( HT_H2, "Supported attributes", AT_ID, table_id );
 	{
-		Httag table( f, HT_TABLE, AT_ID, table_id );
+		Httag table( f, HT_TABLE );
 		table.openTag();
 		{
 			Httag tr( f, HT_TR );
@@ -1392,9 +1409,9 @@ p_printTable_2( std::ostream& f, std::string table_id )
 void
 p_printTable_3( std::ostream& f, std::string table_id )
 {
-	f << Httag( HT_H2, "Tag categories" );
+	f << Httag( HT_H2, "Tag categories", AT_ID, table_id );
 	{
-		Httag table( f, HT_TABLE, AT_ID, table_id );
+		Httag table( f, HT_TABLE );
 		table.openTag();
 		{
 			Httag tr( f, HT_TR );
@@ -1426,20 +1443,84 @@ p_printTable_3( std::ostream& f, std::string table_id )
 	}
 }
 //-----------------------------------------------------------------------------------
+/// Prints HTML table of tag categories
+/** Helper function, called by Httag::printSupportedHtml() */
+void
+p_printTable_4( std::ostream& f, std::string table_id )
+{
+	f << Httag( HT_H2, "Cross reference of tag categories", AT_ID, table_id );
+	std::vector<std::vector<En_Httag>> tagSet( priv::C_DUMMY ); // one vector per category
 
+	Httag table( f, HT_TABLE );
+	table.openTag();
+	{
+		Httag tr( f, HT_TR );
+		tr << Httag( HT_TH, AT_CLASS, "col1" );
+
+		for( size_t i=0; i<priv::C_DUMMY; i++ )    // line header
+		{
+			auto cat = static_cast<En_TagCat>(i);
+			tr << Httag( HT_TH, getString( cat ) );
+
+			for( size_t j=0; j<HT_DUMMY; j++ )                   // build list of contained tags
+				if( tagBelongsToCat( static_cast<En_Httag>(j), cat ) )
+					tagSet[i].push_back( static_cast<En_Httag>(j) );
+		}
+		f << tr;
+
+		for( size_t i=0; i<priv::C_DUMMY; i++ )                     // iterating lines
+		{
+			tr.openTag();
+			auto cat1 = static_cast<En_TagCat>(i);
+			f << Httag( HT_TH, getString( cat1 ) );
+			for( size_t j=0; j<priv::C_DUMMY; j++ )                // iterating columns
+			{
+				if( i < j )
+				{
+					std::vector<En_Httag> intersect;
+					auto it = std::set_intersection(
+						std::begin( tagSet[i] ),
+						std::end(   tagSet[i] ),
+						std::begin( tagSet[j] ),
+						std::end(   tagSet[j] ),
+						std::back_inserter( intersect )
+					);
+					Httag td( HT_TD );
+					if( !intersect.empty() )
+						td << Httag( HT_STRONG, std::string("#") + std::to_string( intersect.size() ) ) << Httag( HT_BR );
+					for( auto tag: intersect )
+						td << g_lt + getString( tag ) + g_gt;
+					f << td;
+				}
+				else
+					f << Httag( HT_TD, AT_CLASS, "empty" );
+
+			}
+			tr.closeTag();
+		}
+	}
+}
+//-----------------------------------------------------------------------------------
+
+#endif // HTTAG_NO_REFERENCE_TABLES
+
+//############################
 } // namespace priv end
-
+//############################
 
 //-----------------------------------------------------------------------------------
 /// Helper function, prints the tags and attributes currently supported, HTML version
 /* See related Httag::printSupported()
 \todo Print data in AllowedContentMap in a 4th table
 **/
-inline
+//inline
+template<typename T>
 void
-Httag::printSupportedHtml( std::ostream& f )
+Httag::printSupportedHtml( std::ostream& f, T )
 {
-
+#ifdef HTTAG_NO_REFERENCE_TABLES
+	f << "Error: build without printing of reference tables enabled\n";
+#else
 	f << Httag( HT_DOCTYPE );
 
 	Httag h( f, HT_HEAD);
@@ -1467,15 +1548,22 @@ Httag::printSupportedHtml( std::ostream& f )
 		li.printTag();
 		li << Httag( HT_A, "Tag categories list", AT_HREF, "#t3" );
 		li.printTag();
+		li << Httag( HT_A, "Cross reference of tag categories", AT_HREF, "#t4" );
+		li.printTag();
 	}
 	priv::p_printTable_1( f, "t1" );
 	priv::p_printTable_2( f, "t2" );
 	priv::p_printTable_3( f, "t3" );
+	priv::p_printTable_4( f, "t4" );
+
+#endif  // HTTAG_NO_REFERENCE_TABLES
 }
 //-----------------------------------------------------------------------------------
 
 
+//############################
 } // namespace httag end
+//############################
 
 #endif // HG_CPPHTMLTAGS_HPP
 

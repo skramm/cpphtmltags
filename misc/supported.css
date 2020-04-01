@@ -53,6 +53,7 @@ table#t1 th.col3 { width:5em; }
 
 table#t2 th.col3 { width:5em; }
 table#t2 th.col4 { width:5em; }
+table#t4 th.col1 { width:8em; }
 
 td{
 	word-wrap: break-word;
@@ -60,3 +61,5 @@ td{
 }
 
 tr:nth-child(even) {background: #eee;}
+
+table#t4 td.empty { background-color: #ddd; }

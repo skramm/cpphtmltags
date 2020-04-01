@@ -15,6 +15,7 @@ TEST_FILE      :=test_A.cpp
 # -g: for debut, if needed
 # -s: strip unnecessary strings
 #CFLAGS := -std=c++11 -g
+#CFLAGS := -std=c++11 -s -DHTTAG_NO_REFERENCE_TABLES
 CFLAGS := -std=c++11 -s
 
 all: test demo doc
@@ -37,7 +38,7 @@ $(SRC_FILE): $(TEMPLATE_FILES) $(REF_FILES) $(BUILD_SCRIPTS)
 demo: $(EXE_DEMO_FILES) Makefile
 	@echo done
 
-build/%:demo/%.cpp $(SRC_FILE)
+build/%:demo/%.cpp $(SRC_FILE) Makefile
 	$(CXX) -o $@ $(CFLAGS) $<
 
 

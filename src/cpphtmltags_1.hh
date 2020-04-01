@@ -135,9 +135,12 @@ Refs:
 		std::cerr << "\nhttag error: (adding attribute)" << err.what(); \
 	}
 
-
+//############################
 namespace httag {
+//############################
 
+// forward declaration
+class Httag;
 
 //--- END: TEMPLATE FILE cpphtmltags_1.hh
 

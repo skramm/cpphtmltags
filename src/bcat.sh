@@ -25,7 +25,9 @@ file_out3=build/tmp/cat_switch.src
 # START
 set +x
 
-echo -e "namespace priv {\n"> $file_out1
+echo "//############################"> $file_out1
+echo "namespace priv {">> $file_out1
+echo "//############################">> $file_out1
 
 echo "/// Enum holding tag categories">> $file_out1
 echo "/** See https://html.spec.whatwg.org/multipage/dom.html#kinds-of-content */">> $file_out1
