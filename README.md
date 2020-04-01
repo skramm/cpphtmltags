@@ -84,7 +84,6 @@ will produce:
 
 For more details, see [manual](docs/manual.md).
 
-For more details, see [manual](manual.md).
 
 ## HTML 5 coverage
 - covers all Html5 tags ("elements") and all attributes (see page build/supported.html, generated with `make doc`)
