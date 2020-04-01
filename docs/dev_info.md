@@ -17,8 +17,8 @@ The final file is build according to this diagram:
 <tr><td><code>cpphtmltags_3.hh</code></td></tr>
 </table>
 
-The generated content is build by the bash scripts `build.sh` (and 2 others).
-It takes as input the html reference material that is located in the files located in the `ref` subfolder:
+The generated content is build by the bash scripts `build.sh`, that first calls 3 others, then concatenates the generated content and the "fixed" source files, as per the diagram above.
+The build scripts as input the html reference material that is located in the files located in the `ref` subfolder:
 - `global_attribs.ref`:  holds the list of global attributes (the one that can be used with any html element).
 - `bool_attribs.ref`: holds the list of boolean attributes (attributes that have no value, see [manual](manual.md#boolean-attributes)).
 - `valid_attribs.ref`: holds the list of authorized tags for a given attribute, in the form `attrib:tag1,tag2,tag3`.
@@ -28,13 +28,7 @@ It is used along with `global_attribs.ref` to generate a file holding all the at
 
 See <a href="../supported.html">supported tags</a> (page available only on locally-build doc pages).
 
-Four steps:
-- build the reference file holding all the attributes
-- build tags and attributes enum and `getString()` functions from plain text files
-- build c++ code to initialize a map holding for each attribute the tags where they are allowed.
-- concatenate first part of header, this generated code, and final part of header to generate the main header file.
-
-The advantage of such an approach is that in case new tags or attributes are integrated into the standard, only these files need to be edited, before rebuilding the library with the shell scripts.
+The advantage of such an approach is that in case new tags or attributes are integrated into the standard (or in case you spot an error), only these files need to be edited, before rebuilding the library with the shell scripts.
 
 
 ## Static variables
@@ -50,16 +44,17 @@ The variable is build upon first call of the function.
 This project has an automated unit test file, based on the [catch](https://github.com/catchorg/Catch2/) framework.
 If is is installed on your machine, you can run the tests with `make test`.
 Currently used with catch 2.3.0.
-Coverage is currently not complete, but will expand.
+Coverage is fairly complete, but can still expand.
 
 
 ## FAQ
+(unsorted)
 
 Q-How are HTML comments handled (`<!-- content -->`.)?<br>
 A-The library provides the special HT_COMMENT element id: it can be used just as any element, you can put whatever you want inside.
 The formatting takes place only at printing time.
 
-Q-How is the doctype element handled?
+Q-How is the doctype element handled?<br>
 A-The library provides the special HT_DOCTYPE element id.
 The formatting takes place only at printing time.
 

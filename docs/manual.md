@@ -111,7 +111,7 @@ p.closeTag();
 ```
 If `p` is not used afterwards, it would be faster to write:
 ```C++
-std::cout << Httag( std::cout, HT_P, "a paragraph" );
+std::cout << Httag( HT_P, "a paragraph" );
 ```
 
 
@@ -150,7 +150,7 @@ For example:
 ```C++
 Httag a( HT_A, "a link", AT_HREF, "https://somewhere.com" );
 Httag li( HT_LI, a );
-f << li;
+std::cout << li;
 ```
 will produce:<br>
 `<li><a href="https://somewhere.com">a link</a></li>`
@@ -159,14 +159,15 @@ Another way of achieving this would be:
 ```C++
 Httag li( HT_LI );
 li << Httag( HT_A, "a link", AT_HREF, "https://somewhere.com" );
-f << li;
+std::cout << li;
 ```
 
 Even this is possible! :
 ```C++
-	Httag t( HT_DIV, Httag( HT_DIV, "aaa" ) );
+Httag t( HT_DIV, Httag( HT_DIV, "aaa" ) );
+std::cout << t;
 ```
-and will produce (after `t` is streamed): `<div><div>aaa</div></div>`
+and will produce: `<div><div>aaa</div></div>`
 
 
 
@@ -211,7 +212,7 @@ td.clearAttribs();
 #### A.3.2 - Boolean attributes
 
 These are attributes that have no value.
-They are perfectly handled, for exemple the tag `<input>` allows the boolean attribute `checked`.
+For example the tag `<input>` allows the boolean attribute `checked`.
 So you can write
 ```C++
 f << Httag( HT_INPUT ).addAttrib( AT_CHECKED);
@@ -219,8 +220,8 @@ f << Httag( HT_INPUT ).addAttrib( AT_CHECKED);
 which will produce: `<input checked>`.
 
 The only difference is that, for technical considerations due to the way C++ does the template resolution, you cannot add a boolean attribute with the constructor.
-This:<br>`f << Httag( HT_INPUT, AT_CHECKED);`<br>will fail.
-But you can use an empty value.
+This:<br>`f << Httag( HT_INPUT, AT_CHECKED );`<br>will fail.
+But you can use an empty string value.
 This:<br>
 `f << Httag( HT_INPUT, AT_CHECKED, "" );`<br>
 is fine.
@@ -244,10 +245,9 @@ For example:
 An example of usefulness of this features is for the `<a>` tag.
 As you know, you can add the attribute `target="_blank"` to make the link open in another tab/window of the browser.
 So if you want all of your generated links to have automatically this feature, just add this in you code:
-```
+```C++
 Httag::setGlobalAttrib( HT_A, AT_TARGET, "_blank" );
 ```
-
 
 All these are static function, thus the `Httag::` prefix.
 
@@ -262,7 +262,7 @@ td.addAttrib( AT_CLASS, "abc" );
 td.addAttrib( AT_CLASS, "cde" );
 p.printTag();
 ```
-will printout: `<p class="abc cde">text</p>`
+will printout the correct code: `<p class="abc cde">text</p>`
 
 For global attributes, it works the same.
 Please note that the global attribute will always be added at the end of the string.
