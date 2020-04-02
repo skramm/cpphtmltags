@@ -286,6 +286,13 @@ class Httag
 			oss << *this;
 			return oss.str();
 		}
+		operator std::string() const
+		{
+			std::ostringstream oss;
+			oss << *this;
+			return oss.str();
+		}
+
 ///@}
 		void openTag(  std::string file=std::string(), int line=0 );
 		void closeTag( std::string file=std::string(), int line=0, bool linefeed=false );
@@ -962,6 +969,15 @@ operator << ( Httag& tag, const Httag& t )
 	return priv::streamTagInTag( tag, t );
 }
 
+//-----------------------------------------------------------------------------------
+/// Adding a tag (opening, content, closing) to a string
+std::string
+operator + ( const std::string& s, const Httag& t )
+{
+	std::ostringstream oss;
+	oss << s << t.to_string();
+	return oss.str();
+}
 
 //-----------------------------------------------------------------------------------
 /// Insert some content into \c tag. Will get printed later
@@ -1469,7 +1485,8 @@ p_printTable_4( std::ostream& f, int id )
 	for( size_t i=0; i<priv::C_DUMMY; i++ )    // line header
 	{
 		auto cat = static_cast<En_TagCat>(i);
-		tr << Httag( HT_TH, std::to_string(i+1) + Httag(HT_BR).to_string() + getString( cat ) );
+//		tr << Httag( HT_TH, std::to_string(i+1) + Httag(HT_BR).to_string() + getString( cat ) );
+		tr << Httag( HT_TH, std::to_string(i+1) + Httag(HT_BR) + getString( cat ) );
 
 		for( size_t j=0; j<HT_DUMMY; j++ )                   // build list of contained tags
 			if( tagBelongsToCat( static_cast<En_Httag>(j), cat ) )
@@ -1496,7 +1513,7 @@ p_printTable_4( std::ostream& f, int id )
 				);
 				Httag td( HT_TD );
 				if( !intersect.empty() )
-					td << Httag( HT_STRONG, std::string("#") + std::to_string( intersect.size() ) ) << Httag( HT_BR );
+					td << Httag( HT_STRONG, std::string("#") + std::to_string( intersect.size() ) + ":" ) << Httag( HT_BR );
 				for( auto tag: intersect )
 					td << Httag( HT_A, g_lt + getString( tag ) + g_gt, AT_HREF, "#t_" + getString( tag ) );
 				f << td;
@@ -1546,7 +1563,8 @@ Httag::printSupportedHtml( std::ostream& f, T )
 	t2.openTag();
 	f << Httag(	HT_P,
 		"This list is automatically generated from reference data, see " ).addContent(
-			Httag( HT_A, "home page", AT_HREF, "https://github.com/skramm/cpphtmltags/" ).to_string() );
+			Httag( HT_A, "home page", AT_HREF, "https://github.com/skramm/cpphtmltags/" ).to_string()
+		);
 
 	std::ifstream external( "misc/supported.txt" );
 	f << external.rdbuf();

@@ -600,3 +600,30 @@ TEST_CASE( "boolean attributes", "[t10]" )
 	CHECK( oss.str() == "<input checked>" );
 }
 
+TEST_CASE( "constructor as content", "[t11]" )
+{
+//	Httag::setClosingTagClearsContent( false );
+	std::ostringstream oss;
+
+	Httag t( HT_DIV, Httag( HT_DIV, "aaa" ) );
+	oss << t;
+	CHECK( oss.str() == "<div><div>aaa</div></div>" );
+
+	oss.str("");
+	Httag p( HT_P, "This is " + Httag( HT_STRONG, "bold text" ).to_string() );
+	oss << p;
+	CHECK( oss.str() == "<p>This is <strong>bold text</strong></p>" );
+
+	std::string s =  Httag( HT_STRONG, "bold text" );      // auto conversion to string
+	CHECK( s == "<strong>bold text</strong>" );
+
+	s = "This is " + Httag( HT_STRONG, "bold text" );  // so we can write this
+	CHECK( s == "This is <strong>bold text</strong>" );
+
+	oss.str("");
+	Httag p2( HT_P, ( "This is " + Httag( HT_STRONG, "bold text" ) ) );
+	oss << p2;
+	CHECK( oss.str() == "<p>This is <strong>bold text</strong></p>" );
+}
+
+

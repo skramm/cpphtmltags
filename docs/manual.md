@@ -169,6 +169,22 @@ std::cout << t;
 ```
 and will produce: `<div><div>aaa</div></div>`
 
+In some situation, you could want to insert as content a tag with its content AND a string.
+For example<br>
+`<p>This is <strong>bold text</strong></p>`<br>
+Then, you need to transform the Httag object into a string.
+A method `to_string()` is provided, so you can write:
+```C++
+Httag p( HT_P, "This is " + Httag( HT_STRONG, "bold text" ).to_string() );
+std::cout << t;
+```
+But it is in fact unnecessary:
+an implicit conversion to std::string is provided, so you can also write:
+```C++
+Httag p( HT_P, "This is " + Httag( HT_STRONG, "bold text" ) );
+std::cout << t;
+```
+
 
 
 ### A.3 - Attributes

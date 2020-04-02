@@ -1,8 +1,6 @@
 # This file holds the list of all html elements
 # AND the allowed content for each tag, as either a set of tags, or a category
 
-# syntax: one of these 4
-
 # syntax 1:
 # tag:a,b,c,d,C_c1,!e,!C_c2
 # means that inside that tag <tag> are allowed the tags <a>,<b> and <c> and all the tags belonging to category "c1" EXCEPT the tag <e>
@@ -14,8 +12,6 @@
 # - E_VOID: no content at all
 # - E_TEXT: text only content
 
-
-# PRELIMINAR !!!
 
 abbr:C_phrasing
 a:C_transp,!C_interactive
