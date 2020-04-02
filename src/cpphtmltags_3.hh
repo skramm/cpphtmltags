@@ -201,22 +201,11 @@ template<typename T1, typename T2>
 T1&
 streamTagInTag( T1& t1, T2& t2 )
 {
-
-// TMP
-	std::cerr << __FUNCTION__ << "(): t1=" << getString(t1) << " t2=" << getString(t2) << "\n";
-
-//	assert( !tag._isFileType );
 	std::ostringstream oss;
 
 	auto check = priv::tagIsAllowed( t2.getTag(), t1.getTag() );
-	if( t2.getTag() == HT_LI && t1.getTag() == HT_P )
-		std::cerr << "li into p !, check=" << check.first << "\n";
-
 	if( check.first )
-	{
-		oss << t1._content;
-		oss << t2;
-	}
+		oss << t1._content << t2;
 	else
 		HTTAG_FATAL_ERROR(
 			std::string("tag <")
@@ -477,10 +466,6 @@ tagIsAllowed(
 	En_Httag parent  ///< parent tag
 )
 {
-// TMP
-		std::cerr << __FUNCTION__ << "(): parent=" << getString(parent) << " tag=" << getString(tag) << "\n";
-//	if( tag == HT_LI && parent == HT_P )
-
 	if( tag == HT_DOCTYPE )
 		return std::make_pair(true,UT_Undef);
 
@@ -921,28 +906,31 @@ Httag::closeTag( std::string __file, int __line, bool linefeed )
 }
 
 //-----------------------------------------------------------------------------------
-template<typename T>
 Httag&
-operator << ( Httag& tag, T& t )
+operator << ( Httag& tag, Httag& t )
 {
-// TMP
-		std::cerr << __FUNCTION__ << "(): tag=" << getString(tag) << " tatg=" << getString(t) << "\n";
-
 	return priv::streamTagInTag( tag, t );
 }
+
+Httag&
+operator << ( Httag& tag, const Httag& t )
+{
+	return priv::streamTagInTag( tag, t );
+}
+
+
 //-----------------------------------------------------------------------------------
 /// Insert some content into \c tag. Will get printed later
-/**
-\bug here: gets called for T=Httag , should not! If T=Httag, should call operator << ( Httag& tag, T& t )
-*/
 template<typename T>
+/*template<
+	typename T
+	typename std::enable_if<
+		!std::is_same<Httag&,T>::value,T
+	>::type
+>*/
 Httag&
 operator << ( Httag& tag, const T& str )
 {
-//	assert( !tag._isFileType );
-// TMP
-		std::cerr << __FUNCTION__ << "(): tag=" << getString(tag) << " str=" << str << "\n";
-
 	std::ostringstream oss;
 	oss << tag._content << str;
 	tag._content = oss.str();
