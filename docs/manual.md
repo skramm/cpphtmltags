@@ -78,7 +78,8 @@ Theorically, both could achieve the same html structure.
 The first type of tags (that has no associated stream/file) can be used in a hierarchical way:
 you can stream into it a `Httag` variable, either an explicit one, or an anonymous one, through a constructor call.
 For example, a minimal page holding 2 divs, one empty and the second one holding a paragraph could be written this way:
-```
+```C++
+std::cout << Httag( HT_DOCTYPE );
 Httag html( HT_HTML );
 Httag head( HT_HEAD );
 Httag body( HT_BODY );

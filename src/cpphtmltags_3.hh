@@ -507,9 +507,6 @@ getString( En_UnallowedTag cause )
 
 //-----------------------------------------------------------------------------------
 /// Returns true if \c tag is allowed inside tag \c parent
-/**
- * \todo 20200402: fix issue with doctype: not always allowed, must be first of the file !
-*/
 inline
 std::pair<bool,En_UnallowedTag>
 tagIsAllowed(
@@ -517,8 +514,8 @@ tagIsAllowed(
 	En_Httag parent  ///< parent tag
 )
 {
-	if( tag == HT_DOCTYPE )
-		return std::make_pair(false,UT_Doctype);
+	if( tag == HT_DOCTYPE )                          // if we have called this function,
+		return std::make_pair(false,UT_Doctype);     // it means there IS a 'parent' tag, thus, we can't have a DOCTYPE !
 
 	const auto& acm = Httag::p_getAllowedContentMap(); // allowed content of currently (latest) opened tag
 	const auto& ac = acm.get( parent ); // allowed content of currently (latest) opened tag

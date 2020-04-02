@@ -626,4 +626,20 @@ TEST_CASE( "constructor as content", "[t11]" )
 	CHECK( oss.str() == "<p>This is <strong>bold text</strong></p>" );
 }
 
+TEST_CASE( "complete minimal page", "[t12]" )
+{
+	std::ostringstream oss;
+	oss << Httag( HT_DOCTYPE );
+	Httag html( HT_HTML );
+	Httag head( HT_HEAD );
+	Httag body( HT_BODY );
+	head << Httag( HT_TITLE, "Title" );
+	body << Httag( HT_DIV, AT_ID, "div1" );  // an empty div
+	Httag div2( HT_DIV, AT_ID, "div2" );
+	div2 << Httag( HT_P, "Some text" );
+	body << div2;
+	html << head << body;
+	oss << html;
+	CHECK( oss.str() =="<!DOCTYPE html>\n<html><head><title>Title</title></head><body><div id=\"div1\"></div><div id=\"div2\"><p>Some text</p></div></body></html>" );
+}
 
