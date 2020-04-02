@@ -51,8 +51,9 @@ Refs:
 #include <fstream>
 #ifndef HTTAG_NO_REFERENCE_TABLES
 	#include <functional>
+	#include <chrono>
+	#include <ctime>
 #endif
-
 
 /*#define HTTAG_PRINT_ERROR_LOCATION( msg, f, l )\
 		std::cerr << "\nhttag: error: " \

@@ -195,19 +195,26 @@ void p_printTable_1( std::ostream&, int id );
 // forward declaration, needed because it gets declared as friend in Httag but is in a sub-namespace
 std::pair<bool,En_UnallowedTag> tagIsAllowed( En_Httag, En_Httag );
 
-/// Helper function for operator << for 2 tags
+/// Helper function for operator << for 2 tags, stream t2 into t1
 /// \todo replace oss << tag._content << t2; with oss << t2; and tag._content = oss.str(); with tag._content += oss.str();
 template<typename T1, typename T2>
 T1&
-streamTagInTag( T1& tag, T2& t2 )
+streamTagInTag( T1& t1, T2& t2 )
 {
+
+// TMP
+	std::cerr << __FUNCTION__ << "(): t1=" << getString(t1) << " t2=" << getString(t2) << "\n";
+
 //	assert( !tag._isFileType );
 	std::ostringstream oss;
 
-	auto check = priv::tagIsAllowed( t2.getTag(), tag.getTag() );
+	auto check = priv::tagIsAllowed( t2.getTag(), t1.getTag() );
+	if( t2.getTag() == HT_LI && t1.getTag() == HT_P )
+		std::cerr << "li into p !, check=" << check.first << "\n";
+
 	if( check.first )
 	{
-		oss << tag._content;
+		oss << t1._content;
 		oss << t2;
 	}
 	else
@@ -215,13 +222,13 @@ streamTagInTag( T1& tag, T2& t2 )
 			std::string("tag <")
 			+ getString( t2._tag_en )
 			+ "> not allowed as content inside tag <"
-			+ getString( tag._tag_en )
+			+ getString( t1._tag_en )
 			+ ">, cause: "
 			+ getString(check.second)
 		);
 
-	tag._content = oss.str();
-	return tag;
+	t1._content = oss.str();
+	return t1;
 }
 
 //############################
@@ -430,13 +437,12 @@ class Httag
 		std::map<En_Attrib,std::string> _attr_map;
 };
 
-template<typename T>
-Httag&
-operator << ( Httag& tag, T& t2 )
+//-----------------------------------------------------------------------------------
+std::string
+getString( const Httag& t )
 {
-	return priv::streamTagInTag( tag, t2 );
+	return getString( t.getTag() );
 }
-
 
 //-----------------------------------------------------------------------------------
 //############################
@@ -461,6 +467,9 @@ getString( En_UnallowedTag cause )
 
 //-----------------------------------------------------------------------------------
 /// Returns true if \c tag is allowed inside tag \c parent
+/**
+ * \todo 20200402: fix issue with doctype: not always allowed, must be first of the file !
+*/
 inline
 std::pair<bool,En_UnallowedTag>
 tagIsAllowed(
@@ -468,6 +477,10 @@ tagIsAllowed(
 	En_Httag parent  ///< parent tag
 )
 {
+// TMP
+		std::cerr << __FUNCTION__ << "(): parent=" << getString(parent) << " tag=" << getString(tag) << "\n";
+//	if( tag == HT_LI && parent == HT_P )
+
 	if( tag == HT_DOCTYPE )
 		return std::make_pair(true,UT_Undef);
 
@@ -907,29 +920,28 @@ Httag::closeTag( std::string __file, int __line, bool linefeed )
 		clearContent();
 }
 
-#if 0
 //-----------------------------------------------------------------------------------
-/// Insert tag \c t2 and its content into \c tag. Will get printed later. const version
+template<typename T>
 Httag&
-operator << ( Httag& tag, const Httag& t2 )
+operator << ( Httag& tag, T& t )
 {
-	return priv::streamTagInTag( tag, t2 );
+// TMP
+		std::cerr << __FUNCTION__ << "(): tag=" << getString(tag) << " tatg=" << getString(t) << "\n";
+
+	return priv::streamTagInTag( tag, t );
 }
-//-----------------------------------------------------------------------------------
-/// Insert tag \c t2 and its content into \c tag. Will get printed later. NON const version
-Httag&
-operator << ( Httag& tag, Httag& t2 )
-{
-	return priv::streamTagInTag( tag, t2 );
-}
-#endif
 //-----------------------------------------------------------------------------------
 /// Insert some content into \c tag. Will get printed later
+/**
+\bug here: gets called for T=Httag , should not! If T=Httag, should call operator << ( Httag& tag, T& t )
+*/
 template<typename T>
 Httag&
 operator << ( Httag& tag, const T& str )
 {
 //	assert( !tag._isFileType );
+// TMP
+		std::cerr << __FUNCTION__ << "(): tag=" << getString(tag) << " str=" << str << "\n";
 
 	std::ostringstream oss;
 	oss << tag._content << str;
@@ -1342,6 +1354,20 @@ p_printTable_1( std::ostream& f, int id )
 
 	// column: "allowed attributes"
 		td.openTag();
+
+		size_t nb = 0;                                    // number of attributes allowed in this tag
+		for( size_t j=0; j<AT_DUMMY; j++ )
+		{
+			auto attrib = static_cast<En_Attrib>(j);
+			nb += (
+				( priv::attribIsAllowed( attrib, tag ) &&  !priv::isGlobalAttr( attrib ) )
+				? 1
+				: 0
+			);
+		}
+		if( nb )
+			f << nb << ": ";
+
 		for( size_t j=0; j<AT_DUMMY; j++)
 		{
 			auto attrib = static_cast<En_Attrib>(j);
@@ -1392,6 +1418,12 @@ p_printTable_2( std::ostream& f, int id )
 			f << Httag( HT_TD, (isBoolAttr(attrib)?"Y":"N"), AT_CLASS, "cent" );
 			Httag td( f, HT_TD );
 			td.openTag();
+
+			size_t nb = 0;                                    // number of tags in which attribute is allowed
+			for( size_t j=0; j<HT_DUMMY; j++ )
+				nb += ( priv::attribIsAllowed( attrib, static_cast<En_Httag>(j) ) ? 1 : 0 );
+			f << nb << ": ";
+
 			for( size_t j=0; j<HT_DUMMY; j++ )
 			{
 				auto tag = static_cast<En_Httag>(j);
@@ -1504,7 +1536,6 @@ p_printTable_4( std::ostream& f, int id )
 //-----------------------------------------------------------------------------------
 /// Helper function, prints the tags and attributes currently supported, HTML version
 /* See related Httag::printSupported()
-\todo Print data in AllowedContentMap in a 4th table
 **/
 //inline
 template<typename T>
@@ -1517,6 +1548,8 @@ Httag::printSupportedHtml( std::ostream& f, T )
 	Httag::setClosingTagClearsContent( true );
 
 	f << Httag( HT_DOCTYPE );
+	Httag t( f, HT_HTML );
+	t.openTag();
 
 	Httag h( f, HT_HEAD);
 	h << Httag( HT_TITLE, "cpphtmltags: supported features" );
@@ -1526,13 +1559,14 @@ Httag::printSupportedHtml( std::ostream& f, T )
 	h << css;
 	h.printTag();
 
-	Httag::setClosingTagClearsContent( true );
 	Httag t2( f, HT_BODY );
 	t2.openTag();
-	f << Httag( HT_P, "This list is automatically generated from reference data" );
+	f << Httag(	HT_P,
+		"This list is automatically generated from reference data, see " ).addContent(
+			Httag( HT_A, "home page", AT_HREF, "https://github.com/skramm/cpphtmltags/" ).to_string() );
+
 	std::ifstream external( "misc/supported.txt" );
 	f << external.rdbuf();
-
 
 	std::array<std::string,4> titles = {
 		"Supported tags and categories",
@@ -1564,6 +1598,9 @@ Httag::printSupportedHtml( std::ostream& f, T )
 		f << Httag( HT_H2, std::to_string(i+1) + " - " + titles[i], AT_ID, "h" + std::to_string(i+1) );
 		funcs[i]( f, i );
 	}
+
+	auto timenow = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    f << Httag( HT_P, "Generated on " + std::string(ctime(&timenow)) );
 
 #endif  // HTTAG_NO_REFERENCE_TABLES
 }
