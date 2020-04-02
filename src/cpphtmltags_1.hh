@@ -49,6 +49,10 @@ Refs:
 #include <iostream>
 #include <algorithm>
 #include <fstream>
+#ifndef HTTAG_NO_REFERENCE_TABLES
+	#include <functional>
+#endif
+
 
 /*#define HTTAG_PRINT_ERROR_LOCATION( msg, f, l )\
 		std::cerr << "\nhttag: error: " \

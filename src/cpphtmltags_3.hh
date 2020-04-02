@@ -190,7 +190,7 @@ enum En_UnallowedTag { UT_Undef, UT_ForbiddenTag, UT_ForbiddenCat, UT_NotAllowed
 
 
 // forward declaration, needed because it gets declared as friend in Httag but is in a sub-namespace
-void p_printTable_1( std::ostream&, std::string id );
+void p_printTable_1( std::ostream&, int id );
 
 // forward declaration, needed because it gets declared as friend in Httag but is in a sub-namespace
 std::pair<bool,En_UnallowedTag> tagIsAllowed( En_Httag, En_Httag );
@@ -251,7 +251,7 @@ class Httag
 	friend std::ostream& operator << ( std::ostream& stream, const Httag& );
 	friend std::ostream& operator << ( std::ostream& stream,       Httag& );
 
-	friend void priv::p_printTable_1( std::ostream&, std::string id );
+	friend void priv::p_printTable_1( std::ostream&, int id );
 	friend std::pair<bool,priv::En_UnallowedTag> priv::tagIsAllowed( En_Httag, En_Httag );
 
 	public:
@@ -277,6 +277,13 @@ class Httag
 		template<typename T>
 		Httag( En_Httag, En_Attrib, T attribvalue );
 		~Httag();
+
+		std::string to_string() const
+		{
+			std::ostringstream oss;
+			oss << *this;
+			return oss.str();
+		}
 ///@}
 		void openTag(  std::string file=std::string(), int line=0 );
 		void closeTag( std::string file=std::string(), int line=0, bool linefeed=false );
@@ -1276,78 +1283,72 @@ print_A( std::ostream& f, const AllowedContent& ac )
 /// Prints HTML table of tag
 /** Helper function, called by Httag::printSupportedHtml() */
 void
-p_printTable_1( std::ostream& f, std::string table_id )
+p_printTable_1( std::ostream& f, int id )
 {
-	Httag::setClosingTagClearsContent( true );
-	f << Httag( HT_H2, "Supported tags and categories", AT_ID, table_id );
+	Httag table( f, HT_TABLE, AT_ID, "t" + std::to_string(id+1) );
+	table.openTag();
+	Httag tr( f, HT_TR );
+
+	tr  << Httag( HT_TH,                       AT_ROWSPAN, 2 ).addAttrib( AT_CLASS, "col1" )
+		<< Httag( HT_TH, "Tags",               AT_ROWSPAN, 2 ).addAttrib( AT_CLASS, "col2" )
+		<< Httag( HT_TH, "Is void",            AT_ROWSPAN, 2 ).addAttrib( AT_CLASS, "col3" )
+		<< Httag( HT_TH, "Belongs to",         AT_ROWSPAN, 2 ).addAttrib( AT_CLASS, "col4" )
+		<< Httag( HT_TH, "Allowed content",    AT_COLSPAN, 2 ).addAttrib( AT_CLASS, "col5" )
+		<< Httag( HT_TH, "Forbidden content",  AT_COLSPAN, 2 ).addAttrib( AT_CLASS, "col6" )
+		<< Httag( HT_TH, "Allowed attributes", AT_ROWSPAN, 2 ).addAttrib( AT_CLASS, "col7" );
+	tr.printTag();
+
+	tr  << Httag( HT_TH, "Tag category", AT_CLASS, "col5a" )
+		<< Httag( HT_TH, "Tags",         AT_CLASS, "col5b" )
+		<< Httag( HT_TH, "Tag category", AT_CLASS, "col6a" )
+		<< Httag( HT_TH, "Tags",         AT_CLASS, "col6b" );
+	tr.printTag();
+
+	std::string ext{"https://www.w3schools.com/tags/tag_"};
+
+	for( size_t i=0; i<HT_DUMMY; i++ )
 	{
-		Httag table( f, HT_TABLE );
-		table.openTag();
+		Httag tr( f, HT_TR );
+		tr.openTag();
+		auto tag = static_cast<En_Httag>(i);
+
+		f << Httag( HT_TD, i+1, AT_CLASS, "cent" );
+
+		Httag a( HT_A, g_lt+getString( tag )+g_gt );
+		a.addAttrib( AT_HREF, ext + getString( tag ) + ".asp" ).addAttrib( AT_TARGET, "_blank" );
+		Httag td2( HT_TD, a, AT_CLASS, "cent" );
+		td2.addAttrib( AT_ID, std::string("t_") + getString( tag ) );
+		f << td2;
+
+		f << Httag( HT_TD, ( isVoidElement(tag) ? "Y" : "N" ), AT_CLASS, "cent" );
+
+		Httag td( f, HT_TD );
+		td.openTag();                                 // column: "belongs to category"
+		for( size_t j=0; j<priv::C_DUMMY; j++)
 		{
-			Httag tr( f, HT_TR );
-
-			tr  << Httag( HT_TH,                       AT_ROWSPAN, 2 ).addAttrib( AT_CLASS, "col1" )
-				<< Httag( HT_TH, "Tags",               AT_ROWSPAN, 2 ).addAttrib( AT_CLASS, "col2" )
-				<< Httag( HT_TH, "Is void",            AT_ROWSPAN, 2 ).addAttrib( AT_CLASS, "col3" )
-				<< Httag( HT_TH, "Belongs to",         AT_ROWSPAN, 2 ).addAttrib( AT_CLASS, "col4" )
-				<< Httag( HT_TH, "Allowed content",    AT_COLSPAN, 2 ).addAttrib( AT_CLASS, "col5" )
-				<< Httag( HT_TH, "Forbidden content",  AT_COLSPAN, 2 ).addAttrib( AT_CLASS, "col6" )
-				<< Httag( HT_TH, "Allowed attributes", AT_ROWSPAN, 2 ).addAttrib( AT_CLASS, "col7" );
-			tr.printTag();
-
-			tr  << Httag( HT_TH, "Tag category", AT_CLASS, "col5a" )
-				<< Httag( HT_TH, "Tags",         AT_CLASS, "col5b" )
-				<< Httag( HT_TH, "Tag category", AT_CLASS, "col6a" )
-				<< Httag( HT_TH, "Tags",         AT_CLASS, "col6b" );
-			tr.printTag();
-		}
-
-		std::string ext{"https://www.w3schools.com/tags/tag_"};
-
-		for( size_t i=0; i<HT_DUMMY; i++ )
-		{
-			Httag tr( f, HT_TR );
-			tr.openTag();
-			auto tag = static_cast<En_Httag>(i);
-
-			f << Httag( HT_TD, i+1, AT_CLASS, "cent" );
-
-			Httag a( HT_A, g_lt+getString( tag )+g_gt );
-			a.addAttrib( AT_HREF, ext + getString( tag ) + ".asp" ).addAttrib( AT_TARGET, "_blank" );
-			Httag td2( HT_TD, a, AT_CLASS, "cent" );
-			td2.addAttrib( AT_ID, std::string("t_") + getString( tag ) );
-			f << td2;
-
-			f << Httag( HT_TD, ( isVoidElement(tag) ? "Y" : "N" ), AT_CLASS, "cent" );
-
-			Httag td( f, HT_TD );
-			td.openTag();                                 // column: "belongs to category"
-			for( size_t j=0; j<priv::C_DUMMY; j++)
+			auto cat = static_cast<priv::En_TagCat>(j);
+			if( tagBelongsToCat( tag, cat ) )
 			{
-				auto cat = static_cast<priv::En_TagCat>(j);
-				if( tagBelongsToCat( tag, cat ) )
-				{
-					Httag ta( HT_A, getString( cat ), AT_HREF, std::string("#c_") + getString( cat ) );
-					f << ta << ',';
-				}
-
+				Httag ta( HT_A, getString( cat ), AT_HREF, std::string("#c_") + getString( cat ) );
+				f << ta << ',';
 			}
-			td.closeTag();
 
-// column "allowed content"
-			const auto& acm = Httag::p_getAllowedContentMap();
-			print_A( f, acm.get( tag ) );
+		}
+		td.closeTag();
 
-// column: "allowed attributes"
-			td.openTag();
-			for( size_t j=0; j<AT_DUMMY; j++)
+	// column "allowed content"
+		const auto& acm = Httag::p_getAllowedContentMap();
+		print_A( f, acm.get( tag ) );
+
+	// column: "allowed attributes"
+		td.openTag();
+		for( size_t j=0; j<AT_DUMMY; j++)
+		{
+			auto attrib = static_cast<En_Attrib>(j);
+			if( priv::attribIsAllowed( attrib, tag ) && !priv::isGlobalAttr( attrib ) )
 			{
-				auto attrib = static_cast<En_Attrib>(j);
-				if( priv::attribIsAllowed( attrib, tag ) && !priv::isGlobalAttr( attrib ) )
-				{
-					Httag ta( HT_A, getString( attrib ), AT_HREF, std::string("#a_") + getString( attrib ) );
-					f << ta << ',';
-				}
+				Httag ta( HT_A, getString( attrib ), AT_HREF, std::string("#a_") + getString( attrib ) );
+				f << ta << ',';
 			}
 		}
 	}
@@ -1356,88 +1357,46 @@ p_printTable_1( std::ostream& f, std::string table_id )
 /// Prints HTML table of attributes
 /** Helper function, called by Httag::printSupportedHtml() */
 void
-p_printTable_2( std::ostream& f, std::string table_id )
+p_printTable_2( std::ostream& f, int id )
 {
-	f << Httag( HT_H2, "Supported attributes", AT_ID, table_id );
+	Httag table( f, HT_TABLE, AT_ID, "t" + std::to_string(id+1) );
+	table.openTag();
 	{
-		Httag table( f, HT_TABLE );
-		table.openTag();
-		{
-			Httag tr( f, HT_TR );
-			tr <<  Httag( HT_TH,                 AT_CLASS, "col1" )
-				<< Httag( HT_TH, "Attributes",   AT_CLASS, "col2" )
-				<< Httag( HT_TH, "Global",       AT_CLASS, "col3" )
-				<< Httag( HT_TH, "Boolean",      AT_CLASS, "col4" )
-				<< Httag( HT_TH, "Allowed tags", AT_CLASS, "col5" );
-			tr.printTag();
-		}
-
-		std::string ext{"https://www.w3schools.com/tags/att_"};
-		for( size_t i=0; i<AT_DUMMY; i++ )
-		{
-			Httag tr( f, HT_TR );
-			tr.openTag();
-			auto attrib = static_cast<En_Attrib>(i);
-
-			f << Httag( HT_TD, i+1, AT_CLASS, "cent" );
-
-			Httag a( HT_A, getString( attrib ) );
-			a.addAttrib( AT_HREF, ext + getString( attrib ) + ".asp" ).addAttrib( AT_TARGET, "_blank" );
-			f << Httag( HT_TD, a, AT_ID, std::string("a_") + getString( attrib ) );
-
-			if( isGlobalAttr( attrib ) )
-				f << Httag( HT_TD, "Y", AT_CLASS, "cent" ) << Httag( HT_TD ) << Httag( HT_TD );
-			else
-			{
-				f << Httag( HT_TD, "N", AT_CLASS, "cent" );
-				f << Httag( HT_TD, (isBoolAttr(attrib)?"Y":"N"), AT_CLASS, "cent" );
-				Httag td( f, HT_TD );
-				td.openTag();
-				for( size_t j=0; j<HT_DUMMY; j++ )
-				{
-					auto tag = static_cast<En_Httag>(j);
-					if( priv::attribIsAllowed( attrib, tag ) )
-						f << Httag( HT_A, g_lt+getString( tag )+g_gt, AT_HREF, std::string("#t_") + getString( tag ) );
-				}
-			}
-		}
+		Httag tr( f, HT_TR );
+		tr <<  Httag( HT_TH,                 AT_CLASS, "col1" )
+			<< Httag( HT_TH, "Attributes",   AT_CLASS, "col2" )
+			<< Httag( HT_TH, "Global",       AT_CLASS, "col3" )
+			<< Httag( HT_TH, "Boolean",      AT_CLASS, "col4" )
+			<< Httag( HT_TH, "Allowed tags", AT_CLASS, "col5" );
+		tr.printTag();
 	}
-}
-//-----------------------------------------------------------------------------------
-/// Prints HTML table of tag categories
-/** Helper function, called by Httag::printSupportedHtml() */
-void
-p_printTable_3( std::ostream& f, std::string table_id )
-{
-	f << Httag( HT_H2, "Tag categories", AT_ID, table_id );
-	{
-		Httag table( f, HT_TABLE );
-		table.openTag();
-		{
-			Httag tr( f, HT_TR );
-			tr <<  Httag( HT_TH,                       AT_CLASS, "col1" )
-				<< Httag( HT_TH, "Tag category",       AT_CLASS, "col2" )
-				<< Httag( HT_TH, "Corresponding tags", AT_CLASS, "col3" );
-			tr.printTag();
-		}
-		for( size_t i=0; i<priv::C_DUMMY; i++ )
-		{
-			Httag tr( f, HT_TR );
-			tr.openTag();
-			auto cat = static_cast<En_TagCat>(i);
-			f << Httag( HT_TD, i+1, AT_CLASS, "cent" )
-				<< Httag( HT_TD, getString( cat ), AT_ID, std::string("c_") + getString( cat ) );
 
+	std::string ext{"https://www.w3schools.com/tags/att_"};
+	for( size_t i=0; i<AT_DUMMY; i++ )
+	{
+		Httag tr( f, HT_TR );
+		tr.openTag();
+		auto attrib = static_cast<En_Attrib>(i);
+
+		f << Httag( HT_TD, i+1, AT_CLASS, "cent" );
+
+		Httag a( HT_A, getString( attrib ) );
+		a.addAttrib( AT_HREF, ext + getString( attrib ) + ".asp" ).addAttrib( AT_TARGET, "_blank" );
+		f << Httag( HT_TD, a, AT_ID, std::string("a_") + getString( attrib ) );
+
+		if( isGlobalAttr( attrib ) )
+			f << Httag( HT_TD, "Y", AT_CLASS, "cent" ) << Httag( HT_TD ) << Httag( HT_TD );
+		else
+		{
+			f << Httag( HT_TD, "N", AT_CLASS, "cent" );
+			f << Httag( HT_TD, (isBoolAttr(attrib)?"Y":"N"), AT_CLASS, "cent" );
 			Httag td( f, HT_TD );
 			td.openTag();
 			for( size_t j=0; j<HT_DUMMY; j++ )
 			{
 				auto tag = static_cast<En_Httag>(j);
-				if( tagBelongsToCat( tag, cat ) )
-				{
-					Httag ta( HT_A, g_lt+getString( tag )+g_gt, AT_HREF, std::string("#t_") + getString( tag ) );
-					f << ta << ',';
-				}
+				if( priv::attribIsAllowed( attrib, tag ) )
+					f << Httag( HT_A, g_lt+getString( tag )+g_gt, AT_HREF, std::string("#t_") + getString( tag ) );
 			}
 		}
 	}
@@ -1446,58 +1405,92 @@ p_printTable_3( std::ostream& f, std::string table_id )
 /// Prints HTML table of tag categories
 /** Helper function, called by Httag::printSupportedHtml() */
 void
-p_printTable_4( std::ostream& f, std::string table_id )
+p_printTable_3( std::ostream& f, int id )
 {
-	f << Httag( HT_H2, "Cross reference of tag categories", AT_ID, table_id );
-	std::vector<std::vector<En_Httag>> tagSet( priv::C_DUMMY ); // one vector per category
-
-	Httag table( f, HT_TABLE );
+	Httag table( f, HT_TABLE, AT_ID, "t" + std::to_string(id+1) );
 	table.openTag();
 	{
 		Httag tr( f, HT_TR );
-		tr << Httag( HT_TH, AT_CLASS, "col1" );
+		tr <<  Httag( HT_TH,                       AT_CLASS, "col1" )
+			<< Httag( HT_TH, "Tag category",       AT_CLASS, "col2" )
+			<< Httag( HT_TH, "Corresponding tags", AT_CLASS, "col3" );
+		tr.printTag();
+	}
+	for( size_t i=0; i<priv::C_DUMMY; i++ )
+	{
+		Httag tr( f, HT_TR );
+		tr.openTag();
+		auto cat = static_cast<En_TagCat>(i);
+		f << Httag( HT_TD, i+1, AT_CLASS, "cent" )
+			<< Httag( HT_TD, getString( cat ), AT_ID, std::string("c_") + getString( cat ) );
 
-		for( size_t i=0; i<priv::C_DUMMY; i++ )    // line header
+		Httag td( f, HT_TD );
+		td.openTag();
+		for( size_t j=0; j<HT_DUMMY; j++ )
 		{
-			auto cat = static_cast<En_TagCat>(i);
-			tr << Httag( HT_TH, getString( cat ) );
-
-			for( size_t j=0; j<HT_DUMMY; j++ )                   // build list of contained tags
-				if( tagBelongsToCat( static_cast<En_Httag>(j), cat ) )
-					tagSet[i].push_back( static_cast<En_Httag>(j) );
-		}
-		f << tr;
-
-		for( size_t i=0; i<priv::C_DUMMY; i++ )                     // iterating lines
-		{
-			tr.openTag();
-			auto cat1 = static_cast<En_TagCat>(i);
-			f << Httag( HT_TH, getString( cat1 ) );
-			for( size_t j=0; j<priv::C_DUMMY; j++ )                // iterating columns
+			auto tag = static_cast<En_Httag>(j);
+			if( tagBelongsToCat( tag, cat ) )
 			{
-				if( i < j )
-				{
-					std::vector<En_Httag> intersect;
-					auto it = std::set_intersection(
-						std::begin( tagSet[i] ),
-						std::end(   tagSet[i] ),
-						std::begin( tagSet[j] ),
-						std::end(   tagSet[j] ),
-						std::back_inserter( intersect )
-					);
-					Httag td( HT_TD );
-					if( !intersect.empty() )
-						td << Httag( HT_STRONG, std::string("#") + std::to_string( intersect.size() ) ) << Httag( HT_BR );
-					for( auto tag: intersect )
-						td << g_lt + getString( tag ) + g_gt;
-					f << td;
-				}
-				else
-					f << Httag( HT_TD, AT_CLASS, "empty" );
-
+				Httag ta( HT_A, g_lt+getString( tag )+g_gt, AT_HREF, std::string("#t_") + getString( tag ) );
+				f << ta << ',';
 			}
-			tr.closeTag();
 		}
+	}
+}
+//-----------------------------------------------------------------------------------
+/// Prints HTML table of tag categories
+/** Helper function, called by Httag::printSupportedHtml() */
+void
+p_printTable_4( std::ostream& f, int id )
+{
+	std::vector<std::vector<En_Httag>> tagSet( priv::C_DUMMY ); // one vector per category
+
+	Httag table( f, HT_TABLE, AT_ID, "t" + std::to_string(id+1) );
+	table.openTag();
+
+	Httag tr( f, HT_TR );
+	tr << Httag( HT_TH, AT_CLASS, "col1" );
+
+	for( size_t i=0; i<priv::C_DUMMY; i++ )    // line header
+	{
+		auto cat = static_cast<En_TagCat>(i);
+		tr << Httag( HT_TH, std::to_string(i+1) + Httag(HT_BR).to_string() + getString( cat ) );
+
+		for( size_t j=0; j<HT_DUMMY; j++ )                   // build list of contained tags
+			if( tagBelongsToCat( static_cast<En_Httag>(j), cat ) )
+				tagSet[i].push_back( static_cast<En_Httag>(j) );
+	}
+	f << tr;
+
+	for( size_t i=0; i<priv::C_DUMMY-1; i++ )                     // iterating lines (no need for last line, thus "-1")
+	{
+		tr.openTag();
+		auto cat1 = static_cast<En_TagCat>(i);
+		f << Httag( HT_TH, std::to_string(i+1) + Httag(HT_BR).to_string() + getString( cat1 ) );
+		for( size_t j=0; j<priv::C_DUMMY; j++ )                // iterating columns
+		{
+			if( i < j )
+			{
+				std::vector<En_Httag> intersect;
+				auto it = std::set_intersection(
+					std::begin( tagSet[i] ),
+					std::end(   tagSet[i] ),
+					std::begin( tagSet[j] ),
+					std::end(   tagSet[j] ),
+					std::back_inserter( intersect )
+				);
+				Httag td( HT_TD );
+				if( !intersect.empty() )
+					td << Httag( HT_STRONG, std::string("#") + std::to_string( intersect.size() ) ) << Httag( HT_BR );
+				for( auto tag: intersect )
+					td << Httag( HT_A, g_lt + getString( tag ) + g_gt, AT_HREF, "#t_" + getString( tag ) );
+				f << td;
+			}
+			else
+				f << Httag( HT_TD, AT_CLASS, "empty" );
+
+		}
+		tr.closeTag();
 	}
 }
 //-----------------------------------------------------------------------------------
@@ -1521,6 +1514,8 @@ Httag::printSupportedHtml( std::ostream& f, T )
 #ifdef HTTAG_NO_REFERENCE_TABLES
 	f << "Error: build without printing of reference tables enabled\n";
 #else
+	Httag::setClosingTagClearsContent( true );
+
 	f << Httag( HT_DOCTYPE );
 
 	Httag h( f, HT_HEAD);
@@ -1538,23 +1533,37 @@ Httag::printSupportedHtml( std::ostream& f, T )
 	std::ifstream external( "misc/supported.txt" );
 	f << external.rdbuf();
 
+
+	std::array<std::string,4> titles = {
+		"Supported tags and categories",
+		"Attribute list",
+		"Tag categories",
+		"Cross reference of tag categories: common tags"
+	};
+
+	std::array<std::function<void(std::ostream&,int)>,4> funcs = {
+		priv::p_printTable_1,
+		priv::p_printTable_2,
+		priv::p_printTable_3,
+		priv::p_printTable_4
+	};
+
+	Httag ol( f, HT_OL );
+	ol.openTag();
+	Httag li( f, HT_LI );
+
+	for( int i=0; i<4; i++ )
 	{
-		Httag ul( f, HT_UL );
-		ul.openTag();
-		Httag li( f, HT_LI );
-		li << Httag( HT_A, "Tag list", AT_HREF, "#t1" );
-		li.printTag();
-		li << Httag( HT_A, "Attribute list", AT_HREF, "#t2" );
-		li.printTag();
-		li << Httag( HT_A, "Tag categories list", AT_HREF, "#t3" );
-		li.printTag();
-		li << Httag( HT_A, "Cross reference of tag categories", AT_HREF, "#t4" );
+		li << Httag( HT_A, titles[i], AT_HREF, "#h" + std::to_string(i+1) );
 		li.printTag();
 	}
-	priv::p_printTable_1( f, "t1" );
-	priv::p_printTable_2( f, "t2" );
-	priv::p_printTable_3( f, "t3" );
-	priv::p_printTable_4( f, "t4" );
+	ol.closeTag();
+
+	for( int i=0; i<4; i++ )
+	{
+		f << Httag( HT_H2, std::to_string(i+1) + " - " + titles[i], AT_ID, "h" + std::to_string(i+1) );
+		funcs[i]( f, i );
+	}
 
 #endif  // HTTAG_NO_REFERENCE_TABLES
 }

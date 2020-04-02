@@ -20,6 +20,10 @@ table#t1 { border-left: 5px solid red; }
 table#t2 { border-left: 5px solid green; }
 table#t3 { border-left: 5px solid blue; }
 
+table#t4 {
+	width:90%;
+}
+
 
 th,tr,td
 {
@@ -62,4 +66,7 @@ td{
 
 tr:nth-child(even) {background: #eee;}
 
+table#t4 td,table#t4 th { background-color: #fff; }
 table#t4 td.empty { background-color: #ddd; }
+table#t4 td { text-align:center; }
+table#t4 th.col1 { text-align:left; }
