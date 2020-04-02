@@ -10,7 +10,7 @@ using MapTagCat_t = std::map<En_TagCat,std::vector<En_Httag>>;
 using AttribMap_t = std::map<En_Attrib,std::string>;
 
 /// Holds for some tags (that have a global attribute) the pair (attribute, string-value)
-/** See \link global_attribute */
+/** See \ref global_attribute */
 using GlobAttribMap_t = std::map<En_Httag, AttribMap_t>;
 
 

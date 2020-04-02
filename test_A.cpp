@@ -476,6 +476,17 @@ TEST_CASE( "test_void", "[t7]" ) // testing void elements
 	oss << "else";
 	t2.closeTag();
 	CHECK( oss.str() == "<!-- else -->" );
+
+	CHECK_THROWS( Httag(HT_DOCTYPE).addContent( "42" ) );
+	CHECK_THROWS( Httag(HT_HR).addContent( "42" ) );
+
+	CHECK_THROWS( Httag(HT_DOCTYPE, "42" ) );
+	CHECK_THROWS( Httag(HT_HR, "42" ) );
+
+	oss.str("");
+	Httag t1(oss, HT_HTML );
+	t1.openTag();
+	CHECK_THROWS( oss << Httag(HT_DOCTYPE) );  // doctype needs to be the FIRST tag
 }
 
 TEST_CASE( "chained functions", "[t8]" )

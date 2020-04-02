@@ -128,7 +128,7 @@ class OpenedTags
 			assert( _v_ot.size() > 0 );
 #endif
 			if( _v_ot.back() != tag )
-				HTTAG_FATAL_ERROR( std::string( "asking to close tag <") + getString(tag) + "> but tag <" +  getString(_v_ot.back()) + "> still open" );
+				HTTAG_FATAL_ERROR( "asking to close tag <" + getString(tag) + "> but tag <" +  getString(_v_ot.back()) + "> still open" );
 			_v_ot.pop_back();
 		}
 //		void print( std::ostream& ) const;
@@ -186,7 +186,7 @@ AllowedContentMap::print( std::ostream& f ) const
 	f << "\n -Nb tags = " << _map_AllowedContent.size() << '\n';
 }
 //-----------------------------------------------------------------------------------
-enum En_UnallowedTag { UT_Undef, UT_ForbiddenTag, UT_ForbiddenCat, UT_NotAllowed };
+enum En_UnallowedTag { UT_Undef, UT_ForbiddenTag, UT_ForbiddenCat, UT_NotAllowed, UT_Doctype };
 
 
 // forward declaration, needed because it gets declared as friend in Httag but is in a sub-namespace
@@ -194,6 +194,10 @@ void p_printTable_1( std::ostream&, int id );
 
 // forward declaration, needed because it gets declared as friend in Httag but is in a sub-namespace
 std::pair<bool,En_UnallowedTag> tagIsAllowed( En_Httag, En_Httag );
+
+// forward declaration, needed because it gets declared as friend in Httag but is in a sub-namespace
+std::ostream& streamTagInFile( std::ostream&, const Httag& );
+
 
 /// Helper function for operator << for 2 tags, stream t2 into t1
 /// \todo replace oss << tag._content << t2; with oss << t2; and tag._content = oss.str(); with tag._content += oss.str();
@@ -208,7 +212,7 @@ streamTagInTag( T1& t1, T2& t2 )
 		oss << t1._content << t2;
 	else
 		HTTAG_FATAL_ERROR(
-			std::string("tag <")
+			"tag <"
 			+ getString( t2._tag_en )
 			+ "> not allowed as content inside tag <"
 			+ getString( t1._tag_en )
@@ -240,6 +244,8 @@ class Httag
 {
 	template<typename T1,typename T2>
 	friend T1& priv::streamTagInTag( T1& tag, T2& t2 );
+
+	friend std::ostream& priv::streamTagInFile( std::ostream&, const Httag& );
 
 	template<typename T>
 	friend Httag&        operator << ( Httag&, const T& );
@@ -438,6 +444,42 @@ getString( const Httag& t )
 namespace priv {
 //############################
 
+std::ostream&
+streamTagInFile( std::ostream& s, const Httag& h )
+{
+	switch( h._tag_en )
+	{
+		case HT_COMMENT: s << "<!-- "; break;
+		case HT_DOCTYPE:
+		{
+			if( Httag::p_getOpenedTags().size() == 0 )
+				s << "<!DOCTYPE html>\n";
+			else
+				HTTAG_FATAL_ERROR(
+					"<doctype> needs to be the first tag, and you have "
+					+ std::to_string( Httag::p_getOpenedTags().size() )
+					+ " tags open, last one is <"
+					+ getString( Httag::p_getOpenedTags().current() )
+					+ ">"
+			);
+		}
+		break;
+		default:
+			s << '<' << getString( h._tag_en )
+				<< h.p_getAttribs() << '>';
+	}
+	if( !priv::isVoidElement( h.getTag() ) )
+	{
+		s << h._content;
+		if( h._tag_en == HT_COMMENT )
+			s << " -->";
+		else
+			s << "</" << getString( h._tag_en ) << '>';
+	}
+
+	return s;
+}
+
 //-----------------------------------------------------------------------------------
 inline
 std::string
@@ -449,6 +491,8 @@ getString( En_UnallowedTag cause )
 		case UT_ForbiddenCat:  return "ForbiddenCat";
 		case UT_Undef:         return "Undefined";
 		case UT_NotAllowed:    return "NotAllowed";
+		case UT_Doctype:       return "Doctype";
+
 		default: assert(0);
 	}
 	return std::string(); // to avoid a build warning
@@ -467,7 +511,7 @@ tagIsAllowed(
 )
 {
 	if( tag == HT_DOCTYPE )
-		return std::make_pair(true,UT_Undef);
+		return std::make_pair(false,UT_Doctype);
 
 	const auto& acm = Httag::p_getAllowedContentMap(); // allowed content of currently (latest) opened tag
 	const auto& ac = acm.get( parent ); // allowed content of currently (latest) opened tag
@@ -673,7 +717,7 @@ Httag&
 Httag::addContent<std::string>( std::string content )
 {
 	if( priv::isVoidElement( _tag_en ) )
-		HTTAG_FATAL_ERROR( std::string("attempting to store content '") + content + "' into a void-element tag <" + getString( _tag_en ) + ">" );
+		HTTAG_FATAL_ERROR( "attempting to store content '" + content + "' into a void-element tag <" + getString( _tag_en ) + ">" );
 	_content += content;
 	return *this;
 }
@@ -696,7 +740,7 @@ Httag::addContent<Httag>( Httag content )
 	auto res = priv::tagIsAllowed( content.getTag(), getTag() );
 
 	if( !res.first )
-		HTTAG_FATAL_ERROR( std::string("attempting to insert <")
+		HTTAG_FATAL_ERROR( "attempting to insert <"
 			+ getString( content.getTag() )
 			+ "> as content of <"
 			+ getString( getTag() )
@@ -768,7 +812,7 @@ void Httag::printWithContent( T stuff )
 		if( !priv::isVoidElement( _tag_en ) )
 			*_file << _content << stuff;
 		else
-			HTTAG_FATAL_ERROR( std::string("attempting to add content '") + _content + "' to void tag <" + getString(_tag_en) + ">" );
+			HTTAG_FATAL_ERROR( "attempting to add content '" + _content + "' to void tag <" + getString(_tag_en) + ">" );
 	}
 //	*_file << c;
 //	_printAttribs = false;
@@ -804,10 +848,10 @@ void
 Httag::p_checkValidFileType( std::string action )
 {
 	if( !_isFileType )
-		HTTAG_FATAL_ERROR( std::string("object tag <") + getString(_tag_en) + "> is not a \"file type\" object" );
+		HTTAG_FATAL_ERROR( "object tag <" + getString(_tag_en) + "> is not a \"file type\" object" );
 
 	if( !_file )
-		HTTAG_FATAL_ERROR( std::string("object tag <") + getString(_tag_en) + ">: asked to " + action + " but file not available" );
+		HTTAG_FATAL_ERROR( "object tag <" + getString(_tag_en) + ">: asked to " + action + " but file not available" );
 
 #if 0
 	if( !_file->is_open() )
@@ -826,19 +870,19 @@ Httag::openTag( std::string __file, int __line )
 	p_checkValidFileType( "open" );
 	if( _tagIsOpen )
 	{
-		HTTAG_FATAL_ERROR_FL( std::string( "tag '" ) + getString(_tag_en) + std::string( "': asked to open but was already open" ) );
+		HTTAG_FATAL_ERROR_FL( "tag '" + getString(_tag_en) + "': asked to open but was already open" );
 	}
 	else
 	{
 		if( p_getOpenedTags().size() )
 		{
 			if( p_getOpenedTags().current() == _tag_en )
-				HTTAG_FATAL_ERROR_FL( std::string("attempt to open tag <") + getString(_tag_en) + "> but currently opened tag is identical" );
+				HTTAG_FATAL_ERROR_FL( "attempt to open tag <" + getString(_tag_en) + "> but currently opened tag is identical" );
 
 			auto check = priv::tagIsAllowed( _tag_en, p_getOpenedTags() );
 			if( !check.first )
 				HTTAG_FATAL_ERROR_FL(
-					std::string("attempt to open tag <")
+					"attempt to open tag <"
 					+ getString(_tag_en)
 					+ "> but is not allowed in current context:\n"
 					+ p_getOpenedTags().str()
@@ -880,10 +924,10 @@ Httag::closeTag( std::string __file, int __line, bool linefeed )
 
 	if( priv::isVoidElement( _tag_en ) )
 		if( _isFileType )
-			HTTAG_FATAL_ERROR_FL( std::string( "asked to close tag <" ) + getString(_tag_en) + "> but is void-element" );
+			HTTAG_FATAL_ERROR_FL( "asked to close tag <" + getString(_tag_en) + "> but is void-element" );
 
 	if( !_tagIsOpen )
-		HTTAG_FATAL_ERROR_FL( std::string( "tag <" ) + getString(_tag_en) + ">: asked to close but was already closed" );
+		HTTAG_FATAL_ERROR_FL( "tag <" + getString(_tag_en) + ">: asked to close but was already closed" );
 
 	if( _isFileType )
 	{
@@ -1023,7 +1067,7 @@ Httag::p_addAttrib( En_Attrib attr, std::string value, std::string __file, int _
 
 	if( _tagIsOpen ) // because if it is already opened, then we can't add an attribute !
 		HTTAG_FATAL_ERROR_FL(
-			std::string("unable to add attribute '")
+			"unable to add attribute '"
 			+ getString(attr) + "' with value '"
 			+ value
 			+ "' to tag <"
@@ -1034,7 +1078,7 @@ Httag::p_addAttrib( En_Attrib attr, std::string value, std::string __file, int _
 	if( value.empty() && !priv::isBoolAttr(attr) ) // empty string => nothing to add
 	{
 		HTTAG_WARNING(
-			std::string( "warning: asking to add tag attribute '" )
+			"warning: asking to add tag attribute '"
 			+ getString(attr)
 			+ "' to tag <"
 			+ getString( _tag_en )
@@ -1046,7 +1090,7 @@ Httag::p_addAttrib( En_Attrib attr, std::string value, std::string __file, int _
 #ifndef HTTAG_NO_CHECK
 	if( !priv::attribIsAllowed( attr, _tag_en ) )
 		HTTAG_FATAL_ERROR_FL(
-			std::string( "attempt to assign attribute '")
+			"attempt to assign attribute '"
 			+ getString(attr)
 			+ "' to tag <"
 			+ getString( _tag_en )
@@ -1057,7 +1101,7 @@ Httag::p_addAttrib( En_Attrib attr, std::string value, std::string __file, int _
 // check for unneeded pairs attribute/value
 	if( ( attr == AT_COLSPAN && value == "1" ) || ( attr == AT_ROWSPAN && value == "1" ) )
 	{
-		HTTAG_WARNING( std::string( "asking to add unnecessary attribute/value: '" ) + getString(attr) + "'=" + value );
+		HTTAG_WARNING( "asking to add unnecessary attribute/value: '"  + getString(attr) + "'=" + value );
 		return;
 	}
 
@@ -1085,7 +1129,7 @@ Httag::removeAttrib( En_Attrib attr )
 	if( it == _attr_map.end() )   // check if element is already present or not
 	{
 		HTTAG_WARNING(
-			std::string( "asked to remove attribute " )
+			"asked to remove attribute "
 			+ getString( attr )
 			+ std::string( " of tag <")
 			+ getString( _tag_en )
@@ -1164,77 +1208,28 @@ Httag::p_doLineFeed( bool linefeed ) const
 //	if( doIt )
 //		*_file << '\n';
 }
+
 //-----------------------------------------------------------------------------------
-/// Streams into \c s the opening tag (with attributes), the content, and the closing tag
-/**
-\warning: as the streamed tag (\c h) is const, the automatic content clearing
-(see \ref run_time_option) can not happen!
-\todo Needs to be factorized !
-*/
+/// Stream tag into file, const version
 inline
 std::ostream&
 operator << ( std::ostream& s, const Httag& h )
 {
-	switch( h._tag_en )
-	{
-		case HT_COMMENT: s << "<!-- "; break;
-		case HT_DOCTYPE: s << "<!DOCTYPE html>\n"; break;
-		default:
-			s << '<' << getString( h._tag_en )
-				<< h.p_getAttribs() << '>';
-	}
-	if( !priv::isVoidElement( h.getTag() ) )
-	{
-		s << h._content;
-		if( h._tag_en == HT_COMMENT )
-			s << " -->";
-		else
-			s << "</" << getString( h._tag_en ) << '>';
-	}
-#if 1
-//    if( h._isFileType )
-		if( h.p_doLineFeed() )
-			s << '\n';
-#else
-	h.closeTag();
-#endif
-	return s;
+	return priv::streamTagInFile( s, h );
 }
 
-//-----------------------------------------------------------------------------------
-// NON CONST VERSION
+/// Stream tag into file, non-const version
+///  \todo test to make sure it gets closed !
 inline
 std::ostream&
 operator << ( std::ostream& s, Httag& h )
 {
-//	std::cout << "operator <<: _isFileType=" << h._isFileType << "\n";
-//	h._tagIsOpen = true;
-	switch( h._tag_en )
-	{
-		case HT_COMMENT: s << "<!-- "; break;
-		case HT_DOCTYPE: s << "<!DOCTYPE html>\n"; break;
-		default:
-			s << '<' << getString( h._tag_en )
-				<< h.p_getAttribs() << '>';
-	}
-	if( !priv::isVoidElement( h.getTag() ) )
-	{
-		s << h._content;
-		if( h._tag_en == HT_COMMENT )
-			s << " -->";
-		else
-			s << "</" << getString( h._tag_en ) << '>';
-	}
-#if 1
-//    if( h._isFileType )
-		if( h.p_doLineFeed() )
-			s << '\n';
+	priv::streamTagInFile( s, h );
+
+	if( h.p_doLineFeed() )
+		s << '\n';
 	if( h.p_getCTCC() )       // if option set, clear content
 		h.clearContent();
-
-#else
-	h.closeTag();
-#endif
 	return s;
 }
 
@@ -1585,6 +1580,7 @@ Httag::printSupportedHtml( std::ostream& f, T )
 	{
 		f << Httag( HT_H2, std::to_string(i+1) + " - " + titles[i], AT_ID, "h" + std::to_string(i+1) );
 		funcs[i]( f, i );
+		std::cout << std::endl; // flush (TMP)
 	}
 
 	auto timenow = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
