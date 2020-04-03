@@ -410,7 +410,7 @@ class Httag
 			static priv::OpenedTags s_ot;
 			return s_ot;
 		}
-		static priv::AllowedContentMap p_getAllowedContentMap()
+		static const priv::AllowedContentMap& p_getAllowedContentMap()
 		{
 			static priv::AllowedContentMap s_allowed_tags;
 			return s_allowed_tags;
