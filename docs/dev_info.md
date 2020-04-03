@@ -125,3 +125,5 @@ Maybe it can be used to access the caller code in case of error?
 \todo 20200327: put back the silent error mode (see HTTAG_NO_CHECK)
 
 \todo 20200329: enforce not tag content when parent tag is "text-only"
+
+\todo 20200403: add compile-time option to disable tag content enforcement !

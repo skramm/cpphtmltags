@@ -208,7 +208,11 @@ streamTagInTag( T1& t1, T2& t2 )
 	std::ostringstream oss;
 
 	auto check = priv::tagIsAllowed( t2.getTag(), t1.getTag() );
-	if( check.first )
+	if( check.first
+#ifdef HTTAG_NO_CHECK              // if "no checking", then no error
+		|| true
+#endif
+	)
 		oss << t1._content << t2;
 	else
 		HTTAG_FATAL_ERROR(
@@ -517,8 +521,7 @@ tagIsAllowed(
 	if( tag == HT_DOCTYPE )                          // if we have called this function,
 		return std::make_pair(false,UT_Doctype);     // it means there IS a 'parent' tag, thus, we can't have a DOCTYPE !
 
-	const auto& acm = Httag::p_getAllowedContentMap(); // allowed content of currently (latest) opened tag
-	const auto& ac = acm.get( parent ); // allowed content of currently (latest) opened tag
+	const auto& ac = Httag::p_getAllowedContentMap().get( parent ); // allowed content of currently (latest) opened tag
 
 	for( auto e: ac._v_forbiddenTags )
 		if( e == tag )
