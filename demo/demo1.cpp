@@ -9,7 +9,6 @@ using namespace httag;
 
 int main()
 {
-//	Httag::setLineFeedMode( LF_Always );
 	Httag t1( HT_BR );
 	cout << t1;
 

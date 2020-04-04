@@ -3,14 +3,15 @@
 Homepage: https://github.com/skramm/cpphtmltags/
 
 ## Introduction
+
 This library is build around a single class: `Httag`, along with some helper free functions.
 All of it is defined in the namespace `httag`.
-This class models an HTML tag (aka element), that can be streamed in file.
+This class models an HTML tag (aka element), that can be streamed in a file or output stream.
 
-Two types of tags can be created, but they are both handled trough the same class, for conveniency.
+Two types of tags can be created, but they are both handled trough the same class.
 They only differ in the way they are created, and how they generate some output.
 - The first type is independent of any output device, it is up to the user to stream them in some output stream.
-- With the second type, you assign an output stream at creation time.
+- With the second type, you assign an output stream at creation time. It is stored internally, and you can then explicitely control the output process.
 
 The library and the contained class can be used in two ways, either through classical object paradigm, either through a set of macros.
 These basically wrap the code, it ends up as the same thing, with one notable exception:
@@ -18,8 +19,6 @@ All the potential errors you might do while writing your code (say, trying to wr
 - With the classical API, your program will stop (unless you try to catch them, but that would be tedious).
 - With the macro-based API, your program will continue, and you will get in stderr a nice information log, with the location of the error in your code.
 For more details, [see here](#macro).
-
-But anyhow, you might want to check the classical API first.
 
 
 ## A - Classical User Interface
@@ -287,7 +286,9 @@ Please note that the global attribute will always be added at the end of the str
 
 ### A.4 - Run-time options
 
-Different settings can be set at run-time, using static functions.
+Different settings can be set at run-time, using the static function `setOption( a, b )`.
+The first argument is an enum value, used to define what option must be edited, the second argument is type dependent.
+These are all in the sub-namespace `rto`.
 
 <a name="linefeed"></a>
 #### A.4.1 - Line feeds
@@ -301,27 +302,35 @@ These two behaviors can be achieved, three modes are available:
 - a "default" mode, where certain tags get a line feed after closure, others do not.
 
 This is achieved with a static method:<br>
-`setLineFeedMode( En_LineFeedMode mode )`<br>
-The possible values are `LF_None`, `LF_Always`, `LF_Default`.
+`setOption( rto::LFMode, mode)`<br>
+The possible values are `rto::LF_None`, `LF_Always`, `LF_Default`.
 
 For example:
 ```C++
-Httag::setLineFeedMode( LF_Always );
+Httag::setOption( rto::LFMode, rto::LF_Always );
 ```
 
 #### A.4.2 - Behavior on tag closing
 
 Two different behaviors can be selected, globally.
 Either the tag content is cleared automatically, either it is retained.
-This can be selected with:
-```C++
-Httag::setClosingTagClearsContent( bool );
-```
+This can be selected with the type `rto::ClearOnClose`, and the possible values are `true` and `false`.
 The default value is `false`.
+
+### A.4.3 - Behavior on errors
+
+TODO
+
+first argument: `rto::IllegalOp`
+
+possible values: `rto::EM_Throw`, `rto::EM_NoThrow`
 
 ### A.5 - Error handling
 
+TODO - OBSOLETE SECTION
+
 In case of non fatal problem, this library will simply issue a warning with a clear message on `std::cerr`.
+
 This can be disabled by passing the option `HTTAG_SILENT_WARNINGS` before including the file.
 
 In case of fatal error, this library will issue a message on `std::cerr` with line number and the error message, and throw an error of type `std::runtime_error`.

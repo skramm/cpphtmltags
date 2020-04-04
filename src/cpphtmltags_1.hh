@@ -149,14 +149,15 @@ class Httag;
 
 
 //############################
-//namespace rto {
+/// Holds all Run Time Options types, see httag::Httag::setOption()
+namespace rto {
 //############################
 
 //-----------------------------------------------------------------------------------
 ///@{ Option settings related, see priv::RunTimeOptions and Httag::setOption()
-enum RTO_IllegalOp_t    { RTO_IllegalOp };
-enum RTO_LFMode_t       { RTO_LFMode};
-enum RTO_ClearOnClose_t { RTO_ClearOnClose };
+enum IllegalOp_t    { IllegalOp };
+enum LFMode_t       { LFMode};
+enum ClearOnClose_t { ClearOnClose };
 ///@}
 
 /// Line Feed Mode. See [manual](md_manual.html#linefeed)
@@ -168,7 +169,7 @@ enum En_LineFeedMode
 enum En_ErrorMode { EM_Throw, EM_NoThrow }; //, T_Default };
 
 //############################
-//} // namespace rto
+} // namespace rto
 //############################
 
 

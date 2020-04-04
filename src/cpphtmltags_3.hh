@@ -234,12 +234,9 @@ streamTagInTag( T1& t1, T2& t2 )
 /// Dedicated to hold (statically) run time options, see Httag::setOption()
 struct RunTimeOptions
 {
-	En_LineFeedMode _lineFeedMode = LF_Default;
-	En_ErrorMode    _errorMode    = EM_Throw;
-/*	rto::En_LineFeedMode _lineFeedMode = rto::LF_Default;
+	rto::En_LineFeedMode _lineFeedMode = rto::LF_Default;
 	rto::En_ErrorMode    _errorMode    = rto::EM_Throw;
-*/
-	bool            _clearOnClose = true;
+	bool                 _clearOnClose = true;
 };
 
 //############################
@@ -391,17 +388,7 @@ class Httag
 			return clearContent().clearAttribs();
 		}
 ///@}
-/*
-		static void setLineFeedMode( En_LineFeedMode mode )
-		{
-			p_LF_mode() = mode;
-		}
-		/// Defines the behavior on closing a tag: does it clear the content ?
-		static void setClosingTagClearsContent( bool b )
-		{
-			p_getCTCC() = b;
-		}
-*/
+
 		template<typename T1,typename T2>
 		static void setOption( T1, T2 );
 
@@ -449,8 +436,6 @@ class Httag
 			return s_runTimeOptions;
 		}
 
-
-
 	private:
 		En_Httag        _tag_en;
 		std::ostream*   _file;
@@ -472,27 +457,28 @@ getString( const Httag& t )
 /// Run Time Options settings
 
 template<>
-void Httag::setOption<RTO_LFMode_t,En_LineFeedMode>( RTO_LFMode_t name, En_LineFeedMode value )
+void Httag::setOption<rto::LFMode_t,rto::En_LineFeedMode>( rto::LFMode_t name, rto::En_LineFeedMode value )
 {
 	p_getRunTimeOptions()._lineFeedMode = value;
 }
 
 template<>
-void Httag::setOption<RTO_IllegalOp_t,En_ErrorMode>( RTO_IllegalOp_t name, En_ErrorMode value )
+void Httag::setOption<rto::IllegalOp_t,rto::En_ErrorMode>( rto::IllegalOp_t name, rto::En_ErrorMode value )
 {
 	p_getRunTimeOptions()._errorMode = value;
 }
 
 template<>
-void Httag::setOption<RTO_ClearOnClose_t,bool>( RTO_ClearOnClose_t name, bool value )
+void Httag::setOption<rto::ClearOnClose_t,bool>( rto::ClearOnClose_t name, bool value )
 {
 	p_getRunTimeOptions()._clearOnClose = value;
 }
 
-
+/// Default templated function, should never be instanciated
 template<typename T1,typename T2>
 void setOption( T1 name, T2 value )
 {
+	static_assert( std::is_same<T1,T1>::value, "should never happen !" );
 }
 //-----------------------------------------------------------------------------------
 
@@ -865,7 +851,7 @@ void Httag::printWithContent( T stuff )
 			*_file << _content << stuff;
 		else
 		{
-			if( Httag::p_getRunTimeOptions()._errorMode == EM_Throw )
+			if( Httag::p_getRunTimeOptions()._errorMode == rto::EM_Throw )
 				HTTAG_FATAL_ERROR( "attempting to add content '"
 					+ _content
 					+ "' and '"
@@ -1006,9 +992,6 @@ Httag::closeTag( std::string __file, int __line, bool linefeed )
 	if( _isFileType )
 		if( p_doLineFeed( linefeed ) )
 			*_file << '\n';
-
-//	if( p_getCTCC() )       // if option set, clear content
-//		clearContent();
 
 	if( p_getRunTimeOptions()._clearOnClose )       // if option set, clear content
 		clearContent();
@@ -1271,12 +1254,11 @@ bool
 Httag::p_doLineFeed( bool linefeed ) const
 {
 	bool doIt = false;
-//	switch( p_LF_mode() )
 	switch( p_getRunTimeOptions()._lineFeedMode )
 	{
-		case LF_Always: doIt = true; break;
-		case LF_None: break;
-		case LF_Default: doIt = priv::hasDefaultLF_Close( _tag_en ) | linefeed; break;
+		case rto::LF_Always: doIt = true; break;
+		case rto::LF_None: break;
+		case rto::LF_Default: doIt = priv::hasDefaultLF_Close( _tag_en ) | linefeed; break;
 		default: assert(0);
 	}
 	return doIt;
@@ -1301,8 +1283,6 @@ operator << ( std::ostream& s, Httag& h )
 
 	if( h.p_doLineFeed() )
 		s << '\n';
-//	if( h.p_getCTCC() )       // if option set, clear content
-//		h.clearContent();
 	if( h.p_getRunTimeOptions()._clearOnClose )       // if option set, clear content
 		h.clearContent();
 
@@ -1319,7 +1299,6 @@ namespace priv {
 void
 print_A( std::ostream& f, const AllowedContent& ac )
 {
-//	Httag::setClosingTagClearsContent( true );
 	Httag td( f, HT_TD );
 
 	for( auto e: ac._v_allowedCats )
@@ -1605,8 +1584,7 @@ Httag::printSupportedHtml( std::ostream& f, T )
 #ifdef HTTAG_NO_REFERENCE_TABLES
 	f << "Error: build without printing of reference tables enabled\n";
 #else
-//	Httag::setClosingTagClearsContent( true );
-
+	Httag::setOption( rto::ClearOnClose, true );
 	f << Httag( HT_DOCTYPE );
 	Httag t( f, HT_HTML );
 	t.openTag();

@@ -12,10 +12,9 @@ using namespace httag;
 TEST_CASE( "test1", "[t1]" )
 {
 	std::cout << "Running tests with catch " << CATCH_VERSION_MAJOR << '.' << CATCH_VERSION_MINOR << '.' << CATCH_VERSION_PATCH << '\n';
-	Httag::setOption( RTO_LFMode, LF_None );
-	Httag::setOption( RTO_ClearOnClose, true );
+	Httag::setOption( rto::LFMode, rto::LF_None );
+	Httag::setOption( rto::ClearOnClose, true );
 
-//	Httag::setLineFeedMode( LF_None );
 	SECTION( "creation of tag and streaming in two steps" ) {
 	{
 		std::ostringstream oss;
@@ -127,7 +126,7 @@ SECTION( "tag inside a tag" )
 
 	SECTION( "iterative adding of attributes" )
 	{
-		Httag::setOption( RTO_ClearOnClose, false );
+		Httag::setOption( rto::ClearOnClose, false );
 		std::ostringstream oss,oss2,oss3;
 		Httag t1( HT_P, "content", AT_CLASS, "myclass" );
 		t1.addAttrib( AT_STYLE, "width:100%;" );
@@ -186,11 +185,11 @@ SECTION( "tag inside a tag" )
 		t.addAttrib( AT_MIN, 3 );
 		t.addAttrib( AT_MAX, 10 );
 
-		Httag::setOption( RTO_ClearOnClose, false );
+		Httag::setOption( rto::ClearOnClose, false );
 
-		Httag::setOption( RTO_IllegalOp, EM_Throw );
+		Httag::setOption( rto::IllegalOp, rto::EM_Throw );
 		CHECK_THROWS( t.printWithContent( "text" ) );   // <input> is a void tag, thus, no content allowed !
-		Httag::setOption( RTO_IllegalOp, EM_NoThrow );
+		Httag::setOption( rto::IllegalOp, rto::EM_NoThrow );
 		CHECK_NOTHROW( t.printWithContent( "text" ) );   // <input> is a void tag, thus, no content allowed !
 
 		t.printTag();
@@ -374,7 +373,7 @@ TEST_CASE( "tag closure", "[t4]" )
 		t0.printTag();
 		CHECK( oss.str() == "<p>content, some more content</p>" );
 
-		Httag::setOption( RTO_ClearOnClose, true );
+		Httag::setOption( rto::ClearOnClose, true );
 		oss.str(""); // clear
 		t0.printTag();                       // once printed, the tag keeps its content
 		CHECK( oss.str() == "<p>content, some more content</p>" );
@@ -402,8 +401,6 @@ TEST_CASE( "test_cat", "[t5]" )
 
 TEST_CASE( "test_ac", "[t6]" ) // testing allowed content in a tag
 {
-//	Httag::setClosingTagClearsContent( true );
-//	Httag::setLineFeedMode( LF_None );
 	SECTION( "t6-1" )
 	{
 		std::ostringstream oss;
@@ -495,8 +492,7 @@ TEST_CASE( "test_void", "[t7]" ) // testing void elements
 
 TEST_CASE( "chained functions", "[t8]" )
 {
-//	Httag::setClosingTagClearsContent( false );
-	Httag::setOption( RTO_ClearOnClose, false );
+	Httag::setOption( rto::ClearOnClose, false );
 
 	std::ostringstream oss;
 	oss << Httag( HT_P ).addAttrib( AT_CLASS, "aaa" ).addAttrib( AT_ID, "bbb" );
@@ -544,8 +540,7 @@ TEST_CASE( "clearing content", "[t9]" )
 	std::ostringstream oss;
 	SECTION( "t9-a: file-typetags" )
 	{
-//		Httag::setClosingTagClearsContent( false );
-		Httag::setOption( RTO_ClearOnClose, false );
+		Httag::setOption( rto::ClearOnClose, false );
 		Httag p( oss, HT_P, "text", AT_CLASS, "c1" );
 
 		oss.str( "" );
@@ -556,8 +551,7 @@ TEST_CASE( "clearing content", "[t9]" )
 		p.printTag();            // no change
 		CHECK( oss.str() == "<p class=\"c1\">text</p>" );
 
-//		Httag::setClosingTagClearsContent( true );
-		Httag::setOption( RTO_ClearOnClose, true );
+		Httag::setOption( rto::ClearOnClose, true );
 
 		oss.str( "" );
 		p.printTag();
@@ -571,8 +565,7 @@ TEST_CASE( "clearing content", "[t9]" )
 	{
 		Httag p1(HT_P, "text");
 
-//		Httag::setClosingTagClearsContent( false );
-		Httag::setOption( RTO_ClearOnClose, false );
+		Httag::setOption( rto::ClearOnClose, false );
 		oss.str( "" );
 		oss << p1;
 		CHECK( oss.str() == "<p>text</p>" );
@@ -580,8 +573,7 @@ TEST_CASE( "clearing content", "[t9]" )
 		oss << p1;
 		CHECK( oss.str() == "<p>text</p>" );
 
-//		Httag::setClosingTagClearsContent( true );
-		Httag::setOption( RTO_ClearOnClose, true );
+		Httag::setOption( rto::ClearOnClose, true );
 		Httag p2(HT_P, "text");
 		oss.str( "" );
 		oss << p2;
@@ -594,8 +586,7 @@ TEST_CASE( "clearing content", "[t9]" )
 
 TEST_CASE( "boolean attributes", "[t10]" )
 {
-	Httag::setOption( RTO_ClearOnClose, false );
-//	Httag::setClosingTagClearsContent( false );
+	Httag::setOption( rto::ClearOnClose, false );
 	std::ostringstream oss;
 
 	oss << Httag( HT_INPUT ).addAttrib( AT_CHECKED);
@@ -612,7 +603,6 @@ TEST_CASE( "boolean attributes", "[t10]" )
 
 TEST_CASE( "constructor as content", "[t11]" )
 {
-//	Httag::setClosingTagClearsContent( false );
 	std::ostringstream oss;
 
 	Httag t( HT_DIV, Httag( HT_DIV, "aaa" ) );

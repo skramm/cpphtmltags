@@ -26,6 +26,7 @@ file_out3=build/tmp/cat_switch.src
 set +x
 
 echo "//############################"> $file_out1
+echo "/// Private namespace">> $file_out1
 echo "namespace priv {">> $file_out1
 echo "//############################">> $file_out1
 

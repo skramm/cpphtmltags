@@ -1,37 +1,30 @@
 // This file is part of cpphtmltags
-// test2.cpp
+// demo2a.cpp
 
 #include "../cpphtmltags.hpp"
 
 using namespace std;
 using namespace httag;
 
-void test2( En_LineFeedMode lfmode )
+void test2( rto::En_LineFeedMode lfmode )
 {
-//	Httag::setLineFeedMode( lfmode );
-
-// opening and closing tag
-	Httag t1( cout, HT_H1 );
+	Httag t1( cout, HT_H1 );    // opening and closing tag
 	t1.openTag();
 	cout << "my title 1 !";
 	t1.closeTag();
 
-// self closing tag
-	{
+	{                               // self closing tag
 		Httag t2( cout, HT_H2 );
 		t2.addAttrib( AT_STYLE , "font-size:150%;" );
 		t2.openTag();
 		cout << "my title 2 !";
 	}
-
-// putting attribute inside tag creation
-	{
+	{                         // putting attribute inside tag creation
 		Httag t2( cout, HT_H3, AT_ID, "abc" );
 		t2.addAttrib( AT_STYLE , "font-size:200%;" );
 		t2.openTag();
 		cout << "my title 3 !";
 	}
-
 	{
 		Httag t2( cout, HT_P, AT_CLASS, "parag" );
 		t2.setContent( "this is some text" );
@@ -45,13 +38,13 @@ void test2( En_LineFeedMode lfmode )
 int main()
 {
 	cout << "* LineFeed mode: default\n";
-	test2( LF_Default );
+	test2( rto::LF_Default );
 
 	cout << "\n* LineFeed mode: none\n";
-	test2( LF_None );
+	test2( rto::LF_None );
 
 	cout << "\n* LineFeed mode: always\n";
-	test2( LF_Always );
+	test2( rto::LF_Always );
 
 	Httag::setGlobalAttrib( HT_LI, AT_CLASS, "cl1" );
 	Httag li( HT_LI, AT_CLASS, "cl2" );
