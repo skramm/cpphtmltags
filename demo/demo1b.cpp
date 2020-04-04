@@ -9,8 +9,8 @@ using namespace httag;
 
 int main()
 {
-	Httag::setLineFeedMode( LF_Always );
-	cout << Httag( HT_P, "first paragraph" );           // direct string content	
+//	Httag::setLineFeedMode( LF_Always );
+	cout << Httag( HT_P, "first paragraph" );           // direct string content
 
 	cout << Httag( HT_COMMENT, "this is a comment" );       // a comment
 

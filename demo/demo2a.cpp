@@ -8,7 +8,7 @@ using namespace httag;
 
 void test2( En_LineFeedMode lfmode )
 {
-	Httag::setLineFeedMode( lfmode );
+//	Httag::setLineFeedMode( lfmode );
 
 // opening and closing tag
 	Httag t1( cout, HT_H1 );

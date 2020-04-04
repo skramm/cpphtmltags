@@ -127,6 +127,7 @@ SECTION( "tag inside a tag" )
 
 	SECTION( "iterative adding of attributes" )
 	{
+		Httag::setOption( RTO_ClearOnClose, false );
 		std::ostringstream oss,oss2,oss3;
 		Httag t1( HT_P, "content", AT_CLASS, "myclass" );
 		t1.addAttrib( AT_STYLE, "width:100%;" );
@@ -186,6 +187,7 @@ SECTION( "tag inside a tag" )
 		t.addAttrib( AT_MAX, 10 );
 
 		Httag::setOption( RTO_ClearOnClose, false );
+
 		Httag::setOption( RTO_IllegalOp, EM_Throw );
 		CHECK_THROWS( t.printWithContent( "text" ) );   // <input> is a void tag, thus, no content allowed !
 		Httag::setOption( RTO_IllegalOp, EM_NoThrow );
@@ -364,32 +366,28 @@ TEST_CASE( "tag closure", "[t4]" )
 {
 	SECTION( "self closing tag" )
 	{
-		{
-			std::ostringstream oss;
-			Httag t0( oss, HT_P );                        // adding content to a tag
-			t0 << "content";
-			t0.openTag();
-			t0 << ", some more content";
-			t0.printTag();
-			CHECK( oss.str() == "<p>content, some more content</p>" );
+		std::ostringstream oss;
+		Httag t0( oss, HT_P );                        // adding content to a tag
+		t0 << "content";
+		t0.openTag();
+		t0 << ", some more content";
+		t0.printTag();
+		CHECK( oss.str() == "<p>content, some more content</p>" );
 
-//			Httag::setClosingTagClearsContent( true );
+		Httag::setOption( RTO_ClearOnClose, true );
+		oss.str(""); // clear
+		t0.printTag();                       // once printed, the tag keeps its content
+		CHECK( oss.str() == "<p>content, some more content</p>" );
 
-			oss.str(""); // clear
-			t0.printTag();                       // once printed, the tag keeps its content
-			CHECK( oss.str() == "<p>content, some more content</p>" );
+		oss.str(""); // clear
+		t0.printTag();                       // once printed,
+		CHECK( oss.str() == "<p></p>" );     // the tag becomes empty
 
-			oss.str(""); // clear
-			t0.printTag();                       // once printed,
-			CHECK( oss.str() == "<p></p>" );     // the tag becomes empty
-		}
-		{
-			std::ostringstream oss;
-			Httag t0( oss, HT_P );                        // adding content to a tag
-			t0 << "some content";
-			t0.printTag();
-			CHECK( oss.str() == "<p>some content</p>" );
-		}
+		oss.str("");
+		Httag t1( oss, HT_P );                        // adding content to a tag
+		t1 << "some content";
+		t1.printTag();
+		CHECK( oss.str() == "<p>some content</p>" );
 	}
 }
 

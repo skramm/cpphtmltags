@@ -864,7 +864,17 @@ void Httag::printWithContent( T stuff )
 		if( !priv::isVoidElement( _tag_en ) )
 			*_file << _content << stuff;
 		else
-			HTTAG_FATAL_ERROR( "attempting to add content '" + _content + "' to void tag <" + getString(_tag_en) + ">" );
+		{
+			if( Httag::p_getRunTimeOptions()._errorMode == EM_Throw )
+				HTTAG_FATAL_ERROR( "attempting to add content '"
+					+ _content
+					+ "' and '"
+					+ stuff
+					+ "' to void tag <"
+					+ getString(_tag_en)
+					+ ">"
+				);
+		}
 	}
 //	*_file << c;
 //	_printAttribs = false;
@@ -1270,8 +1280,6 @@ Httag::p_doLineFeed( bool linefeed ) const
 		default: assert(0);
 	}
 	return doIt;
-//	if( doIt )
-//		*_file << '\n';
 }
 
 //-----------------------------------------------------------------------------------
