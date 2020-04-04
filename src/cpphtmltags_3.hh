@@ -199,8 +199,8 @@ std::pair<bool,En_UnallowedTag> tagIsAllowed( En_Httag, En_Httag );
 std::ostream& streamTagInFile( std::ostream&, const Httag& );
 
 
+//-----------------------------------------------------------------------------------
 /// Helper function for operator << for 2 tags, stream t2 into t1
-/// \todo replace oss << tag._content << t2; with oss << t2; and tag._content = oss.str(); with tag._content += oss.str();
 template<typename T1, typename T2>
 T1&
 streamTagInTag( T1& t1, T2& t2 )
@@ -213,7 +213,7 @@ streamTagInTag( T1& t1, T2& t2 )
 		|| true
 #endif
 	)
-		oss << t1._content << t2;
+		oss << t2;
 	else
 		HTTAG_FATAL_ERROR(
 			"tag <"
@@ -224,20 +224,29 @@ streamTagInTag( T1& t1, T2& t2 )
 			+ getString(check.second)
 		);
 
-	t1._content = oss.str();
+	t1._content += oss.str();
 	return t1;
 }
+
+
+
+//-----------------------------------------------------------------------------------
+/// Dedicated to hold (statically) run time options, see Httag::setOption()
+struct RunTimeOptions
+{
+	En_LineFeedMode _lineFeedMode = LF_Default;
+	En_ErrorMode    _errorMode    = EM_Throw;
+/*	rto::En_LineFeedMode _lineFeedMode = rto::LF_Default;
+	rto::En_ErrorMode    _errorMode    = rto::EM_Throw;
+*/
+	bool            _clearOnClose = true;
+};
 
 //############################
 } // namespace priv
 //############################
 
-//-----------------------------------------------------------------------------------
-/// Line Feed Mode. See [manual](md_manual.html#linefeed)
-enum En_LineFeedMode
-{
-	LF_None, LF_Always, LF_Default
-};
+
 
 //-----------------------------------------------------------------------------------
 /// HTML tag
@@ -382,7 +391,7 @@ class Httag
 			return clearContent().clearAttribs();
 		}
 ///@}
-
+/*
 		static void setLineFeedMode( En_LineFeedMode mode )
 		{
 			p_LF_mode() = mode;
@@ -392,6 +401,9 @@ class Httag
 		{
 			p_getCTCC() = b;
 		}
+*/
+		template<typename T1,typename T2>
+		static void setOption( T1, T2 );
 
 		static void printSupported( std::ostream& );
 		template<typename T>
@@ -420,17 +432,23 @@ class Httag
 			static priv::GlobAttribMap_t s_global_attrib;
 			return s_global_attrib;
 		}
-		static En_LineFeedMode& p_LF_mode()
+/*		static En_LineFeedMode& p_LF_mode()
 		{
 			static En_LineFeedMode s_lfMode = LF_Default;
 			return s_lfMode;
 		}
-
 		static bool& p_getCTCC()
 		{
 			static bool s_option_COC = false;
 			return s_option_COC;
 		}
+*/
+		static priv::RunTimeOptions& p_getRunTimeOptions()
+		{
+			static priv::RunTimeOptions s_runTimeOptions;
+			return s_runTimeOptions;
+		}
+
 
 
 	private:
@@ -451,6 +469,33 @@ getString( const Httag& t )
 }
 
 //-----------------------------------------------------------------------------------
+/// Run Time Options settings
+
+template<>
+void Httag::setOption<RTO_LFMode_t,En_LineFeedMode>( RTO_LFMode_t name, En_LineFeedMode value )
+{
+	p_getRunTimeOptions()._lineFeedMode = value;
+}
+
+template<>
+void Httag::setOption<RTO_IllegalOp_t,En_ErrorMode>( RTO_IllegalOp_t name, En_ErrorMode value )
+{
+	p_getRunTimeOptions()._errorMode = value;
+}
+
+template<>
+void Httag::setOption<RTO_ClearOnClose_t,bool>( RTO_ClearOnClose_t name, bool value )
+{
+	p_getRunTimeOptions()._clearOnClose = value;
+}
+
+
+template<typename T1,typename T2>
+void setOption( T1 name, T2 value )
+{
+}
+//-----------------------------------------------------------------------------------
+
 //############################
 namespace priv {
 //############################
@@ -952,7 +997,10 @@ Httag::closeTag( std::string __file, int __line, bool linefeed )
 		if( p_doLineFeed( linefeed ) )
 			*_file << '\n';
 
-	if( p_getCTCC() )       // if option set, clear content
+//	if( p_getCTCC() )       // if option set, clear content
+//		clearContent();
+
+	if( p_getRunTimeOptions()._clearOnClose )       // if option set, clear content
 		clearContent();
 }
 
@@ -1213,7 +1261,8 @@ bool
 Httag::p_doLineFeed( bool linefeed ) const
 {
 	bool doIt = false;
-	switch( p_LF_mode() )
+//	switch( p_LF_mode() )
+	switch( p_getRunTimeOptions()._lineFeedMode )
 	{
 		case LF_Always: doIt = true; break;
 		case LF_None: break;
@@ -1244,8 +1293,11 @@ operator << ( std::ostream& s, Httag& h )
 
 	if( h.p_doLineFeed() )
 		s << '\n';
-	if( h.p_getCTCC() )       // if option set, clear content
+//	if( h.p_getCTCC() )       // if option set, clear content
+//		h.clearContent();
+	if( h.p_getRunTimeOptions()._clearOnClose )       // if option set, clear content
 		h.clearContent();
+
 	return s;
 }
 
@@ -1259,7 +1311,7 @@ namespace priv {
 void
 print_A( std::ostream& f, const AllowedContent& ac )
 {
-	Httag::setClosingTagClearsContent( true );
+//	Httag::setClosingTagClearsContent( true );
 	Httag td( f, HT_TD );
 
 	for( auto e: ac._v_allowedCats )
@@ -1545,7 +1597,7 @@ Httag::printSupportedHtml( std::ostream& f, T )
 #ifdef HTTAG_NO_REFERENCE_TABLES
 	f << "Error: build without printing of reference tables enabled\n";
 #else
-	Httag::setClosingTagClearsContent( true );
+//	Httag::setClosingTagClearsContent( true );
 
 	f << Httag( HT_DOCTYPE );
 	Httag t( f, HT_HTML );

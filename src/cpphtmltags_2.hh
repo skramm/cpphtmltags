@@ -1,5 +1,8 @@
 //--- START: TEMPLATE FILE cpphtmltags_2.hh
 
+
+// current namespace: httag::priv
+
 /// Maps attributes to tags that allow them
 using MapAttribs_t = std::map<En_Attrib,std::vector<En_Httag>>;
 

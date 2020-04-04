@@ -147,5 +147,30 @@ namespace httag {
 // forward declaration
 class Httag;
 
+
+//############################
+//namespace rto {
+//############################
+
+//-----------------------------------------------------------------------------------
+///@{ Option settings related, see priv::RunTimeOptions and Httag::setOption()
+enum RTO_IllegalOp_t    { RTO_IllegalOp };
+enum RTO_LFMode_t       { RTO_LFMode};
+enum RTO_ClearOnClose_t { RTO_ClearOnClose };
+///@}
+
+/// Line Feed Mode. See [manual](md_manual.html#linefeed)
+enum En_LineFeedMode
+{
+	LF_None, LF_Always, LF_Default
+};
+
+enum En_ErrorMode { EM_Throw, EM_NoThrow }; //, T_Default };
+
+//############################
+//} // namespace rto
+//############################
+
+
 //--- END: TEMPLATE FILE cpphtmltags_1.hh
 
