@@ -312,10 +312,25 @@ Httag::setOption( rto::LFMode, rto::LF_Always );
 
 #### A.4.2 - Behavior on tag closing
 
-Two different behaviors can be selected, globally.
-Either the tag content is cleared automatically, either it is retained.
-This can be selected with the type `rto::ClearOnClose`, and the possible values are `true` and `false`.
-The default value is `false`.
+The behavior of a tag object upon closure can be defined globally.
+
+Consider a tag holding a content and some attributes:
+```C++
+Httag p( HT_P, "text", AT_CLASS, "c1" );
+```
+What happens when we do this?:
+```C++
+f << p << p;
+```
+The default behavior is leave tag unchanged, so we get:
+`<p class="c1">text</p><p class="c1">text</p>`
+
+However, in some situation, it can be desired that the tag gets "cleared" once it is closed.
+This can be defined globally with runtime options:
+either only for the content `rto::ClearContentOnClose`,
+only for the attributes `rto::ClearAttribsOnClose`,
+or for both `rto::ClearOnClose`.
+
 
 ### A.4.3 - Behavior on errors
 

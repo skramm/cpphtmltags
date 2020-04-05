@@ -158,6 +158,8 @@ namespace rto {
 enum IllegalOp_t    { IllegalOp };
 enum LFMode_t       { LFMode};
 enum ClearOnClose_t { ClearOnClose };
+enum ClearOnClose_C_t { ClearContentOnClose };
+enum ClearOnClose_A_t { ClearAttribOnClose };
 ///@}
 
 /// Line Feed Mode. See [manual](md_manual.html#linefeed)

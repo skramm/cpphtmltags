@@ -236,7 +236,8 @@ struct RunTimeOptions
 {
 	rto::En_LineFeedMode _lineFeedMode = rto::LF_Default;
 	rto::En_ErrorMode    _errorMode    = rto::EM_Throw;
-	bool                 _clearOnClose = true;
+	bool _clearContentOnClose = false;
+	bool _clearAttribOnClose  = false;
 };
 
 //############################
@@ -471,7 +472,19 @@ void Httag::setOption<rto::IllegalOp_t,rto::En_ErrorMode>( rto::IllegalOp_t name
 template<>
 void Httag::setOption<rto::ClearOnClose_t,bool>( rto::ClearOnClose_t name, bool value )
 {
-	p_getRunTimeOptions()._clearOnClose = value;
+	p_getRunTimeOptions()._clearContentOnClose = value;
+	p_getRunTimeOptions()._clearAttribOnClose = value;
+}
+
+template<>
+void Httag::setOption<rto::ClearOnClose_C_t,bool>( rto::ClearOnClose_C_t name, bool value )
+{
+	p_getRunTimeOptions()._clearContentOnClose = value;
+}
+template<>
+void Httag::setOption<rto::ClearOnClose_A_t,bool>( rto::ClearOnClose_A_t name, bool value )
+{
+	p_getRunTimeOptions()._clearAttribOnClose = value;
 }
 
 /// Default templated function, should never be instanciated
@@ -993,8 +1006,11 @@ Httag::closeTag( std::string __file, int __line, bool linefeed )
 		if( p_doLineFeed( linefeed ) )
 			*_file << '\n';
 
-	if( p_getRunTimeOptions()._clearOnClose )       // if option set, clear content
+	const auto& rtopt = p_getRunTimeOptions();
+	if( rtopt._clearContentOnClose )      // if option set, clear content
 		clearContent();
+	if( rtopt._clearAttribOnClose )       // if option set, clear content
+		clearAttribs();
 }
 
 //-----------------------------------------------------------------------------------
@@ -1283,8 +1299,12 @@ operator << ( std::ostream& s, Httag& h )
 
 	if( h.p_doLineFeed() )
 		s << '\n';
-	if( h.p_getRunTimeOptions()._clearOnClose )       // if option set, clear content
+
+	const auto& rtopt = h.p_getRunTimeOptions();
+	if( rtopt._clearContentOnClose )      // if option set, clear content
 		h.clearContent();
+	if( rtopt._clearAttribOnClose )       // if option set, clear content
+		h.clearAttribs();
 
 	return s;
 }

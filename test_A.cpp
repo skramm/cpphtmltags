@@ -15,7 +15,8 @@ TEST_CASE( "test1", "[t1]" )
 	Httag::setOption( rto::LFMode, rto::LF_None );
 	Httag::setOption( rto::ClearOnClose, true );
 
-	SECTION( "creation of tag and streaming in two steps" ) {
+SECTION( "creation of tag and streaming in two steps" )
+{
 	{
 		std::ostringstream oss;
 		Httag t1( HT_BR );
@@ -65,11 +66,20 @@ TEST_CASE( "test1", "[t1]" )
 		t2.addContent( 42 );
 		oss2 << t2;
 		CHECK( oss1.str() == oss2.str() );
+
+		oss1.str("");
+		Httag t3( HT_P );
+		t3.setContent( "some " );
+		t3.addContent( "text " );
+		t3.setContent( 42 );
+		oss1 << t3;
+		CHECK( oss1.str() == "<p>42</p>" );
 	}
 
 } // section end
 
-	SECTION( "creation and streaming in single step" ) {
+SECTION( "creation and streaming in single step" )
+{
 	{
 		std::ostringstream oss;
 		oss << Httag( HT_BR );
@@ -185,13 +195,13 @@ SECTION( "tag inside a tag" )
 		t.addAttrib( AT_MIN, 3 );
 		t.addAttrib( AT_MAX, 10 );
 
-		Httag::setOption( rto::ClearOnClose, false );
+/*		Httag::setOption( rto::ClearOnClose, false );
 
 		Httag::setOption( rto::IllegalOp, rto::EM_Throw );
 		CHECK_THROWS( t.printWithContent( "text" ) );   // <input> is a void tag, thus, no content allowed !
 		Httag::setOption( rto::IllegalOp, rto::EM_NoThrow );
 		CHECK_NOTHROW( t.printWithContent( "text" ) );   // <input> is a void tag, thus, no content allowed !
-
+*/
 		t.printTag();
 		CHECK( oss.str() == "<input max=\"10\" min=\"3\">" );
 	}
@@ -201,6 +211,7 @@ TEST_CASE( "Global attributes handling", "[t1b]" )
 {
 	SECTION( "global attributes only" )
 	{
+		Httag::setOption( rto::ClearOnClose, false );
 		std::ostringstream oss;
 		Httag p( oss, HT_P, "Hi" );
 
@@ -273,7 +284,17 @@ TEST_CASE( "Error checking", "[t2]" )
 		CHECK_THROWS( t2.addContent( "tag cannot have content" ) ); // void elements cannot have content
 		CHECK_THROWS( Httag( HT_BR, "content" ) );  // same with constructor
 
+		Httag::setOption( rto::ClearOnClose, false );
+
 		std::ostringstream oss;
+		Httag t( oss, HT_INPUT );
+		Httag::setOption( rto::IllegalOp, rto::EM_Throw );
+		CHECK_THROWS( t.printWithContent( "text" ) );   // <input> is a void tag, thus, no content allowed !
+		Httag::setOption( rto::IllegalOp, rto::EM_NoThrow );
+		CHECK_NOTHROW( t.printWithContent( "text" ) );   // <input> is a void tag, thus, no content allowed !
+		Httag::setOption( rto::IllegalOp, rto::EM_Throw );
+
+		oss.str("");
 		Httag t3a( oss, HT_H2 );       // checking for
 		Httag t3b( oss, HT_STRONG );   // correct opening/closing order
 		t3a.openTag();
@@ -559,7 +580,7 @@ TEST_CASE( "clearing content", "[t9]" )
 
 		oss.str( "" );
 		p.printTag();            // tag has been cleared
-		CHECK( oss.str() == "<p class=\"c1\"></p>" );
+		CHECK( oss.str() == "<p></p>" );
 	}
 	SECTION( "t9-b: normal tags" )
 	{
