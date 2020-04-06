@@ -5,7 +5,7 @@
 \brief demo of using macros to open tags. This technique has the advantage of showing the user the location of incorrect usage.
 */
 
-#define HTTAG_SILENT_MODE
+//#define HTTAG_SILENT_MODE
 #include "../cpphtmltags.hpp"
 
 using namespace std;

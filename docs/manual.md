@@ -293,7 +293,7 @@ These are all in the sub-namespace `rto`.
 <a name="linefeed"></a>
 #### A.4.1 - Line feeds
 
-In order to be human readable, it may be a good idea to have here and then some line feeds in the output html code.
+In order to be human readable, it may be a good idea to have here and then some line feeds in the output Html code.
 On the other side, for large files it may be wanted to have "compact" html code, by removing all the unnecessary linefeeds.
 
 These two behaviors can be achieved, three modes are available:
@@ -301,9 +301,8 @@ These two behaviors can be achieved, three modes are available:
 - no line feed at all;
 - a "default" mode, where certain tags get a line feed after closure, others do not.
 
-This is achieved with a static method:<br>
-`setOption( rto::LFMode, mode)`<br>
-The possible values are `rto::LF_None`, `LF_Always`, `LF_Default`.
+This is achieved with the above static method, using as first argument `rto::LFMode`<br>
+For the second argument, the possible values are `rto::LF_None`, `LF_Always`, `LF_Default`.
 
 For example:
 ```C++
@@ -326,17 +325,16 @@ The default behavior is leave tag unchanged, so we get:
 `<p class="c1">text</p><p class="c1">text</p>`
 
 However, in some situation, it can be desired that the tag gets "cleared" once it is closed.
-This can be defined globally with runtime options:
-either only for the content `rto::ClearContentOnClose`,
-only for the attributes `rto::ClearAttribsOnClose`,
-or for both `rto::ClearOnClose`.
-
+This can be defined globally with the above function:
+- either only for the content `Httag::setOption( rto::ClearContentOnClose, true/false );`,
+- only for the attributes `Httag::setOption( rto::ClearAttribsOnClose, true/false );`,
+- or for both `Httag::setOption( rto::ClearOnClose, true/false );`.
 
 ### A.4.3 - Behavior on errors
 
 TODO
 
-first argument: `rto::IllegalOp`
+first argument: httag::rto::IllegalOp
 
 possible values: `rto::EM_Throw`, `rto::EM_NoThrow`
 

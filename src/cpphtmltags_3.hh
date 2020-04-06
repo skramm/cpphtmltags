@@ -238,6 +238,7 @@ struct RunTimeOptions
 	rto::En_ErrorMode    _errorMode    = rto::EM_Throw;
 	bool _clearContentOnClose = false;
 	bool _clearAttribOnClose  = false;
+	bool _doContentCheck      = true;
 };
 
 //############################
@@ -320,8 +321,6 @@ class Httag
 			_attr_map.clear();
 			return *this;
 		}
-
-//		void PrintAttributes( bool b ) { _printAttribs = b; }
 
 		void printTag();
 		template<typename T>
@@ -420,17 +419,19 @@ class Httag
 			static priv::GlobAttribMap_t s_global_attrib;
 			return s_global_attrib;
 		}
-/*		static En_LineFeedMode& p_LF_mode()
+
+		static int& p_getNbErrors()
 		{
-			static En_LineFeedMode s_lfMode = LF_Default;
-			return s_lfMode;
+			static int s_nbErrors;
+			return s_nbErrors;
 		}
-		static bool& p_getCTCC()
+		static void p_error( const std::string& msg, std::string __file=std::string(), int __line=0 )
 		{
-			static bool s_option_COC = false;
-			return s_option_COC;
+			std::cerr << "Error: (" << ++p_getNbErrors() << "), msg=" << msg << '\n';
+			if( Httag::p_getRunTimeOptions()._errorMode == rto::EM_Throw )
+				throw std::runtime_error( msg );
 		}
-*/
+
 		static priv::RunTimeOptions& p_getRunTimeOptions()
 		{
 			static priv::RunTimeOptions s_runTimeOptions;
@@ -442,7 +443,6 @@ class Httag
 		std::ostream*   _file;
 		bool            _isFileType;
 		std::string     _content;
-//		bool            _printAttribs  = true;
 		bool            _tagIsOpen     = false;
 		std::map<En_Attrib,std::string> _attr_map;
 };
@@ -863,20 +863,15 @@ void Httag::printWithContent( T stuff )
 		if( !priv::isVoidElement( _tag_en ) )
 			*_file << _content << stuff;
 		else
-		{
-			if( Httag::p_getRunTimeOptions()._errorMode == rto::EM_Throw )
-				HTTAG_FATAL_ERROR( "attempting to add content '"
-					+ _content
-					+ "' and '"
-					+ stuff
-					+ "' to void tag <"
-					+ getString(_tag_en)
-					+ ">"
-				);
-		}
+			Httag::p_error( "attempting to add content '"
+				+ _content
+				+ "' and '"
+				+ stuff
+				+ "' to void tag <"
+				+ getString(_tag_en)
+				+ ">"
+			);
 	}
-//	*_file << c;
-//	_printAttribs = false;
 
 	if( !priv::isVoidElement( _tag_en ) )
 		closeTag();
@@ -960,7 +955,6 @@ Httag::openTag( std::string __file, int __line )
 		}
 
 	_tagIsOpen = true;
-//	_printAttribs = false;
 
 	p_getOpenedTags().pushTag( _tag_en );
 
@@ -1160,16 +1154,16 @@ Httag::p_addAttrib( En_Attrib attr, std::string value, std::string __file, int _
 		return;
 	}
 
-#ifndef HTTAG_NO_CHECK
-	if( !priv::attribIsAllowed( attr, _tag_en ) )
-		HTTAG_FATAL_ERROR_FL(
-			"attempt to assign attribute '"
-			+ getString(attr)
-			+ "' to tag <"
-			+ getString( _tag_en )
-			+  ">: invalid"
-		);
-#endif
+	if( Httag::p_getRunTimeOptions()._doContentCheck )
+		if( !priv::attribIsAllowed( attr, _tag_en ) )
+			p_error(
+				"attempt to assign attribute '"
+				+ getString(attr)
+				+ "' to tag <"
+				+ getString( _tag_en )
+				+  ">: invalid",
+				__file,  __line
+			);
 
 // check for unneeded pairs attribute/value
 	if( ( attr == AT_COLSPAN && value == "1" ) || ( attr == AT_ROWSPAN && value == "1" ) )
@@ -1227,7 +1221,6 @@ Httag::p_getAttribs() const
 	std::set<En_Attrib> flags;
 
 	std::string out;
-//	if( _printAttribs && _attr_map.size() )
 	if( _attr_map.size() )
 	{
 		for( auto it = _attr_map.begin(); it != _attr_map.end(); ++it )

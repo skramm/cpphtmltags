@@ -22,8 +22,6 @@
 
 homepage: https://github.com/skramm/cpphtmltags
 
-\todo Clarify usage/need of _printAttribs
-
 
 Refs:
 - attributes:
@@ -62,10 +60,6 @@ Refs:
 			<< "\n - message: " << (msg) \
 			<< "\n"
 */
-#ifdef HTTAG_SILENT_MODE
-	#define HTTAG_SILENT_WARNINGS
-	#define HTTAG_SILENT_ERRORS
-#endif
 
 //#ifdef HTTAG_SILENT_WARNINGS
 //	#define HTTAG_WARNING if(0) std::cerr
@@ -110,6 +104,7 @@ Refs:
 			HTTAG_ADD_ERROR_LOCATION( msg, out ); \
 		throw std::runtime_error(out); \
 	}
+
 
 /// Open tag \c t
 #define HTTAG_OPENTAG( t ) \
