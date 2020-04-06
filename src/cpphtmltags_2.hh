@@ -44,5 +44,28 @@ struct AllowedContent
 	}
 };
 
+/// Error type, used internally, see httag::Httag::p_error()
+enum En_ErrorType
+{
+	ET_NonFatal,
+	ET_Fatal,
+	ET_Warning
+};
+
+inline
+std::string
+getString( En_ErrorType et )
+{
+	std::string s;
+	switch( et )
+	{
+		case ET_NonFatal: s="Error";       break;
+		case ET_Fatal:    s="Fatal error"; break;
+		case ET_Warning:  s="Warning";     break;
+		default: assert(0);
+	}
+	return s;
+}
+
 //--- END: TEMPLATE FILE cpphtmltags_2.hh
 

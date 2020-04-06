@@ -201,6 +201,9 @@ std::ostream& streamTagInFile( std::ostream&, const Httag& );
 
 //-----------------------------------------------------------------------------------
 /// Helper function for operator << for 2 tags, stream t2 into t1
+/**
+ \todo See how we can replace macro HTTAG_FATAL_ERROR with call to p_error()
+*/
 template<typename T1, typename T2>
 T1&
 streamTagInTag( T1& t1, T2& t2 )
@@ -216,6 +219,7 @@ streamTagInTag( T1& t1, T2& t2 )
 		oss << t2;
 	else
 		HTTAG_FATAL_ERROR(
+//		Httag::p_error( priv::ET_NonFatal,
 			"tag <"
 			+ getString( t2._tag_en )
 			+ "> not allowed as content inside tag <"
@@ -425,10 +429,17 @@ class Httag
 			static int s_nbErrors;
 			return s_nbErrors;
 		}
-		static void p_error( const std::string& msg, std::string __file=std::string(), int __line=0 )
+		static void p_error(
+			priv::En_ErrorType et,
+			const std::string& msg,
+			std::string __file=std::string(),
+			int __line=0
+		)
 		{
-			std::cerr << "Error: (" << ++p_getNbErrors() << "), msg=" << msg << '\n';
-			if( Httag::p_getRunTimeOptions()._errorMode == rto::EM_Throw )
+			std::cerr << "httag: " << getString(et) << " (" << ++p_getNbErrors() << "), " << msg << '\n';
+			if( __line )
+				std::cerr << "Location:\n - file=" << __file << "\n - line=" << __line << '\n';
+			if( Httag::p_getRunTimeOptions()._errorMode == rto::EM_Throw || et==priv::ET_Fatal )
 				throw std::runtime_error( msg );
 		}
 
@@ -768,8 +779,15 @@ Httag&
 Httag::addContent<std::string>( std::string content )
 {
 	if( priv::isVoidElement( _tag_en ) )
-		HTTAG_FATAL_ERROR( "attempting to store content '" + content + "' into a void-element tag <" + getString( _tag_en ) + ">" );
-	_content += content;
+		p_error( priv::ET_NonFatal,
+			"attempting to store content '"
+			+ content
+			+ "' into a void tag <"
+			+ getString( _tag_en )
+			+ ">"
+		);
+	else
+		_content += content;
 	return *this;
 }
 
@@ -787,11 +805,13 @@ template<>
 Httag&
 Httag::addContent<Httag>( Httag content )
 {
-// first, make sure the tag we what to insert is allowed
-	auto res = priv::tagIsAllowed( content.getTag(), getTag() );
 
+#ifndef HTTAG_NO_CHECK
+// make sure the tag we what to insert is allowed
+	auto res = priv::tagIsAllowed( content.getTag(), getTag() );
 	if( !res.first )
-		HTTAG_FATAL_ERROR( "attempting to insert <"
+		p_error( priv::ET_NonFatal,
+			"attempting to insert <"
 			+ getString( content.getTag() )
 			+ "> as content of <"
 			+ getString( getTag() )
@@ -799,7 +819,7 @@ Httag::addContent<Httag>( Httag content )
 			+ getString( res.second )
 			+ ")"
 		);
-
+#endif
 	std::ostringstream oss;
 	oss << content;
 	addContent<std::string>( oss.str() );
@@ -863,7 +883,8 @@ void Httag::printWithContent( T stuff )
 		if( !priv::isVoidElement( _tag_en ) )
 			*_file << _content << stuff;
 		else
-			Httag::p_error( "attempting to add content '"
+			Httag::p_error( priv::ET_NonFatal,
+				"attempting to add content '"
 				+ _content
 				+ "' and '"
 				+ stuff
@@ -877,8 +898,6 @@ void Httag::printWithContent( T stuff )
 		closeTag();
 	else
 		p_getOpenedTags().pullTag( _tag_en );
-//	clearContent();
-//	clearAttribs();
 }
 //-----------------------------------------------------------------------------------
 /// Destructor, automatically closes tag if needed
@@ -925,9 +944,12 @@ Httag::openTag( std::string __file, int __line )
 {
 	p_checkValidFileType( "open" );
 	if( _tagIsOpen )
-	{
-		HTTAG_FATAL_ERROR_FL( "tag '" + getString(_tag_en) + "': asked to open but was already open" );
-	}
+		p_error( priv::ET_NonFatal,
+			"asked to open tag <"
+			+ getString(_tag_en)
+			+ "> but was already open",
+			__file, __line
+		);
 	else
 	{
 		if( p_getOpenedTags().size() )
@@ -975,14 +997,21 @@ inline
 void
 Httag::closeTag( std::string __file, int __line, bool linefeed )
 {
-//	p_checkValidFileType( "close" );
-
 	if( priv::isVoidElement( _tag_en ) )
 		if( _isFileType )
-			HTTAG_FATAL_ERROR_FL( "asked to close tag <" + getString(_tag_en) + "> but is void-element" );
+			p_error( priv::ET_NonFatal,
+				"asked to close tag <"
+				+ getString(_tag_en)
+				+ "> but is void-element",
+				__file, __line
+			);
 
 	if( !_tagIsOpen )
-		HTTAG_FATAL_ERROR_FL( "tag <" + getString(_tag_en) + ">: asked to close but was already closed" );
+		p_error( priv::ET_Fatal,
+			"tag <"
+			+ getString(_tag_en)
+			+ ">: asked to close but was already closed"
+		);
 
 	if( _isFileType )
 	{
@@ -1156,7 +1185,7 @@ Httag::p_addAttrib( En_Attrib attr, std::string value, std::string __file, int _
 
 	if( Httag::p_getRunTimeOptions()._doContentCheck )
 		if( !priv::attribIsAllowed( attr, _tag_en ) )
-			p_error(
+			p_error( priv::ET_NonFatal,
 				"attempt to assign attribute '"
 				+ getString(attr)
 				+ "' to tag <"
