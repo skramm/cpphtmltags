@@ -115,21 +115,20 @@ class OpenedTags
 			for( const auto& e: _v_ot )
 				f << e << '-';
 		}
+		/// adds \c tag to stack, to keep control of what is opened
 		void pushTag( En_Httag tag )
 		{
 			_v_ot.push_back( tag );
 		}
-		void pullTag( En_Httag tag )
+		/// pulls \c tag from stack. In case of error, returns (false,<tag-still-opened>)
+		std::pair<bool,En_Httag> pullTag( En_Httag tag )
 		{
-#if 1
-			if( _v_ot.size() == 0 )
-				return;
-#else
 			assert( _v_ot.size() > 0 );
-#endif
+
 			if( _v_ot.back() != tag )
-				HTTAG_FATAL_ERROR( "asking to close tag <" + getString(tag) + "> but tag <" +  getString(_v_ot.back()) + "> still open" );
+				return std::make_pair( false, _v_ot.back() );
 			_v_ot.pop_back();
+			return std::make_pair( true, HT_DUMMY );
 		}
 //		void print( std::ostream& ) const;
 		std::string str() const
@@ -404,7 +403,6 @@ class Httag
 	private:
 		bool p_doLineFeed( bool linefeed=false ) const;
 		void p_addAttrib( En_Attrib, std::string, std::string __file=std::string(), int __line=0 );
-		void p_checkValidFileType( std::string action );
 		std::string p_getAttribs() const;
 
 		/// Static accessor on list of opened tags
@@ -429,19 +427,7 @@ class Httag
 			static int s_nbErrors;
 			return s_nbErrors;
 		}
-		static void p_error(
-			priv::En_ErrorType et,
-			const std::string& msg,
-			std::string __file=std::string(),
-			int __line=0
-		)
-		{
-			std::cerr << "httag: " << getString(et) << " (" << ++p_getNbErrors() << "), " << msg << '\n';
-			if( __line )
-				std::cerr << "Location:\n - file=" << __file << "\n - line=" << __line << '\n';
-			if( Httag::p_getRunTimeOptions()._errorMode == rto::EM_Throw || et==priv::ET_Fatal )
-				throw std::runtime_error( msg );
-		}
+		static void p_error( priv::En_ErrorType, const std::string&, std::string __file=std::string(), int __line=0 );
 
 		static priv::RunTimeOptions& p_getRunTimeOptions()
 		{
@@ -466,7 +452,37 @@ getString( const Httag& t )
 }
 
 //-----------------------------------------------------------------------------------
-/// Run Time Options settings
+void
+Httag::p_error(
+	priv::En_ErrorType et,
+	const std::string& msg,
+	std::string        __file,
+	int                __line
+)
+{
+	std::ostringstream oss;
+	oss << "\n";
+	if( __line )
+		oss << " - Location:\n - file=" << __file << "\n - line=" << __line << '\n';
+
+	#ifndef HTTAG_SILENT_MODE
+		std::cerr << "httag: "
+			<< getString(et)
+			<< " ("
+			<< ++p_getNbErrors()
+			<< "), "
+			<< msg
+			<< oss.str();
+	#endif
+//	if( __line )
+//		std::cerr << "Location:\n - file=" << __file << "\n - line=" << __line << '\n';
+	if( Httag::p_getRunTimeOptions()._errorMode == rto::EM_Throw || et==priv::ET_Fatal )
+		throw std::runtime_error( msg+ oss.str() );
+}
+
+//-----------------------------------------------------------------------------------
+///{ Run Time Options settings
+
 
 template<>
 void Httag::setOption<rto::LFMode_t,rto::En_LineFeedMode>( rto::LFMode_t name, rto::En_LineFeedMode value )
@@ -504,6 +520,7 @@ void setOption( T1 name, T2 value )
 {
 	static_assert( std::is_same<T1,T1>::value, "should never happen !" );
 }
+///}
 //-----------------------------------------------------------------------------------
 
 //############################
@@ -521,7 +538,7 @@ streamTagInFile( std::ostream& s, const Httag& h )
 			if( Httag::p_getOpenedTags().size() == 0 )
 				s << "<!DOCTYPE html>\n";
 			else
-				HTTAG_FATAL_ERROR(
+				Httag::p_error( priv::ET_NonFatal,
 					"<doctype> needs to be the first tag, and you have "
 					+ std::to_string( Httag::p_getOpenedTags().size() )
 					+ " tags open, last one is <"
@@ -897,7 +914,17 @@ void Httag::printWithContent( T stuff )
 	if( !priv::isVoidElement( _tag_en ) )
 		closeTag();
 	else
-		p_getOpenedTags().pullTag( _tag_en );
+	{
+		auto retval = p_getOpenedTags().pullTag( _tag_en );
+		if( !retval.first )
+			Httag::p_error( priv::ET_Fatal,
+				"unable to close tag <"
+				+ getString(_tag_en)
+				+ "> because tag <"
+				+ getString(retval.second)
+				+ "> still open"
+			);
+	}
 }
 //-----------------------------------------------------------------------------------
 /// Destructor, automatically closes tag if needed
@@ -919,21 +946,6 @@ Httag::printOpenedTags( std::ostream& f, const char* msg )
 	return p_getOpenedTags().size();
 }
 //-----------------------------------------------------------------------------------
-void
-Httag::p_checkValidFileType( std::string action )
-{
-	if( !_isFileType )
-		HTTAG_FATAL_ERROR( "object tag <" + getString(_tag_en) + "> is not a \"file type\" object" );
-
-	if( !_file )
-		HTTAG_FATAL_ERROR( "object tag <" + getString(_tag_en) + ">: asked to " + action + " but file not available" );
-
-#if 0
-	if( !_file->is_open() )
-		HTTAG_ERROR << "tag '" << getString(_tag_en) << "': asked to '" << action << "' but file is closed.\n";
-#endif
-}
-//-----------------------------------------------------------------------------------
 /// Open the tag (this function needs to be called ONLY for "file" object types
 /*
 The (default) arguments are there to be handled by macro HTTAG_OPENTAG(t)
@@ -942,7 +954,15 @@ inline
 void
 Httag::openTag( std::string __file, int __line )
 {
-	p_checkValidFileType( "open" );
+	if( !_isFileType )
+		Httag::p_error( priv::ET_Fatal,
+			"object tag <"
+			+ getString(_tag_en)
+			+ "> is not a \"file type\" object",
+			__file, __line
+		);
+	assert( _file );
+
 	if( _tagIsOpen )
 		p_error( priv::ET_NonFatal,
 			"asked to open tag <"
@@ -954,18 +974,16 @@ Httag::openTag( std::string __file, int __line )
 	{
 		if( p_getOpenedTags().size() )
 		{
-			if( p_getOpenedTags().current() == _tag_en )
-				HTTAG_FATAL_ERROR_FL( "attempt to open tag <" + getString(_tag_en) + "> but currently opened tag is identical" );
-
 			auto check = priv::tagIsAllowed( _tag_en, p_getOpenedTags() );
 			if( !check.first )
-				HTTAG_FATAL_ERROR_FL(
+				Httag::p_error( priv::ET_NonFatal,
 					"attempt to open tag <"
 					+ getString(_tag_en)
 					+ "> but is not allowed in current context:\n"
 					+ p_getOpenedTags().str()
 					+ "\n-because: "
-					+ getString( check.second )
+					+ getString( check.second ),
+					__file, __line
 				);
 		}
 		switch( _tag_en )
@@ -1021,7 +1039,18 @@ Httag::closeTag( std::string __file, int __line, bool linefeed )
 			*_file << "</" << getString(_tag_en) << '>';
 
 		if( _tagIsOpen )
-			p_getOpenedTags().pullTag( _tag_en );
+		{
+			auto retval = p_getOpenedTags().pullTag( _tag_en );
+			if( !retval.first )
+				Httag::p_error( priv::ET_Fatal,
+					"unable to close tag <"
+					+ getString(_tag_en)
+					+ "> because tag <"
+					+ getString(retval.second)
+					+ "> still open",
+					__file, __line
+				);
+		}
 	}
 	_tagIsOpen = false;
 
@@ -1162,23 +1191,25 @@ Httag::p_addAttrib( En_Attrib attr, std::string value, std::string __file, int _
 	assert( attr != AT_DUMMY );
 
 	if( _tagIsOpen ) // because if it is already opened, then we can't add an attribute !
-		HTTAG_FATAL_ERROR_FL(
+		p_error( priv::ET_Fatal,
 			"unable to add attribute '"
 			+ getString(attr) + "' with value '"
 			+ value
 			+ "' to tag <"
 			+ getString( _tag_en )
-			+ ">, tag is already opened"
+			+ ">, tag is already opened",
+			__file, __line
 		);
 
 	if( value.empty() && !priv::isBoolAttr(attr) ) // empty string => nothing to add
 	{
-		HTTAG_WARNING(
+		p_error( priv::ET_Warning,
 			"warning: asking to add tag attribute '"
 			+ getString(attr)
 			+ "' to tag <"
 			+ getString( _tag_en )
-			+ ">, but string is empty"
+			+ ">, but string is empty",
+			__file, __line
 		);
 		return;
 	}
@@ -1197,7 +1228,14 @@ Httag::p_addAttrib( En_Attrib attr, std::string value, std::string __file, int _
 // check for unneeded pairs attribute/value
 	if( ( attr == AT_COLSPAN && value == "1" ) || ( attr == AT_ROWSPAN && value == "1" ) )
 	{
-		HTTAG_WARNING( "asking to add unnecessary attribute/value: '"  + getString(attr) + "'=" + value );
+		p_error( priv::ET_Warning,
+			"asking to add unnecessary attribute/value: '"
+			+ getString(attr)
+			+
+			"'="
+			+ value,
+			__file, __line
+			);
 		return;
 	}
 
@@ -1219,22 +1257,27 @@ Httag::removeAttrib( En_Attrib attr )
 	assert( attr != AT_DUMMY );
 
 	if( _tagIsOpen ) // because if it is open, then we can't remove it!
-		HTTAG_FATAL_ERROR( "asking to remove attribute on open tag" );
-
-	auto it = _attr_map.find(attr);
-	if( it == _attr_map.end() )   // check if element is already present or not
-	{
-		HTTAG_WARNING(
-			"asked to remove attribute "
-			+ getString( attr )
-			+ std::string( " of tag <")
-			+ getString( _tag_en )
-			+ std::string( "> but attribute not present" )
+		p_error( priv::ET_NonFatal,
+		"asking to remove attribute on tag <"
+		+ getString( _tag_en )
+		+ "> but tag is already open"
 		);
-	}
 	else
-		_attr_map.erase(attr);
-
+	{
+		auto it = _attr_map.find(attr);
+		if( it == _attr_map.end() )   // check if element is already present or not
+		{
+			p_error( priv::ET_Warning,
+				"asked to remove attribute "
+				+ getString( attr )
+				+ std::string( " of tag <")
+				+ getString( _tag_en )
+				+ std::string( "> but attribute not present" )
+			);
+		}
+		else
+			_attr_map.erase(attr);
+	}
 	return *this;
 }
 //-----------------------------------------------------------------------------------

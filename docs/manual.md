@@ -338,18 +338,15 @@ first argument: httag::rto::IllegalOp
 
 possible values: `rto::EM_Throw`, `rto::EM_NoThrow`
 
-### A.5 - Error handling
+### A.5 - Errors and warnings handling
 
-TODO - OBSOLETE SECTION
+Every possible misusage that could generate invalid Html5 code will generate either a simple warning, an error, or a fatal error.
 
-In case of non fatal problem, this library will simply issue a warning with a clear message on `std::cerr`.
+These 3 situations will stream some useful information on `stderr`, unless the build option `HTTAG_SILENT_MODE` is defined.
 
-This can be disabled by passing the option `HTTAG_SILENT_WARNINGS` before including the file.
+A fatal error will always throw an exception (of type `std::runtime_error`).
+For the two others, it depends on the runtime option `httag::rto::IllegalOp`
 
-In case of fatal error, this library will issue a message on `std::cerr` with line number and the error message, and throw an error of type `std::runtime_error`.
-
-Similarly, error messages can be removed by defining the symbol `HTTAG_SILENT_ERRORS`.
-You can mute both errors and warnings by defining `HTTAG_SILENT_MODE`. This will guarantee that no output will be streamed in `std::cerr`.
 
 #### HTML 5 tag/attribute enforcing
 

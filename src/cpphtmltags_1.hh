@@ -53,27 +53,6 @@ Refs:
 	#include <ctime>
 #endif
 
-/*#define HTTAG_PRINT_ERROR_LOCATION( msg, f, l )\
-		std::cerr << "\nhttag: error: " \
-			<< "\n - file: " << f \
-			<< "\n - line: " << l \
-			<< "\n - message: " << (msg) \
-			<< "\n"
-*/
-
-//#ifdef HTTAG_SILENT_WARNINGS
-//	#define HTTAG_WARNING if(0) std::cerr
-//#else
-	#define HTTAG_WARNING(msg) \
-	{ \
-		std::cerr << "\nhttag: Warning: " << (msg) \
-			<< "\n - file: " << __FILE__ \
-			<< "\n - line: " << __LINE__ \
-			<< '\n'; \
-	}
-//#endif
-
-//		out = std::string(in) \
 
 #define HTTAG_ADD_ERROR_LOCATION( in, out ) \
 	{ \

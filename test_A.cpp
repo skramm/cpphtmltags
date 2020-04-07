@@ -194,14 +194,6 @@ SECTION( "tag inside a tag" )
 		Httag t( oss, HT_INPUT );
 		t.addAttrib( AT_MIN, 3 );
 		t.addAttrib( AT_MAX, 10 );
-
-/*		Httag::setOption( rto::ClearOnClose, false );
-
-		Httag::setOption( rto::IllegalOp, rto::EM_Throw );
-		CHECK_THROWS( t.printWithContent( "text" ) );   // <input> is a void tag, thus, no content allowed !
-		Httag::setOption( rto::IllegalOp, rto::EM_NoThrow );
-		CHECK_NOTHROW( t.printWithContent( "text" ) );   // <input> is a void tag, thus, no content allowed !
-*/
 		t.printTag();
 		CHECK( oss.str() == "<input max=\"10\" min=\"3\">" );
 	}
@@ -333,6 +325,12 @@ TEST_CASE( "Error checking", "[t2]" )
 			CHECK_THROWS( li.openTag() ); // <p><li> is illegal
 		}
 	}
+	SECTION( "Warnings-1" )
+	{
+		Httag::setOption( rto::IllegalOp, rto::EM_Throw );
+		CHECK_THROWS( Httag( HT_TD, AT_COLSPAN, 1 ) );
+	}
+
 }
 
 TEST_CASE( "File type tags", "[t3]" )
