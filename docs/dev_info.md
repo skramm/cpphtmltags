@@ -128,3 +128,8 @@ Maybe it can be used to access the caller code in case of error?
 \todo 20200329: enforce not tag content when parent tag is "text-only"
 
 \todo 20200403: add compile-time option to disable tag content enforcement !
+
+\todo 20200409: clean out the demos ! quite useless at present.
+
+\todo 20200409: check error print out with macros: error printed twice on stderr
+

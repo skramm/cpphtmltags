@@ -10,6 +10,7 @@ Homepage: https://github.com/skramm/cpphtmltags/
 4. [Attributes](#attribs)
 5. [Runtime options](#options)
 6. [Error handling](#errors)
+7. [Macro API](#macro)
 
 <a name="intro"></a>
 ## 1 - Introduction
@@ -28,6 +29,7 @@ These basically wrap the code, it ends up as the same thing, with one notable ex
 All the potential errors you might do while writing your code (say, trying to write something like `<p><p>abc</p></p>`, which is illegal) will throw an error.
 - With the classical API, your program will stop (unless you try to catch them, but that would be tedious).
 - With the macro-based API, your program will continue, and you will get in stderr a nice information log, with the location of the error in your code.
+However, due to the macro mechanism, you have much less flexibility, only a subset of the API is available.
 For more details, [see here](#macro).
 
 
@@ -379,9 +381,10 @@ To avoid name collisions, they are prefixed with `HTTAG_`.
 
 Macro                      | Equivalent code
 -------------------------- | --------------
-`HTTAG_OPENTAG( t );`      | `t.openTag();`
-`HTTAG_CLOSETAG( t );`     | `t.closeTag();`
-`HTTAG_ADD_ATTRIB( t, AT_CLASS, "abc")` | `t.addAttrib( AT_CLASS, "abc" )`
+`HTTAG_OPEN( t );`      | `t.openTag();`
+`HTTAG_CLOSE( t );`     | `t.closeTag();`
+`HTTAG_ADD( t, AT_CLASS, "abc")` | `t.addAttrib( AT_CLASS, "abc" )`
+`HTTAG_ADD( t, "text")` | `t.addContent( "text" )`
 
 
 <a name="errors"></a>
