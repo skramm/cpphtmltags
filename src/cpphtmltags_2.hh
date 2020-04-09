@@ -17,6 +17,8 @@ using AttribMap_t = std::map<En_Attrib,std::string>;
 using GlobAttribMap_t = std::map<En_Httag, AttribMap_t>;
 
 
+using SrcLocation = std::pair<std::string,int>;
+
 /// Holds for a given tag what content is allowed inside.
 /// See related type AllowedContentMap
 struct AllowedContent

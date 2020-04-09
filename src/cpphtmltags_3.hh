@@ -316,7 +316,7 @@ class Httag
 		template<typename T>
 		Httag& addAttrib( En_Attrib, T, std::string f=std::string(), int line=0 );
 
-		Httag& addAttrib( En_Attrib );
+		Httag& addAttrib( En_Attrib, priv::SrcLocation=priv::SrcLocation() );
 
 		Httag& removeAttrib( En_Attrib );
 		Httag& clearAttribs()
@@ -325,9 +325,13 @@ class Httag
 			return *this;
 		}
 
-		void printTag();
+		void printTag()
+		{
+			printTag( std::string() );
+		}
+
 		template<typename T>
-		void printWithContent( T );
+		void printTag( T );
 
 		En_Httag getTag() const { return _tag_en; }
 		bool isOpen() const { return _tagIsOpen; }
@@ -852,10 +856,6 @@ Httag::addContent( T content )
 	return *this;
 }
 //-----------------------------------------------------------------------------------
-void Httag::printTag()
-{
-	printWithContent( "" );
-}
 
 //############################
 namespace priv {
@@ -890,7 +890,7 @@ isNotEmpty( T stuff )
 Requirement on type \c T: must be streamable
 */
 template<typename T>
-void Httag::printWithContent( T stuff )
+void Httag::printTag( T stuff )
 {
 	if( !isOpen() )
 		openTag();
@@ -1172,9 +1172,19 @@ Httag::addAttrib( En_Attrib attr, T value, std::string __file, int __line )
 //-----------------------------------------------------------------------------------
 /// Add a boolean attribute (no value)
 Httag&
-Httag::addAttrib( En_Attrib attr )
+Httag::addAttrib( En_Attrib attr, priv::SrcLocation src )
 {
-	p_addAttrib( attr, std::string(), "", 0 );
+	if( !priv::isBoolAttr( attr ) )
+		p_error( priv::ET_NonFatal,
+			"attempting to add attribute '"
+			+ getString( attr )
+			+"' as boolean to tag <"
+			+ getString( getTag() )
+			+"> but is not boolean",
+			src.first, src.second
+		);
+	else
+		p_addAttrib( attr, std::string(), "", 0 );
 	return *this;
 }
 

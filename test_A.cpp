@@ -3,7 +3,7 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
-//#define HTTAG_SILENT_MODE
+#define HTTAG_SILENT_MODE
 //#define HTTAG_NO_CHECK
 #include "cpphtmltags.hpp"
 
@@ -281,9 +281,9 @@ TEST_CASE( "Error checking", "[t2]" )
 		std::ostringstream oss;
 		Httag t( oss, HT_INPUT );
 		Httag::setOption( rto::IllegalOp, rto::EM_Throw );
-		CHECK_THROWS( t.printWithContent( "text" ) );   // <input> is a void tag, thus, no content allowed !
+		CHECK_THROWS( t.printTag( "text" ) );   // <input> is a void tag, thus, no content allowed !
 		Httag::setOption( rto::IllegalOp, rto::EM_NoThrow );
-		CHECK_NOTHROW( t.printWithContent( "text" ) );   // <input> is a void tag, thus, no content allowed !
+		CHECK_NOTHROW( t.printTag( "text" ) );   // <input> is a void tag, thus, no content allowed !
 		Httag::setOption( rto::IllegalOp, rto::EM_Throw );
 
 		oss.str("");
