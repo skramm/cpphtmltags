@@ -50,6 +50,9 @@ Coverage is fairly complete, but can still expand.
 ## FAQ
 (unsorted)
 
+Q-Why do warnings throw ?<br>
+A- while I understand that this is a bit surprisong, the main reason is that by doing so, warnings can be tested, as the Catch framework used for tests allows to catch exceptions.
+
 Q-How are HTML comments handled (`<!-- content -->`.)?<br>
 A-The library provides the special HT_COMMENT element id: it can be used just as any element, you can put whatever you want inside.
 The formatting takes place only at printing time.
@@ -119,8 +122,6 @@ The type httag::priv::AllowedContent holds for a given tag all the allowed conte
 https://www.boost.org/doc/libs/1_72_0/doc/html/stacktrace/getting_started.html
 Maybe it can be used to access the caller code in case of error?
 
-
-\todo 20200326: API: maybe merge together printWithContent() and printTag()
 
 \todo 20200327: put back the silent error mode (see HTTAG_NO_CHECK)
 

@@ -17,4 +17,5 @@ div.fragment div.line
 	background-color:#ddd;
 	color:#448;
 	font-weight:bold;
+	line-height: 120%;
 }

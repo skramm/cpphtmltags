@@ -2,11 +2,21 @@
 
 Homepage: https://github.com/skramm/cpphtmltags/
 
-## Introduction
+
+## Table of contents
+1. [Introduction](#intr)
+2. [Instanciation](#constructor)
+3. [Adding content](#content)
+4. [Attributes](#attribs)
+5. [Runtime options](#options)
+6. [Error handling](#errors)
+
+<a name="intro"></a>
+## 1 - Introduction
 
 This library is build around a single class: `Httag`, along with some helper free functions.
-All of it is defined in the namespace `httag`.
 This class models an HTML tag (aka element), that can be streamed in a file or output stream.
+The whole API is in the namespace `httag`.
 
 Two types of tags can be created, but they are both handled trough the same class.
 They only differ in the way they are created, and how they generate some output.
@@ -21,14 +31,12 @@ All the potential errors you might do while writing your code (say, trying to wr
 For more details, [see here](#macro).
 
 
-## A - Classical User Interface
-
-
-### A.1 - Instanciation
+<a name="constructor"></a>
+## 2 - Instanciation
 
 Two types of constructors are available, corresponding to the two types of objects.
 
-#### A.1.a - Type 1 constructor
+### 2.1 - Type 1 constructor
 Just a regular object:
 ```C++
 Httag mytag( HT_P );
@@ -46,7 +54,7 @@ Or both, at creation time:
 Httag mytag( HT_TD, "my cell", AT_COLSPAN, 2 );
 ```
 
-#### A.1.b - Type 2 constructor ("file-type" object)
+### 2.2 - Type 2 constructor ("file-type" object)
 
 You can specify the stream where the html code must be generated.
 It can be of type `std::ostream`, or `std::ofstream`, or even `std::ostringstream`.
@@ -65,12 +73,12 @@ Please note that when a tag is created that way, nothing is printed in the strea
 This will only happen when you call either one of these on the variable:
 - `openTag()` : only prints the opening tag
 - `printTag()`: prints the whole thing, opening tag, content, and closing tag
-- `printWithContent( "something" )`
+
 
 Once it is opened, you can explicitly close it with `closeTag()`.
 But this also called automatically by the destructor, which is called when the variable goes out of scope.
 
-#### A.1.c - Which one should I use ?
+### 2.3 - Which one should I use ?
 
 Theorically, both could achieve the same html structure.
 
@@ -95,8 +103,8 @@ However, it is often easier to use the "file-type" tag so one can explicitly ope
 
 Shortly, it depends on the context, this library offers you maximum flexibility.
 
-
-### A.2 - Adding text content to a tag
+<a name="content"></a>
+## 3 - Adding content to a tag
 
 The "content" is what is inside the tag, i.e. `<p>Content</p>`
 
@@ -162,7 +170,7 @@ li << Httag( HT_A, "a link", AT_HREF, "https://somewhere.com" );
 std::cout << li;
 ```
 
-Even this is possible! :
+Even this is possible:
 ```C++
 Httag t( HT_DIV, Httag( HT_DIV, "aaa" ) );
 std::cout << t;
@@ -185,11 +193,10 @@ Httag p( HT_P, "This is " + Httag( HT_STRONG, "bold text" ) );
 std::cout << t;
 ```
 
+<a name="attribs"></a>
+## 4 - Attributes
 
-
-### A.3 - Attributes
-
-#### A.3.1 - Adding attributes
+### 4.1 - Adding attributes
 Tag attributes can be added to the tag at creation time (see above) or afterwards:
 ```C++
 Httag p( HT_P );
@@ -225,7 +232,7 @@ You can clear all attributes with:
 td.clearAttribs();
 ```
 
-#### A.3.2 - Boolean attributes
+### 4.2 - Boolean attributes
 
 These are attributes that have no value.
 For example the tag `<input>` allows the boolean attribute `checked`.
@@ -267,7 +274,7 @@ Httag::setGlobalAttrib( HT_A, AT_TARGET, "_blank" );
 
 All these are static function, thus the `Httag::` prefix.
 
-#### A.3.4 - Attributes uniqueness enforcement
+### 4.3 - Attributes uniqueness enforcement
 
 HTML 5 mandates that no attribute shall be present more than once.
 This is enforced here, and adding attributes will end up as a concatenation of the values, space separated.
@@ -283,15 +290,15 @@ will printout the correct code: `<p class="abc cde">text</p>`
 For global attributes, it works the same.
 Please note that the global attribute will always be added at the end of the string.
 
-
-### A.4 - Run-time options
+<a name="options"></a>
+## 5 - Run-time options
 
 Different settings can be set at run-time, using the static function `setOption( a, b )`.
 The first argument is an enum value, used to define what option must be edited, the second argument is type dependent.
 These are all in the sub-namespace `rto`.
 
 <a name="linefeed"></a>
-#### A.4.1 - Line feeds
+### 5.1 - Line feeds
 
 In order to be human readable, it may be a good idea to have here and then some line feeds in the output Html code.
 On the other side, for large files it may be wanted to have "compact" html code, by removing all the unnecessary linefeeds.
@@ -309,7 +316,7 @@ For example:
 Httag::setOption( rto::LFMode, rto::LF_Always );
 ```
 
-#### A.4.2 - Behavior on tag closing
+### 5.2 - Behavior on tag closing
 
 The behavior of a tag object upon closure can be defined globally.
 
@@ -330,7 +337,7 @@ This can be defined globally with the above function:
 - only for the attributes `Httag::setOption( rto::ClearAttribsOnClose, true/false );`,
 - or for both `Httag::setOption( rto::ClearOnClose, true/false );`.
 
-### A.4.3 - Behavior on errors
+### 5.3 - Behavior on errors
 
 TODO
 
@@ -338,7 +345,8 @@ first argument: httag::rto::IllegalOp
 
 possible values: `rto::EM_Throw`, `rto::EM_NoThrow`
 
-### A.5 - Errors and warnings handling
+<a name="errors"></a>
+## 6 - Errors and warnings handling
 
 Every possible misusage that could generate invalid Html5 code will generate either a simple warning, an error, or a fatal error.
 
@@ -348,7 +356,7 @@ A fatal error will always throw an exception (of type `std::runtime_error`).
 For the two others, it depends on the runtime option `httag::rto::IllegalOp`
 
 
-#### HTML 5 tag/attribute enforcing
+### 6.1 - HTML 5 tag/attribute enforcing
 
 The HTML 5 standard specifies two kinds of attributes:
 - "global" attributes: these can be assigned to any tag
@@ -358,7 +366,8 @@ This library can ensure that this is enforced by checking at each time you add a
 This checking can be disabled by defining the symbol `HTTAG_NO_CHECK` before the "include" line.
 
 
-## <a name="macro"></a>B - Macro-based user interface
+<a name="macro"></a>
+## 7 - Macro-based user interface
 
 Several macros are available to mimic the behavior of the classical API.
 The advantage is that in case of illegal HTML code, instead of throwing an error, using these macros will:
@@ -375,7 +384,8 @@ Macro                      | Equivalent code
 `HTTAG_ADD_ATTRIB( t, AT_CLASS, "abc")` | `t.addAttrib( AT_CLASS, "abc" )`
 
 
-## <a name="errors"></a>C - List of errors
+<a name="errors"></a>
+## - List of errors
 
 This code enforce several rules to avoid producing invalid HTML code.
 This is done by throwing an error in case of incorrect usage by the client code.

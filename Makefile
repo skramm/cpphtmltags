@@ -52,7 +52,7 @@ doc: build/html/index.html
 cleandoc:
 	-rm build/html/*
 
-build/html/index.html:$(SRC_FILE) build/supported $(MD_FILES)
+build/html/index.html:$(SRC_FILE) build/supported $(MD_FILES) misc/code.css
 	cp misc/supported.css build/
 	build/supported -html >build/supported.html
 	doxygen misc/Doxyfile 1>build/doxygen.stdout 2>build/doxygen.stderr
