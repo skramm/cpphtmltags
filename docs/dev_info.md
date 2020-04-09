@@ -3,6 +3,11 @@
 Here, some details about the project for the ones that may be interested in contributing.
 For more details, also run `make doc` in the root folder (needs Doxygen).
 
+## git repo
+
+The master branch will always be (more or less) stable, but tests must pass.
+The dev branch holds current development.
+
 ## Generation of library file
 
 Starting from release 1.0, the actual library file (`cpphtmltags.hpp`) is actually generated from several files.
