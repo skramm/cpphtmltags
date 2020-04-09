@@ -56,8 +56,8 @@ int main()
 		Httag::printOpenedTags( cout );
 
 		Httag f2( cout, HT_LI );           // this triggers an error, you cannot embbed a <li> inside a <p>
-		HTTAG_OPENTAG( f2 );
+		HTTAG_OPEN( f2 );
 		cout << "li-content";
-		HTTAG_CLOSETAG( f2 );
+		HTTAG_CLOSE( f2 );
 	}
 }

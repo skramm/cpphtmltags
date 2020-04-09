@@ -86,32 +86,42 @@ Refs:
 
 
 /// Open tag \c t
-#define HTTAG_OPENTAG( t ) \
+#define HTTAG_OPEN( t ) \
 	try { \
-        t.openTag(  __FILE__, __LINE__ ); \
+        t.openTag( std::make_pair(__FILE__, __LINE__) ); \
 	} \
 	catch( const std::runtime_error& err ) \
 	{ \
-		std::cerr << "\nhttag error: (opening tag)" << err.what(); \
+		std::cerr << "\nhttag error: (HTTAG_OPEN) " << err.what(); \
 	}
 
 /// Close tag \c t
-#define HTTAG_CLOSETAG( t ) \
+#define HTTAG_CLOSE( t ) \
 	try { \
-        t.closeTag(  __FILE__, __LINE__ ); \
+        t.closeTag( std::make_pair(__FILE__, __LINE__) ); \
 	} \
 	catch( const std::runtime_error& err ) \
 	{ \
-		std::cerr << "\nhttag error: (closing tag)" << err.what(); \
+		std::cerr << "\nhttag error: (HTTAG_CLOSE) " << err.what(); \
 	}
 
-#define HTTAG_ADD_ATTRIB( t, at, val ) \
+/// Add attribute
+#define HTTAG_ADDATTRIB( t, at, val ) \
 	try { \
-		t.addAttrib( at, val, __FILE__, __LINE__ ); \
+		t.addAttrib( at, val, std::make_pair(__FILE__, __LINE__) ); \
 	} \
 	catch( const std::runtime_error& err ) \
 	{ \
-		std::cerr << "\nhttag error: (adding attribute)" << err.what(); \
+		std::cerr << "\nhttag error: (HTTAG_ADDATTRIB) " << err.what(); \
+	}
+/// Add content
+#define HTTAG_ADD( t, val ) \
+	try { \
+		t.addContent( val, std::make_pair(__FILE__, __LINE__) ); \
+	} \
+	catch( const std::runtime_error& err ) \
+	{ \
+		std::cerr << "\nhttag error: (HTTAG_ADD) " << err.what(); \
 	}
 
 //############################

@@ -309,12 +309,12 @@ class Httag
 		}
 
 ///@}
-		void openTag(  std::string file=std::string(), int line=0 );
-		void closeTag( std::string file=std::string(), int line=0, bool linefeed=false );
+		void openTag(   priv::SrcLocation src= priv::SrcLocation() );
+		void closeTag(  priv::SrcLocation src= priv::SrcLocation(), bool linefeed=false );
 		void closeTag( bool linefeed );
 
 		template<typename T>
-		Httag& addAttrib( En_Attrib, T, std::string f=std::string(), int line=0 );
+		Httag& addAttrib( En_Attrib, T, priv::SrcLocation=priv::SrcLocation() );
 
 		Httag& addAttrib( En_Attrib, priv::SrcLocation=priv::SrcLocation() );
 
@@ -406,7 +406,7 @@ class Httag
 
 	private:
 		bool p_doLineFeed( bool linefeed=false ) const;
-		void p_addAttrib( En_Attrib, std::string, std::string __file=std::string(), int __line=0 );
+		void p_addAttrib( En_Attrib, std::string, priv::SrcLocation=priv::SrcLocation());
 		std::string p_getAttribs() const;
 
 		/// Static accessor on list of opened tags
@@ -431,7 +431,7 @@ class Httag
 			static int s_nbErrors;
 			return s_nbErrors;
 		}
-		static void p_error( priv::En_ErrorType, const std::string&, std::string __file=std::string(), int __line=0 );
+		static void p_error( priv::En_ErrorType, const std::string&, priv::SrcLocation src= priv::SrcLocation() );
 
 		static priv::RunTimeOptions& p_getRunTimeOptions()
 		{
@@ -460,14 +460,13 @@ void
 Httag::p_error(
 	priv::En_ErrorType et,
 	const std::string& msg,
-	std::string        __file,
-	int                __line
+	priv::SrcLocation  src   ///< location of error, if provided
 )
 {
 	std::ostringstream oss;
 	oss << "\n";
-	if( __line )
-		oss << " - Location:\n - file=" << __file << "\n - line=" << __line << '\n';
+	if( src.second )
+		oss << " - Location:\n - file=" << src.first << "\n - line=" << src.second << '\n';
 
 	#ifndef HTTAG_SILENT_MODE
 		std::cerr << "httag: "
@@ -948,18 +947,18 @@ Httag::printOpenedTags( std::ostream& f, const char* msg )
 //-----------------------------------------------------------------------------------
 /// Open the tag (this function needs to be called ONLY for "file" object types
 /*
-The (default) arguments are there to be handled by macro HTTAG_OPENTAG(t)
+The (default) arguments are there to be handled by macro HTTAG_OPEN(t)
 */
 inline
 void
-Httag::openTag( std::string __file, int __line )
+Httag::openTag( priv::SrcLocation src )
 {
 	if( !_isFileType )
 		Httag::p_error( priv::ET_Fatal,
 			"object tag <"
 			+ getString(_tag_en)
 			+ "> is not a \"file type\" object",
-			__file, __line
+			src
 		);
 	assert( _file );
 
@@ -968,7 +967,7 @@ Httag::openTag( std::string __file, int __line )
 			"asked to open tag <"
 			+ getString(_tag_en)
 			+ "> but was already open",
-			__file, __line
+			src
 		);
 	else
 	{
@@ -983,7 +982,7 @@ Httag::openTag( std::string __file, int __line )
 					+ p_getOpenedTags().str()
 					+ "\n-because: "
 					+ getString( check.second ),
-					__file, __line
+					src
 				);
 		}
 		switch( _tag_en )
@@ -1004,16 +1003,17 @@ Httag::openTag( std::string __file, int __line )
 }
 //-----------------------------------------------------------------------------------
 /// Close the tag (this function needs to be called ONLY for "file" object types
+/// \todo maybe we should enforce the above requirement ? Check that
 inline
 void
-Httag::closeTag(bool linefeed )
+Httag::closeTag( bool linefeed )
 {
-	closeTag( std::string(), int(), linefeed );
+	closeTag( priv::SrcLocation(), linefeed );
 }
 
 inline
 void
-Httag::closeTag( std::string __file, int __line, bool linefeed )
+Httag::closeTag( priv::SrcLocation src, bool linefeed )
 {
 	if( priv::isVoidElement( _tag_en ) )
 		if( _isFileType )
@@ -1021,14 +1021,15 @@ Httag::closeTag( std::string __file, int __line, bool linefeed )
 				"asked to close tag <"
 				+ getString(_tag_en)
 				+ "> but is void-element",
-				__file, __line
+				src
 			);
 
 	if( !_tagIsOpen )
 		p_error( priv::ET_Fatal,
 			"tag <"
 			+ getString(_tag_en)
-			+ ">: asked to close but was already closed"
+			+ ">: asked to close but was already closed",
+			src
 		);
 
 	if( _isFileType )
@@ -1048,7 +1049,7 @@ Httag::closeTag( std::string __file, int __line, bool linefeed )
 					+ "> because tag <"
 					+ getString(retval.second)
 					+ "> still open",
-					__file, __line
+					src
 				);
 		}
 	}
@@ -1139,9 +1140,9 @@ If the attribute is already present, then the value will be concatenated to the 
 */
 template<>
 Httag&
-Httag::addAttrib<std::string>( En_Attrib attr, std::string value, std::string __file, int __line )
+Httag::addAttrib<std::string>( En_Attrib attr, std::string value, priv::SrcLocation src )
 {
-	p_addAttrib( attr, value, __file, __line );
+	p_addAttrib( attr, value, src );
 	return *this;
 }
 //-----------------------------------------------------------------------------------
@@ -1151,9 +1152,9 @@ If the attribute is already present, then the value will be concatenated to the 
 */
 template<>
 Httag&
-Httag::addAttrib<const char*>( En_Attrib attr, const char* value, std::string __file, int __line )
+Httag::addAttrib<const char*>( En_Attrib attr, const char* value, priv::SrcLocation src )
 {
-	p_addAttrib( attr, value, __file, __line );
+	p_addAttrib( attr, value, src );
 	return *this;
 }
 //-----------------------------------------------------------------------------------
@@ -1163,9 +1164,9 @@ If the attribute is already present, then the value will be concatenated to the 
 */
 template<typename T>
 Httag&
-Httag::addAttrib( En_Attrib attr, T value, std::string __file, int __line )
+Httag::addAttrib( En_Attrib attr, T value, priv::SrcLocation src )
 {
-	p_addAttrib( attr, std::to_string(value), __file, __line );
+	p_addAttrib( attr, std::to_string(value), src );
 	return *this;
 }
 
@@ -1181,10 +1182,10 @@ Httag::addAttrib( En_Attrib attr, priv::SrcLocation src )
 			+"' as boolean to tag <"
 			+ getString( getTag() )
 			+"> but is not boolean",
-			src.first, src.second
+			src
 		);
 	else
-		p_addAttrib( attr, std::string(), "", 0 );
+		p_addAttrib( attr, std::string(), src );
 	return *this;
 }
 
@@ -1196,7 +1197,7 @@ If the attribute is already present, then the value will be concatenated to the 
 */
 inline
 void
-Httag::p_addAttrib( En_Attrib attr, std::string value, std::string __file, int __line )
+Httag::p_addAttrib( En_Attrib attr, std::string value, priv::SrcLocation src )
 {
 	assert( attr != AT_DUMMY );
 
@@ -1208,7 +1209,7 @@ Httag::p_addAttrib( En_Attrib attr, std::string value, std::string __file, int _
 			+ "' to tag <"
 			+ getString( _tag_en )
 			+ ">, tag is already opened",
-			__file, __line
+			src
 		);
 
 	if( value.empty() && !priv::isBoolAttr(attr) ) // empty string => nothing to add
@@ -1219,7 +1220,7 @@ Httag::p_addAttrib( En_Attrib attr, std::string value, std::string __file, int _
 			+ "' to tag <"
 			+ getString( _tag_en )
 			+ ">, but string is empty",
-			__file, __line
+			src
 		);
 		return;
 	}
@@ -1232,7 +1233,7 @@ Httag::p_addAttrib( En_Attrib attr, std::string value, std::string __file, int _
 				+ "' to tag <"
 				+ getString( _tag_en )
 				+  ">: invalid",
-				__file,  __line
+				src
 			);
 
 // check for unneeded pairs attribute/value
@@ -1244,7 +1245,7 @@ Httag::p_addAttrib( En_Attrib attr, std::string value, std::string __file, int _
 			+
 			"'="
 			+ value,
-			__file, __line
+			src
 			);
 		return;
 	}

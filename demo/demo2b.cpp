@@ -51,7 +51,7 @@ int main()
 
 	Httag::setGlobalAttrib( HT_LI, AT_CLASS, "cl1" );
 	Httag li( HT_LI, AT_CLASS, "cl2" );
-	HTTAG_ADD_ATTRIB( li, AT_COLSPAN, 2 );    // same as "li.addAttrib( AT_COLSPAN, 2 );" but will show error location
+	HTTAG_ADDATTRIB( li, AT_COLSPAN, 2 );    // same as "li.addAttrib( AT_COLSPAN, 2 );" but will show error location
 	cout << li;
 
 }
