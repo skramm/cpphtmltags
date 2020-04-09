@@ -375,13 +375,14 @@ class Httag
 
 /// \name Tag content related functions
 ///@{
-		template<typename T> Httag& addContent( T content );
+		template<typename T>
+		Httag& addContent( T content, priv::SrcLocation srcloc=priv::SrcLocation() );
 
 		template<typename T>
-		Httag& setContent( T content )
+		Httag& setContent( T content, priv::SrcLocation srcloc=priv::SrcLocation() )
 		{
 			clearContent();
-			return addContent( content );
+			return addContent( content, srcloc );
 		}
 
 		Httag& clearContent()
@@ -443,8 +444,9 @@ class Httag
 		En_Httag        _tag_en;
 		std::ostream*   _file;
 		bool            _isFileType;
+		 bool           _isFlushed = false;
 		std::string     _content;
-		bool            _tagIsOpen     = false;
+		bool            _tagIsOpen = false;
 		std::map<En_Attrib,std::string> _attr_map;
 };
 
@@ -796,7 +798,7 @@ Httag::Httag(
 /// specialization for std::string
 template<>
 Httag&
-Httag::addContent<std::string>( std::string content )
+Httag::addContent<std::string>( std::string content, priv::SrcLocation srcloc )
 {
 	if( priv::isVoidElement( _tag_en ) )
 		p_error( priv::ET_NonFatal,
@@ -804,7 +806,8 @@ Httag::addContent<std::string>( std::string content )
 			+ content
 			+ "' into a void tag <"
 			+ getString( _tag_en )
-			+ ">"
+			+ ">",
+			srcloc
 		);
 	else
 		_content += content;
@@ -814,16 +817,16 @@ Httag::addContent<std::string>( std::string content )
 /// specialization for const char*
 template<>
 Httag&
-Httag::addContent<const char*>( const char* content )
+Httag::addContent<const char*>( const char* content, priv::SrcLocation srcloc )
 {
-	addContent<std::string>( std::string(content) );
+	addContent<std::string>( std::string(content), srcloc );
 	return *this;
 }
 
 /// specialization for Httag
 template<>
 Httag&
-Httag::addContent<Httag>( Httag content )
+Httag::addContent<Httag>( Httag content, priv::SrcLocation srcloc )
 {
 
 #ifndef HTTAG_NO_CHECK
@@ -837,7 +840,8 @@ Httag::addContent<Httag>( Httag content )
 			+ getString( getTag() )
 			+ ">, which is forbidden (reason: "
 			+ getString( res.second )
-			+ ")"
+			+ ")",
+			srcloc
 		);
 #endif
 	std::ostringstream oss;
@@ -849,9 +853,9 @@ Httag::addContent<Httag>( Httag content )
 /// default implementation
 template<typename T>
 Httag&
-Httag::addContent( T content )
+Httag::addContent( T content, priv::SrcLocation srcloc )
 {
-	addContent<std::string>( std::to_string(content) );
+	addContent<std::string>( std::to_string(content), srcloc );
 	return *this;
 }
 //-----------------------------------------------------------------------------------
@@ -886,7 +890,7 @@ isNotEmpty( T stuff )
 - prints content \c stuff (added to content that might have been already added)
 - close tag,
 
-Requirement on type \c T: must be streamable
+Requirement on type \c T : must be streamable
 */
 template<typename T>
 void Httag::printTag( T stuff )
@@ -897,7 +901,10 @@ void Httag::printTag( T stuff )
 	if( !_content.empty()  || priv::isNotEmpty(stuff) )
 	{
 		if( !priv::isVoidElement( _tag_en ) )
+		{
 			*_file << _content << stuff;
+			_isFlushed = true;
+		}
 		else
 			Httag::p_error( priv::ET_NonFatal,
 				"attempting to add content '"
@@ -994,6 +1001,7 @@ Httag::openTag( priv::SrcLocation src )
 		}
 
 	_tagIsOpen = true;
+	_isFlushed = false;
 
 	p_getOpenedTags().pushTag( _tag_en );
 
@@ -1034,6 +1042,12 @@ Httag::closeTag( priv::SrcLocation src, bool linefeed )
 
 	if( _isFileType )
 	{
+		if( _tagIsOpen && !_isFlushed )
+		{
+			*_file << _content;
+			_isFlushed = true;
+		}
+
 		if( _tag_en == HT_COMMENT )
 			*_file << " -->";
 		else

@@ -383,8 +383,11 @@ Macro                      | Equivalent code
 -------------------------- | --------------
 `HTTAG_OPEN( t );`      | `t.openTag();`
 `HTTAG_CLOSE( t );`     | `t.closeTag();`
-`HTTAG_ADD( t, AT_CLASS, "abc")` | `t.addAttrib( AT_CLASS, "abc" )`
+`HTTAG_ADDATTRIB( t, AT_CLASS, "abc")` | `t.addAttrib( AT_CLASS, "abc" )`
 `HTTAG_ADD( t, "text")` | `t.addContent( "text" )`
+`HTTAG_SET( t, "text")` | `t.setContent( "text" )`
+
+These macros basically wrap the corresponding code into a `try/catch` structure.
 
 
 <a name="errors"></a>

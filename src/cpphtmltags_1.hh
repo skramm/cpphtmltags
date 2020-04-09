@@ -85,7 +85,17 @@ Refs:
 	}
 
 
-/// Open tag \c t
+//-----------------------------------------------------------------------------------
+
+/**
+\defgroup macroapi Macro API
+\brief These macros can be used in place of standard API, see
+<a href="md_docs_manual.html#macro"> here</a>
+*/
+
+
+/// Open tag \c t, see \ref manual.md#macro
+/** \ingroup macroapi */
 #define HTTAG_OPEN( t ) \
 	try { \
         t.openTag( std::make_pair(__FILE__, __LINE__) ); \
@@ -96,6 +106,7 @@ Refs:
 	}
 
 /// Close tag \c t
+/** \ingroup macroapi */
 #define HTTAG_CLOSE( t ) \
 	try { \
         t.closeTag( std::make_pair(__FILE__, __LINE__) ); \
@@ -106,6 +117,7 @@ Refs:
 	}
 
 /// Add attribute
+/** \ingroup macroapi */
 #define HTTAG_ADDATTRIB( t, at, val ) \
 	try { \
 		t.addAttrib( at, val, std::make_pair(__FILE__, __LINE__) ); \
@@ -114,7 +126,9 @@ Refs:
 	{ \
 		std::cerr << "\nhttag error: (HTTAG_ADDATTRIB) " << err.what(); \
 	}
-/// Add content
+
+/// Add content \c val to the tag \c t
+/** \ingroup macroapi */
 #define HTTAG_ADD( t, val ) \
 	try { \
 		t.addContent( val, std::make_pair(__FILE__, __LINE__) ); \
@@ -122,6 +136,17 @@ Refs:
 	catch( const std::runtime_error& err ) \
 	{ \
 		std::cerr << "\nhttag error: (HTTAG_ADD) " << err.what(); \
+	}
+
+/// Set content \c val to the tag \c t (erases previous content)
+/** \ingroup macroapi */
+#define HTTAG_SET( t, val ) \
+	try { \
+		t.setContent( val, std::make_pair(__FILE__, __LINE__) ); \
+	} \
+	catch( const std::runtime_error& err ) \
+	{ \
+		std::cerr << "\nhttag error: (HTTAG_SET) " << err.what(); \
 	}
 
 //############################
